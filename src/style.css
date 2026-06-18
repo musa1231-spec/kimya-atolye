@@ -291,6 +291,32 @@ tr:hover td{background:rgba(0,0,0,.04)}
 .sb-g-sis .ni{color:#263238;font-weight:600}
 .sb-g-sis .ni:hover{background:rgba(55,71,79,.12);color:#37474F}
 .sb-g-sis .ni.active{background:#455A64;color:#fff;border-left:3px solid #37474F}
+/* ── ÜRETİM TAKVİMİ ── */
+.tv-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}
+.tv-wd{text-align:center;font-size:.66rem;font-weight:800;color:var(--mut);text-transform:uppercase;padding:4px 0}
+.tv-bos{min-height:64px}
+.tv-gun{min-height:64px;border:1px solid var(--bord);border-radius:8px;padding:5px;background:var(--surf);cursor:pointer;transition:all .12s;display:flex;flex-direction:column;gap:3px}
+.tv-gun:hover{border-color:var(--acc2);background:rgba(33,150,243,.05)}
+.tv-gun.bugun{border-color:var(--acc);box-shadow:inset 0 0 0 1px var(--acc)}
+.tv-gun.secili{background:rgba(33,150,243,.12);border-color:var(--acc)}
+.tv-no{font-size:.78rem;font-weight:800;color:var(--txt)}
+.tv-rozet{font-size:.6rem;font-weight:700;border-radius:5px;padding:2px 4px;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tv-u{background:rgba(0,200,83,.14);color:#1B5E20}
+.tv-s{background:rgba(230,74,25,.14);color:#BF360C}
+.tv-detay-bas{font-weight:800;font-size:.85rem;margin-bottom:8px}
+.tv-sec-bas{font-size:.7rem;font-weight:800;color:var(--mut);text-transform:uppercase;margin:10px 0 5px}
+.tv-row{padding:5px 0;border-bottom:1px solid var(--bord);font-size:.78rem;display:flex;flex-wrap:wrap;gap:5px;align-items:center}
+/* ── BECERİ KARNESİ ── */
+.kr-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:11px}
+.kr-card{border:1px solid var(--bord);border-radius:11px;padding:13px;background:var(--surf)}
+.kr-card.pasif{opacity:.6}
+.kr-hd{display:flex;align-items:center;gap:9px;margin-bottom:8px}
+.kr-av{width:36px;height:36px;border-radius:50%;background:#B71C1C;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;flex-shrink:0}
+.kr-ad{display:flex;flex-direction:column;line-height:1.25}
+.kr-sn{font-size:.62rem;color:var(--mut)}
+.kr-ist{font-size:.74rem;color:var(--dim);font-weight:600;margin-bottom:7px}
+.kr-rz{display:flex;flex-wrap:wrap;gap:4px;min-height:22px}
+.kr-rozet{background:#e8f0fe;border:1px solid var(--acc);border-radius:14px;padding:2px 8px;font-size:.64rem;font-weight:700;color:var(--acc)}
 /* ── ÜRETİM ASİSTANI ── */
 .as-bar{height:9px;background:var(--bord);border-radius:6px;overflow:hidden}
 .as-bar-f{height:100%;background:linear-gradient(90deg,var(--acc),var(--acc3));border-radius:6px;transition:width .3s}

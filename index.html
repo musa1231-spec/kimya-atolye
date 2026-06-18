@@ -54,6 +54,7 @@
         <div class="ni active" onclick="go('dashboard',this)"><span class="ic">📊</span>Gösterge</div>
         <div class="ni" onclick="go('uretim',this)"><span class="ic">🏭</span>Üretim Günleri</div>
         <div class="ni" onclick="go('asistan',this)"><span class="ic">🧑‍🔬</span>Üretim Asistanı</div>
+        <div class="ni" onclick="go('takvim',this)"><span class="ic">📅</span>Üretim Takvimi</div>
         <div class="ni" onclick="go('aylik',this)"><span class="ic">📈</span>Aylık Rapor</div>
         <div class="ni" onclick="go('rapor',this)"><span class="ic">📑</span>Yıllık Rapor</div>
       </div>
@@ -99,6 +100,7 @@
       <div class="tb-menu">
         <div class="ni" onclick="go('ogretmenler',this)"><span class="ic">👨‍🏫</span>Öğretmenler</div>
         <div class="ni" onclick="go('ogrenciler',this)"><span class="ic">🎓</span>Öğrenciler</div>
+        <div class="ni" onclick="go('karne',this)"><span class="ic">🏅</span>Beceri Karnesi</div>
         <div class="ni" onclick="openModal('m-yardim')" style="border:1px dashed rgba(183,28,28,.35);background:rgba(183,28,28,.06)"><span class="ic">📚</span>Üretim Rehberi</div>
       </div>
     </div>
@@ -171,6 +173,30 @@
       <div class="tw"><table><thead><tr><th>Ürün</th><th class="tr">kg</th></tr></thead><tbody id="ay-ur"></tbody></table></div>
     </div>
   </div>
+</div>
+
+<!-- ÜRETİM TAKVİMİ -->
+<div id="pg-takvim" class="pg">
+  <div class="ph"><div><div class="pt">📅 Üretim Takvimi</div><div class="ps">Üretim günleri ve teslim edilecek siparişler</div></div>
+    <div class="bgrp">
+      <button class="btn bg" onclick="tvPrev()">◀</button>
+      <span class="ct" id="tv-baslik" style="min-width:130px;text-align:center"></span>
+      <button class="btn bg" onclick="tvNext()">▶</button>
+      <button class="btn bs" onclick="tvBugun()">Bugün</button>
+    </div>
+  </div>
+  <div class="tv-cal"><div class="tv-grid" id="tv-grid"></div></div>
+  <div class="card" style="margin-top:12px"><div id="tv-detay"></div></div>
+</div>
+
+<!-- BECERİ KARNESİ -->
+<div id="pg-karne" class="pg">
+  <div class="ph"><div><div class="pt">🏅 Öğrenci Beceri Karnesi</div><div class="ps">Üretim katkısı, rozetler ve yazdırılabilir beceri belgesi</div></div></div>
+  <div class="fx" style="margin-bottom:11px;gap:10px;flex-wrap:wrap">
+    <input type="text" id="kr-ara" placeholder="🔍 Öğrenci ara…" style="margin:0;width:auto" oninput="rKarne()" autocomplete="off">
+    <span class="tm" id="kr-ozet"></span>
+  </div>
+  <div id="kr-list"></div>
 </div>
 
 <!-- ÜRETİM ASİSTANI -->
