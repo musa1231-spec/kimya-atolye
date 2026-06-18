@@ -19,7 +19,8 @@ export default defineConfig({
         background_color: "#f0f6ff",
         display: "standalone",
         orientation: "any",
-        start_url: "/",
+        scope: process.env.GITHUB_ACTIONS ? "/kimya-atolye/" : "/",
+        start_url: process.env.GITHUB_ACTIONS ? "/kimya-atolye/" : "/",
         icons: [
           { src: "pwa-icon.svg", sizes: "any", type: "image/svg+xml", purpose: "any" },
           { src: "pwa-icon.svg", sizes: "512x512", type: "image/svg+xml", purpose: "maskable" },
