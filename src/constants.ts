@@ -30,6 +30,13 @@ export const URUN_RENK: Record<string, string> = {
   "cam-silici": "Mavi",
 };
 
+// ── Ürünlerin standart esansı (esans id) — asistan + üretim ───
+export const URUN_ESANS: Record<string, string> = {
+  "sivi-sabun": "doven",
+  "genel-temiz": "mislavand",
+  "bulasik": "limon",
+};
+
 // ── Ham madde fiyatları (₺/kg) ────────────────────────────────
 export const HM_FIYAT: Record<string, number> = {
   Su: 0.03, SLES: 115, Betain: 110, "Kokamid DEA": 90, Koruyucu: 120, Esans: 400,

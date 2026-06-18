@@ -99,14 +99,14 @@ export function prepUretimGun(): void {
 
 // Üretim Günü modalını verilen kalemlerle önceden doldurup açar
 // (Plan → Üretim, Sipariş → Üretim bağlantıları için).
-export function acUretimGunWithLines(lines: { urunId: string; kg: number; ambLt?: number }[]): void {
+export function acUretimGunWithLines(lines: { urunId: string; kg: number; ambLt?: number; esansId?: string }[]): void {
   prepUretimBase();
-  if (lines.length) lines.forEach((l) => addUgK(l.urunId, l.kg, l.ambLt ?? 5));
+  if (lines.length) lines.forEach((l) => addUgK(l.urunId, l.kg, l.ambLt ?? 5, l.esansId ?? ""));
   else addUgK();
   $("m-uretim-gun").classList.add("open");
 }
 
-export function addUgK(uid = "", kg = 900, ambLt = 5): void {
+export function addUgK(uid = "", kg = 900, ambLt = 5, esansId = ""): void {
   const n = ugN++;
   const div = document.createElement("div");
   div.id = `ugk-${n}`;
@@ -129,6 +129,7 @@ export function addUgK(uid = "", kg = 900, ambLt = 5): void {
     <div class="hesap-box" id="ugkh-${n}">—</div>`;
   $("ug-kalemler").appendChild(div);
   ugRefresh(div.querySelector(".ugku") as HTMLSelectElement, n);
+  if (esansId) { const e = $(`ugke-${n}`) as HTMLSelectElement; if (e) e.value = esansId; }
   ugCalc(n);
 }
 

@@ -1,8 +1,8 @@
-import { URUNLER, HM_TEHLIKE, URUN_RENK } from "../constants";
+import { URUNLER, HM_TEHLIKE, URUN_RENK, URUN_ESANS } from "../constants";
 import { prosesUret, HM_ROL, SAF_SU } from "../proses";
 import type { ProsesAdim } from "../proses";
 import { acUretimGunWithLines } from "./uretim";
-import { $, urunSelect, val, numVal, setHTML, setText, setVal, showToast } from "../helpers";
+import { $, urunSelect, val, numVal, esansAd, setHTML, setText, setVal, showToast } from "../helpers";
 import type { Urun } from "../types";
 
 type Adim = ProsesAdim & { kkd?: string[]; uyarilar?: string[] };
@@ -82,9 +82,13 @@ function goster(): void {
       + (a.uyarilar && a.uyarilar.length ? `<div class="as-uyari"><b>⚠️ Bu üründeki tehlikeler:</b><ul>${a.uyarilar.map((u) => `<li>${u}</li>`).join("")}</ul></div>` : "");
   } else if (a.tip === "ekle" && a.ekle) {
     const renk = urun ? URUN_RENK[urun.id] : "";
+    const stEsans = urun && URUN_ESANS[urun.id] ? esansAd(URUN_ESANS[urun.id]) : "";
     govde = `<div class="as-malz">${a.ekle.map((ad) => {
-      const adGoster = ad === "Boya" && renk ? `Boya (${renk})` : ad;
-      const rol = ad === "Boya" && renk ? `🎨 ${renk} renk verir — az miktar, tona göre ayarlayın` : HM_ROL[ad];
+      const esansMi = ad === "Esans" || ad === "Limon Esansı";
+      const adGoster = ad === "Boya" && renk ? `Boya (${renk})`
+        : (esansMi && stEsans ? `Esans (${stEsans})` : ad);
+      const rol = ad === "Boya" && renk ? `🎨 ${renk} renk verir — az miktar, tona göre ayarlayın`
+        : (esansMi && stEsans ? `🌸 Standart esans: ${stEsans} — koku verir` : HM_ROL[ad]);
       return `
       <div class="as-malz-r">
         <span class="as-malz-m">${miktarYaz(miktarAd(ad))}</span>
@@ -187,7 +191,7 @@ function bip(): void {
 // ── Bitir → mevcut üretim-kaydet ekranını ön-dolu aç ──────────
 export function asBitir(): void {
   durdurTimer();
-  if (urun) acUretimGunWithLines([{ urunId: urun.id, kg: hedefKg, ambLt: 5 }]);
+  if (urun) acUretimGunWithLines([{ urunId: urun.id, kg: hedefKg, ambLt: 5, esansId: URUN_ESANS[urun.id] || "" }]);
   showToast("Üretim kaydına aktarıldı — öğretmen/öğrenci seçip kaydet");
   rAsistan();
 }
