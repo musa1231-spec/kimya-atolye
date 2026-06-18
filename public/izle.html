@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ürün İzlenebilirlik — Şehit Ahmet Benli MTAL</title>
+<style>
+  :root{--acc:#1565C0;--bg:#eef3fb}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);color:#16243d;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:16px}
+  .card{background:#fff;border-radius:18px;box-shadow:0 12px 40px rgba(0,0,0,.12);max-width:440px;width:100%;overflow:hidden}
+  .hd{background:linear-gradient(135deg,#1565C0,#1976D2);color:#fff;padding:20px 22px}
+  .hd .lbl{font-size:11px;letter-spacing:1px;text-transform:uppercase;opacity:.85}
+  .hd h1{font-size:22px;margin-top:4px}
+  .hd .kat{font-size:13px;opacity:.9;margin-top:2px}
+  .bd{padding:18px 22px}
+  .row{display:flex;justify-content:space-between;gap:10px;padding:9px 0;border-bottom:1px solid #eef0f4;font-size:14px}
+  .row:last-of-type{border-bottom:none}
+  .row b{color:#5a6f99;font-weight:600}
+  .row .v{font-weight:700;text-align:right}
+  .pn{font-family:'Courier New',monospace;letter-spacing:1px}
+  .skt-ok{color:#1B5E20}.skt-no{color:#C62828}
+  .ic{font-size:13px;color:#444;line-height:1.6;margin-top:12px;background:#f6f8fc;border-radius:10px;padding:11px 13px}
+  .uy{margin-top:11px;background:#fff3e0;border:1px solid #ffcc80;border-radius:10px;padding:11px 13px;font-size:12.5px;color:#9a5800;line-height:1.55}
+  .uy ul{margin:5px 0 0 18px}
+  .ft{padding:14px 22px;background:#f6f8fc;font-size:12px;color:#5a6f99;line-height:1.5;text-align:center}
+  .badge{display:inline-block;background:#e7f7ed;color:#1B5E20;border:1px solid #9bdcb0;border-radius:20px;padding:4px 12px;font-size:12px;font-weight:700;margin-top:10px}
+  .err{text-align:center;color:#777;padding:40px 20px}
+</style>
+</head>
+<body>
+<div class="card" id="card"><div class="err">Yükleniyor…</div></div>
+<script>
+  function fmt(d){ if(!d) return "—"; var p=String(d).split("-"); return p.length===3? p[2]+"."+p[1]+"."+p[0] : d; }
+  function esc(s){ return String(s==null?"":s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];}); }
+  try {
+    var raw = location.hash.slice(1);
+    if(!raw) throw 0;
+    var d = JSON.parse(decodeURIComponent(escape(atob(decodeURIComponent(raw)))));
+    var bugun = new Date().toISOString().slice(0,10);
+    var gecti = d.s && d.s < bugun;
+    var uyari = Array.isArray(d.u) ? d.u : (d.u? [d.u] : []);
+    var ureten = Array.isArray(d.ur) ? d.ur : (d.ur? [d.ur] : []);
+    document.getElementById("card").innerHTML =
+      '<div class="hd"><div class="lbl">✓ Ürün Doğrulama</div><h1>'+esc(d.a)+'</h1>'+
+        (d.k? '<div class="kat">'+esc(d.k)+'</div>':'')+'</div>'+
+      '<div class="bd">'+
+        '<div class="row"><b>Parti No</b><span class="v pn">'+esc(d.p)+'</span></div>'+
+        '<div class="row"><b>Üretim Tarihi</b><span class="v">'+fmt(d.t)+'</span></div>'+
+        '<div class="row"><b>Son Kullanma</b><span class="v '+(gecti?'skt-no':'skt-ok')+'">'+fmt(d.s)+(gecti?' ⚠ geçti':'')+'</span></div>'+
+        (d.m? '<div class="row"><b>Net Miktar</b><span class="v">'+esc(d.m)+'</span></div>':'')+
+        (ureten.length? '<div class="row"><b>Üreten</b><span class="v">'+esc(ureten.join(", "))+'</span></div>':'')+
+        (d.i? '<div class="ic"><b>İçindekiler:</b> '+esc(d.i)+'</div>':'')+
+        (uyari.length? '<div class="uy">⚠️ <b>Uyarılar:</b><ul>'+uyari.map(function(u){return "<li>"+esc(u)+"</li>";}).join("")+'<li>Çocuklardan uzak tutun. Gıda değildir.</li></ul></div>':'')+
+        (!gecti? '<div style="text-align:center"><span class="badge">✓ Geçerli Ürün</span></div>':'')+
+      '</div>'+
+      '<div class="ft"><b>'+esc(d.atl||"Şehit Ahmet Benli MTAL — Kimya Üretim Atölyesi")+'</b>'+
+        (d.adr? '<br>'+esc(d.adr):'')+(d.tel? '<br>'+esc(d.tel):'')+'</div>';
+  } catch(e) {
+    document.getElementById("card").innerHTML =
+      '<div class="err"><h2 style="color:#1565C0;margin-bottom:8px">Geçersiz QR</h2>'+
+      'Bu sayfa bir ürün etiketindeki QR kodu okutularak açılır.<br><br>'+
+      '<b>Şehit Ahmet Benli MTAL<br>Kimya Üretim Atölyesi</b></div>';
+  }
+</script>
+</body>
+</html>

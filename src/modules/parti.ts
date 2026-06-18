@@ -1,3 +1,4 @@
+import QRCode from "qrcode";
 import { store } from "../state";
 import { audit } from "../audit";
 import { URUNLER, RAF_OMRU, HM_TEHLIKE, ATOLYE_BILGI } from "../constants";
@@ -132,8 +133,15 @@ export function rParti(): void {
   }).join("")}</tbody></table></div>`);
 }
 
-// ── Yazdırılabilir ürün etiketi ───────────────────────────────
-export function etiketParti(id: number): void {
+// İzlenebilirlik verisini herkese açık izle.html bağlantısına kodla
+function izleUrl(payload: Record<string, unknown>): string {
+  const json = JSON.stringify(payload);
+  const enc = encodeURIComponent(btoa(unescape(encodeURIComponent(json))));
+  return `${location.origin}${import.meta.env.BASE_URL}izle.html#${enc}`;
+}
+
+// ── Yazdırılabilir ürün etiketi (QR'lı) ───────────────────────
+export async function etiketParti(id: number): Promise<void> {
   const p = store.partiler.find((x) => x.id === id);
   if (!p) return;
   const urun = URUNLER.find((u) => u.id === p.urunId);
@@ -142,8 +150,21 @@ export function etiketParti(id: number): void {
     ? [...new Set(urun.ings.map(([ad]) => HM_TEHLIKE[ad]).filter(Boolean))]
     : [];
   const ureten = [...p.ogretmenler.map((i) => ogrAd(i)), ...p.ogrenciler.map((i) => ogcAd(i))].filter(Boolean);
+
   const w = window.open("", "_blank");
   if (!w) return;
+  w.document.write(`<html><head><meta charset="utf-8"><title>Etiket ${p.partiNo}</title></head><body style="font-family:Arial;text-align:center;padding:40px;color:#666">QR hazırlanıyor…</body></html>`);
+
+  // QR: izle.html bağlantısı (veri QR'ın içinde — giriş/internet gerektirmez)
+  const url = izleUrl({
+    a: urun?.ad || urunAd(p.urunId), k: urun?.kat || "", p: p.partiNo, t: p.tarih, s: p.skt,
+    m: p.ambLt ? p.ambLt + " L" : p.kg + " kg", i: icindekiler ? "Su, " + icindekiler : "",
+    u: uyarilar, ur: ureten, atl: ATOLYE_BILGI.ad, adr: ATOLYE_BILGI.adres, tel: ATOLYE_BILGI.tel,
+  });
+  let qr = "";
+  try { qr = await QRCode.toDataURL(url, { margin: 1, width: 220, errorCorrectionLevel: "M" }); } catch { /* QR olmadan da bas */ }
+
+  w.document.open();
   w.document.write(`<html><head><title>Etiket ${p.partiNo}</title><meta charset="utf-8"><style>
     body{font-family:Arial,sans-serif;margin:0;padding:18px;background:#eef2f7}
     .lbl{width:340px;border:2px solid #1565C0;border-radius:12px;padding:16px 18px;background:#fff;margin:auto}
@@ -155,6 +176,9 @@ export function etiketParti(id: number): void {
     .uy{margin-top:9px;background:#fff3e0;border:1px solid #ffcc80;border-radius:7px;padding:7px 9px;font-size:10.5px;color:#a15c00;line-height:1.45}
     .pn{font-family:'Courier New',monospace;font-weight:bold;letter-spacing:1px;font-size:15px}
     .ft{margin-top:11px;font-size:9.5px;color:#666;text-align:center;line-height:1.4}
+    .qr{margin-top:11px;padding-top:11px;border-top:1px dashed #ddd;text-align:center}
+    .qr img{width:120px;height:120px}
+    .qr .q-t{font-size:9.5px;color:#666;margin-top:3px}
     @media print{body{background:#fff}}
   </style></head><body><div class="lbl">
     <h2>${urun?.ad || urunAd(p.urunId)}</h2>
@@ -166,6 +190,7 @@ export function etiketParti(id: number): void {
     ${icindekiler ? `<div class="ic"><b>İçindekiler:</b> Su, ${icindekiler}.</div>` : ""}
     ${uyarilar.length ? `<div class="uy">⚠️ <b>Uyarılar:</b> ${uyarilar.join(" ")} Çocuklardan uzak tutun. Gıda değildir.</div>` : `<div class="uy">⚠️ Çocuklardan uzak tutun. Gıda değildir.</div>`}
     ${ureten.length ? `<div class="ft">Üreten: ${ureten.join(", ")}</div>` : ""}
+    ${qr ? `<div class="qr"><img src="${qr}" alt="QR"><div class="q-t">📱 Okutarak ürünü doğrulayın</div></div>` : ""}
     <div class="ft">${ATOLYE_BILGI.adres}<br>${ATOLYE_BILGI.tel}</div>
   </div><script>window.onload=()=>window.print()</script></body></html>`);
   w.document.close();

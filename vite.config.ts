@@ -30,7 +30,7 @@ export default defineConfig({
         globPatterns: ["**/*.{js,css,html,svg,woff2}"],
         // Supabase API çağrıları her zaman ağdan (veri güncel kalsın);
         // uygulama kabuğu çevrimdışı açılır.
-        navigateFallbackDenylist: [/^\/rest\//, /^\/auth\//, /^\/storage\//],
+        navigateFallbackDenylist: [/^\/rest\//, /^\/auth\//, /^\/storage\//, /izle\.html/],
         runtimeCaching: [
           {
             urlPattern: ({ url }) => url.origin === "https://fonts.googleapis.com" || url.origin === "https://fonts.gstatic.com",
