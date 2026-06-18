@@ -1,0 +1,9 @@
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+# SPA: dosyası olmayan yolları index.html'e yönlendir (statik dosyalar önce gelir)
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

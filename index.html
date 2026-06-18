@@ -1,0 +1,1419 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
+<title>Kimya Üretim Atölyesi Yönetim Programı</title>
+<meta name="theme-color" content="#1565C0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Kimya Atölye">
+<link rel="apple-touch-icon" href="/pwa-icon.svg">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;700&family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<!-- ══ YÜKLENİYOR ══ -->
+<div id="yukleniyor">
+  <div class="yk-logo">KİMYA ÜRETİM ATÖLYESİ<br>YÖNETİM PROGRAMI</div>
+  <div class="yk-sub">Veriler yükleniyor…</div>
+  <div class="yk-spin"></div>
+</div>
+
+<!-- ══ GİRİŞ EKRANI ══ -->
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-logo">
+      <div class="ln" style="font-size:1rem;line-height:1.35">KİMYA ÜRETİM ATÖLYESİ<br>YÖNETİM PROGRAMI</div>
+      <div class="ls">Üretim & Maliyet Takip Sistemi</div>
+    </div>
+    <div class="login-error" id="login-error">Kullanıcı adı veya şifre hatalı!</div>
+    <div class="fg"><label>Öğretmen Seç</label><select id="login-user"></select></div>
+    <div class="fg"><label>Şifre</label><input type="password" id="login-pass" onkeydown="if(event.key==='Enter')doLogin()"></div>
+    <button class="btn bp" style="width:100%;justify-content:center;margin-top:4px" onclick="doLogin()">Giriş Yap</button>
+  </div>
+</div>
+
+<!-- ══ MOBİL HEADER ══ -->
+<div id="mob-header">
+  <button id="mob-menu-btn" onclick="toggleSidebar()">☰</button>
+  <div id="mob-title">KİMYA ÜRETİM ATÖLYESİ<br>YÖNETİM PROGRAMI</div>
+  <button onclick="openArama()" title="Ara" style="background:transparent;border:none;color:#fff;font-size:1.15rem;cursor:pointer;padding:4px 6px;flex-shrink:0">🔍</button>
+  <button id="mob-bell" onclick="openBildirim()" title="Bildirimler" style="background:transparent;border:none;color:#fff;font-size:1.2rem;cursor:pointer;position:relative;padding:4px 6px;flex-shrink:0">🔔<span id="mob-bell-badge" class="bell-badge" style="display:none">0</span></button>
+</div>
+<div id="sb-overlay" onclick="closeSidebar()"></div>
+
+<!-- ══ ANA UYGULAMA ══ -->
+<div id="app">
+<div class="sb">
+  <div class="sb-logo"><div class="n">KİMYA ÜRETİM ATÖLYESİ<br>YÖNETİM PROGRAMI</div><div class="s">Üretim & Maliyet Takip Sistemi</div></div>
+  <div class="sb-user">
+    <div class="ua" id="sb-avatar">—</div>
+    <div><div class="un" id="sb-name">—</div><div class="ut">Giriş yapıldı</div></div>
+    <button class="logout-btn" onclick="openArama()" title="Ara (Ctrl+K)" style="font-size:.95rem;color:var(--acc)">🔍</button>
+    <button class="logout-btn" onclick="openBildirim()" title="Bildirimler" style="position:relative;font-size:.95rem;color:var(--acc)">🔔<span id="bell-badge" class="bell-badge" style="display:none">0</span></button>
+    <button class="logout-btn" onclick="doLogout()" title="Çıkış">✕</button>
+  </div>
+  <div class="sb-group sb-g-genel">
+    <div class="sb-sec">Genel</div>
+    <div class="ni active" onclick="go('dashboard',this)"><span class="ic">📊</span>Gösterge</div>
+    <div class="ni" onclick="go('uretim',this)"><span class="ic">🏭</span>Üretim Günleri</div>
+    <div class="ni" onclick="go('aylik',this)"><span class="ic">📈</span>Aylık Rapor</div>
+  </div>
+  <div class="sb-group sb-g-form">
+    <div class="sb-sec">Formülasyon & Maliyet</div>
+    <div class="ni" onclick="go('formulasyon',this)"><span class="ic">⚗️</span>Formülasyon</div>
+    <div class="ni" onclick="go('maliyet',this)"><span class="ic">💰</span>Maliyet Analizi</div>
+    <div class="ni" onclick="go('fiyat-liste',this)"><span class="ic">🏷️</span>Fiyat Listesi</div>
+    <div class="ni" onclick="go('plan',this)"><span class="ic">🧮</span>Üretim Planı</div>
+  </div>
+  <div class="sb-group sb-g-sip">
+    <div class="sb-sec">Siparişler</div>
+    <div class="ni" onclick="go('siparisler',this)"><span class="ic">📋</span>Siparişler <span class="nb" id="bb"></span></div>
+    <div class="ni" onclick="go('sevkiyat',this)"><span class="ic">🚚</span>Sevkiyat</div>
+    <div class="ni" onclick="go('irsaliye',this)"><span class="ic">🧾</span>İrsaliye</div>
+    <div class="ni" onclick="go('musteriler',this)"><span class="ic">🏥</span>Müşteriler</div>
+  </div>
+  <div class="sb-group sb-g-stok">
+    <div class="sb-sec">Stok</div>
+    <div class="ni" onclick="go('urun-stok',this)"><span class="ic">🧴</span>Ürün Stoku</div>
+    <div class="ni" onclick="go('bidon-stok',this)"><span class="ic">📦</span>Bidon Stoku</div>
+    <div class="ni" onclick="go('koli-stok',this)"><span class="ic">📫</span>Karton Stoku</div>
+    <div class="ni" onclick="go('hm-stok',this)"><span class="ic">🧪</span>Ham Madde</div>
+    <div class="ni" onclick="go('esans-stok',this)"><span class="ic">🌸</span>Esans Stoku</div>
+  </div>
+  <div class="sb-group sb-g-pers">
+    <div class="sb-sec">Personel</div>
+    <div class="ni" onclick="go('ogretmenler',this)"><span class="ic">👨‍🏫</span>Öğretmenler</div>
+    <div class="ni" onclick="go('ogrenciler',this)"><span class="ic">🎓</span>Öğrenciler</div>
+    <div class="ni" onclick="openModal('m-yardim')" style="margin-top:4px;border:1px dashed rgba(183,28,28,.35);background:rgba(183,28,28,.06)"><span class="ic">📚</span>Üretim Rehberi</div>
+  </div>
+  <div class="sb-group sb-g-sis">
+    <div class="sb-sec">Sistem</div>
+    <div class="ni" onclick="go('audit',this)"><span class="ic">🔍</span>Denetim Kaydı</div>
+    <div class="ni" onclick="go('yedek',this)"><span class="ic">💾</span>Yedekleme</div>
+  </div>
+</div>
+
+<div class="main">
+
+<!-- DASHBOARD -->
+<div id="pg-dashboard" class="pg active">
+  <div class="ph"><div><div class="pt">Gösterge Paneli</div><div class="ps" id="d-tarih"></div></div>
+    <div class="bgrp">
+      <button class="btn bp" onclick="openModal('m-uretim-gun')">+ Üretim Günü</button>
+      <button class="btn bs" onclick="openModal('m-siparis')">+ Sipariş</button>
+    </div>
+  </div>
+  <div class="sg" id="d-stats"></div>
+  <div class="g2">
+    <div class="card"><div class="ch"><span class="ct">Aylık Üretim</span><span class="ba bgr" id="d-grafik-yil"></span></div><div id="d-grafik-uretim"></div></div>
+    <div class="card"><div class="ch"><span class="ct">Ürün Dağılımı</span></div><div id="d-grafik-urun"></div></div>
+  </div>
+  <div class="g2">
+    <div class="card"><div class="ch"><span class="ct">Son Siparişler</span></div><div id="d-sip"></div></div>
+    <div class="card"><div class="ch"><span class="ct">Stok Uyarıları</span></div><div id="d-uyari"></div></div>
+  </div>
+  <div class="card"><div class="ch"><span class="ct">Bu Hafta Üretim</span></div><div id="d-hafta"></div></div>
+</div>
+
+<!-- ÜRETİM -->
+<div id="pg-uretim" class="pg">
+  <div class="ph"><div><div class="pt">Üretim Günleri</div></div>
+    <div class="bgrp">
+      <button class="btn bs" onclick="exportUretim()">📊 Excel</button>
+      <button class="btn bp" onclick="openModal('m-uretim-gun')">+ Yeni Üretim Günü</button>
+    </div>
+  </div>
+  <div class="fx" style="margin-bottom:11px;gap:10px">
+    <input type="month" id="uf-ay" style="margin:0;width:auto" onchange="rUretim()">
+    <span class="tm" id="uf-top"></span>
+  </div>
+  <div id="uretim-list"></div>
+</div>
+
+<!-- AYLIK -->
+<div id="pg-aylik" class="pg">
+  <div class="ph"><div class="pt">Aylık Üretim Raporu</div>
+    <div class="bgrp">
+      <input type="number" id="ay-yil" style="width:90px;margin:0" value="2025" onchange="rAylik()">
+      <button class="btn bs" onclick="exportAylik()">📊 Excel</button>
+    </div>
+  </div>
+  <div class="g2">
+    <div class="card"><div class="ch"><span class="ct">Aylık Özet</span></div>
+      <div class="tw"><table><thead><tr><th>Ay</th><th class="tr">kg</th><th class="tr">Gün</th><th class="tr">Çeşit</th></tr></thead><tbody id="ay-tb"></tbody></table></div>
+    </div>
+    <div class="card"><div class="ch"><span class="ct">Ürün Bazlı</span></div>
+      <div class="tw"><table><thead><tr><th>Ürün</th><th class="tr">kg</th></tr></thead><tbody id="ay-ur"></tbody></table></div>
+    </div>
+  </div>
+</div>
+
+<!-- FORMÜLASYON -->
+<div id="pg-formulasyon" class="pg">
+  <div class="ph"><div><div class="pt">Formülasyonlar</div><div class="ps">Ham madde oranları ve bileşenler</div></div></div>
+  <div class="ftab">
+    <button class="ftb active" onclick="fTab('form-liste',this)">Tüm Formülasyonlar</button>
+    <button class="ftb" onclick="fTab('form-detay',this)">Bileşen Detayı</button>
+  </div>
+  <div id="form-liste" class="fsec active">
+    <div class="tw"><table><thead><tr><th>Ürün</th><th>Kategori</th><th class="tr">Kazan Miktarı (kg)</th><th class="tr">Yoğunluk</th><th>Temel Bileşenler</th></tr></thead><tbody id="fl-tb"></tbody></table></div>
+  </div>
+  <div id="form-detay" class="fsec">
+    <div style="display:flex;align-items:flex-end;gap:14px;margin-bottom:12px;flex-wrap:wrap">
+      <div class="fg" style="margin:0"><label>Ürün Seç</label><select id="fd-urun" onchange="rFormDetay()" style="min-width:260px"></select></div>
+      <div class="fg" style="margin:0"><label>Kazan Miktarı (kg)</label><input type="number" id="fd-kazan" value="900" min="1" oninput="rFormDetayHesap()" style="width:130px"></div>
+      <div id="fd-kazan-info" style="font-size:.73rem;color:var(--mut);padding-bottom:9px"></div>
+    </div>
+    <div id="fd-icerik"></div>
+  </div>
+</div>
+
+<!-- MALİYET ANALİZİ -->
+<div id="pg-maliyet" class="pg">
+  <div class="ph"><div><div class="pt">Maliyet Analizi</div><div class="ps">Dolu ambalaj maliyeti — ham madde + bidon + koli + nakliye</div></div></div>
+  <div class="card" style="margin-bottom:14px">
+    <div class="ch"><span class="ct">Ambalaj & Nakliye Ayarları</span></div>
+    <div class="g4">
+      <div class="fg" style="margin:0"><label>5L Bidon (₺)</label><input type="number" id="mp5" value="55" min="1" oninput="rMaliyet()"></div>
+      <div class="fg" style="margin:0"><label>20L Bidon (₺)</label><input type="number" id="mp20" value="160" min="1" oninput="rMaliyet()"></div>
+      <div class="fg" style="margin:0"><label>1L Bidon (₺)</label><input type="number" id="mp1" value="18" min="1" oninput="rMaliyet()"></div>
+      <div class="fg" style="margin:0"><label>Koli 4×5L (₺)</label><input type="number" id="mpk" value="28" min="1" oninput="rMaliyet()"></div>
+    </div>
+    <div class="g2" style="margin-top:10px">
+      <div class="fg" style="margin:0"><label>Nakliye Tipi</label>
+        <select id="mnak-tip" onchange="rMaliyet()"><option value="perset">Sefer başına (₺)</option><option value="perkg">Kg başına (₺/kg)</option><option value="yok">Nakliye yok</option></select>
+      </div>
+      <div class="fg" style="margin:0"><label>Nakliye Ücreti</label><input type="number" id="mnak-tut" value="3500" min="0" oninput="rMaliyet()"></div>
+    </div>
+    <div class="fg" style="margin-top:10px;margin-bottom:0"><label>Kazan Miktarı (kg)</label><input type="number" id="mbatch" value="900" min="1" oninput="rMaliyet()" style="max-width:150px"></div>
+  </div>
+  <div id="maliyet-kartlar"></div>
+</div>
+
+<!-- FİYAT LİSTESİ -->
+<div id="pg-fiyat-liste" class="pg">
+  <div class="ph"><div><div class="pt">Fiyat Listesi</div><div class="ps">Satış fiyatları yalnızca komisyon kararı (resmî belge) yüklenerek güncellenir</div></div>
+    <div class="bgrp">
+      <button class="btn bp" onclick="openModal('m-fiyat-yukle')">📄 Yeni Fiyat Listesi Yükle</button>
+      <button class="btn bw" onclick="paylasFiyatListesi()">📲 Paylaş</button>
+      <button class="btn bg" onclick="yazdirFiyatListesi()">🖨 Yazdır</button>
+      <button class="btn bs" onclick="exportFiyatListesi()">📊 Excel</button>
+    </div>
+  </div>
+  <div id="fl-belge"></div>
+  <div class="tw"><table><thead><tr><th>Ürün</th><th class="tr">Maliyet 5L</th><th class="tr">Satış 5L</th><th class="tr">Kâr 5L</th><th class="tr">Maliyet 20L</th><th class="tr">Satış 20L</th><th class="tr">Kâr 20L</th></tr></thead><tbody id="fl-fiyat-tb"></tbody></table></div>
+  <div class="card mt12"><div class="ch"><span class="ct">Geçmiş Listeler</span></div>
+    <div class="tw"><table><thead><tr><th>Yürürlük</th><th>Belge</th><th>Yükleyen</th><th></th></tr></thead><tbody id="fl-gecmis"></tbody></table></div>
+  </div>
+</div>
+
+<!-- ÜRETİM PLANI -->
+<div id="pg-plan" class="pg">
+  <div class="ph"><div><div class="pt">Üretim Planı</div><div class="ps">Planınız için gerekli ham madde, bidon ve koliyi hesaplar; mevcut stokla karşılaştırır</div></div>
+    <div class="bgrp">
+      <button class="btn bg" onclick="addPlanK()">+ Ürün</button>
+      <button class="btn bp" onclick="planiUretimeAktar()">🏭 Üretim Günü Yap</button>
+      <button class="btn bg" onclick="yazdirPlan()">🖨 Yazdır</button>
+      <button class="btn bs" onclick="exportPlan()">📊 Excel</button>
+    </div>
+  </div>
+  <div class="card"><div class="ch"><span class="ct">Planlanan Üretim</span></div><div id="plan-kalemler"></div></div>
+  <div id="plan-sonuc"></div>
+</div>
+
+<!-- SİPARİŞLER -->
+<div id="pg-siparisler" class="pg">
+  <div class="ph"><div class="pt">Siparişler</div>
+    <div class="bgrp">
+      <button class="btn bs" onclick="exportSiparisler()">📊 Excel</button>
+      <button class="btn bp" onclick="openModal('m-siparis')">+ Yeni Sipariş</button>
+    </div>
+  </div>
+  <div class="bgrp" style="margin-bottom:10px">
+    <button class="btn bg bsm" onclick="rSiparisler('hepsi')">Tümü</button>
+    <button class="btn bg bsm" onclick="rSiparisler('bekliyor')">Bekliyor</button>
+    <button class="btn bg bsm" onclick="rSiparisler('hazırlanıyor')">Hazırlanıyor</button>
+    <button class="btn bg bsm" onclick="rSiparisler('hazır')">Hazır</button>
+    <button class="btn bg bsm" onclick="rSiparisler('teslim edildi')">Teslim</button>
+  </div>
+  <div id="sip-list"></div>
+</div>
+
+<!-- SEVKİYAT -->
+<div id="pg-sevkiyat" class="pg">
+  <div class="ph"><div class="pt">Sevkiyat</div><button class="btn bp" onclick="openModal('m-sevkiyat')">+ Sevkiyat Oluştur</button></div>
+  <div id="sv-list"></div>
+</div>
+
+<!-- İRSALİYE -->
+<div id="pg-irsaliye" class="pg">
+  <div class="ph"><div><div class="pt">Sevk İrsaliyesi</div><div class="ps">Atölyeden çıkan ürünler için resmî sevk irsaliyesi oluştur ve yazdır</div></div>
+    <button class="btn bp" onclick="openModal('m-irsaliye')">+ İrsaliye Oluştur</button>
+  </div>
+  <div id="irs-list"></div>
+</div>
+
+<!-- MÜŞTERİLER -->
+<div id="pg-musteriler" class="pg">
+  <div class="ph"><div><div class="pt">Müşteriler</div><div class="ps">18 Hatay Devlet Hastanesi</div></div>
+    <div class="bgrp">
+      <button class="btn bs" onclick="exportMusteri()">📊 Excel</button>
+      <button class="btn bp" onclick="openModal('m-musteri')">+ Müşteri Ekle</button>
+    </div>
+  </div>
+  <div class="tw"><table><thead><tr><th>Kurum</th><th>İlçe</th><th>Tel</th><th>Yetkili</th><th class="tr">Sipariş</th><th></th></tr></thead><tbody id="mus-tb"></tbody></table></div>
+</div>
+
+<!-- ÜRÜN STOK -->
+<div id="pg-urun-stok" class="pg">
+  <div class="ph"><div class="pt">Ürün Stoku</div><div class="bgrp"><button class="btn bs" onclick="exportUrunStok()">📊 Excel</button><button class="btn bp" onclick="openModal('m-urun-stok')">+ Stok Hareketi</button></div></div>
+  <div class="tw"><table><thead><tr><th>Ürün</th><th class="tr">kg</th><th class="tr">L</th><th class="tr">Min</th><th>Durum</th><th></th></tr></thead><tbody id="us-tb"></tbody></table></div>
+</div>
+
+<!-- BİDON STOK -->
+<div id="pg-bidon-stok" class="pg">
+  <div class="ph"><div class="pt">Boş Bidon Stoku</div><button class="btn bp" onclick="openModal('m-bidon')">+ Bidon Hareketi</button></div>
+  <div class="g3" style="margin-bottom:12px">
+    <div class="card tc"><div class="sl">1 Litre Bidon</div><div class="sv2 c1" id="b1v">0</div><div class="ss">adet</div><div class="progress mt8"><div class="pb" id="b1b" style="background:var(--acc)"></div></div></div>
+    <div class="card tc"><div class="sl">5 Litre Bidon</div><div class="sv2 c2" id="b5v">0</div><div class="ss">adet</div><div class="progress mt8"><div class="pb" id="b5b" style="background:var(--acc2)"></div></div></div>
+    <div class="card tc"><div class="sl">20 Litre Bidon</div><div class="sv2 c3" id="b20v">0</div><div class="ss">adet</div><div class="progress mt8"><div class="pb" id="b20b" style="background:var(--acc3)"></div></div></div>
+  </div>
+  <div class="card"><div class="ch"><span class="ct">Hareket Geçmişi</span></div>
+    <div class="tw"><table><thead><tr><th>Tarih</th><th>Tip</th><th class="tr">1L</th><th class="tr">5L</th><th class="tr">20L</th><th>Not</th></tr></thead><tbody id="bd-tb"></tbody></table></div>
+  </div>
+</div>
+
+<!-- KARTON STOK -->
+<div id="pg-koli-stok" class="pg">
+  <div class="ph"><div class="pt">Karton Koli Stoku</div><button class="btn bp" onclick="openModal('m-koli')">+ Koli Hareketi</button></div>
+  <div class="card" style="max-width:250px;text-align:center"><div class="sl">Mevcut Koli</div><div class="sv2 c5" id="kv">0</div><div class="ss">adet</div><div class="progress mt8"><div class="pb" id="kb" style="background:var(--acc5)"></div></div></div>
+  <div class="card mt12"><div class="ch"><span class="ct">Hareket</span></div><div class="tw"><table><thead><tr><th>Tarih</th><th>Tip</th><th class="tr">Adet</th><th>Kim</th><th>Not</th></tr></thead><tbody id="kol-tb"></tbody></table></div></div>
+</div>
+
+<!-- HAM MADDE -->
+<div id="pg-hm-stok" class="pg">
+  <div class="ph"><div class="pt">Ham Madde Stoku</div><div class="bgrp"><button class="btn bs" onclick="exportHmStok()">📊 Excel</button><button class="btn bp" onclick="openModal('m-hm')">+ Stok Hareketi</button></div></div>
+  <div class="tw"><table><thead><tr><th>Ham Madde</th><th>Birim</th><th class="tr">Stok</th><th class="tr">Min</th><th>Durum</th><th class="tr">Son Alış ₺</th><th class="tr">Değer</th><th>Belge</th></tr></thead><tbody id="hm-tb"></tbody></table></div>
+  <div class="card mt12"><div class="ch"><span class="ct">Son Alış Faturaları</span></div>
+    <div class="tw"><table><thead><tr><th>Tarih</th><th>Ham Madde</th><th>Tedarikçi</th><th>Fatura No</th><th class="tr">Miktar</th><th class="tr">Birim ₺</th><th class="tr">Tutar ₺</th></tr></thead><tbody id="hm-fatura-tb"></tbody></table></div>
+  </div>
+</div>
+
+<!-- ESANS STOK -->
+<div id="pg-esans-stok" class="pg">
+  <div class="ph"><div><div class="pt">Esans Stoku</div></div>
+    <div class="bgrp"><button class="btn bp" onclick="openModal('m-esans-giris')">+ Esans Girişi</button><button class="btn bg" onclick="openModal('m-esans-tanim')">+ Yeni Esans</button></div>
+  </div>
+  <div class="g3" id="esans-kartlar"></div>
+  <div class="card mt8"><div class="ch"><span class="ct">Ürün–Esans Eşleştirme</span><button class="btn bg bsm" onclick="openModal('m-eslas')">Düzenle</button></div>
+    <div class="tw"><table><thead><tr><th>Ürün</th><th>Esanslar</th></tr></thead><tbody id="esl-tb"></tbody></table></div>
+  </div>
+</div>
+
+<!-- ÖĞRETMENLER -->
+<div id="pg-ogretmenler" class="pg">
+  <div class="ph"><div><div class="pt">Öğretmenler</div><div class="ps">Sisteme giriş yetkisi olan kullanıcılar</div></div><button class="btn bp" onclick="openModal('m-ogr')">+ Öğretmen Ekle</button></div>
+  <div class="tw"><table><thead><tr><th>Ad Soyad</th><th>Görev</th><th>Şifre</th><th class="tr">Üretim Günü</th><th class="tr">İşlem</th><th></th></tr></thead><tbody id="ogr-tb"></tbody></table></div>
+</div>
+
+<!-- ÖĞRENCİLER -->
+<div id="pg-ogrenciler" class="pg">
+  <div class="ph"><div class="pt">Öğrenciler</div><button class="btn bp" onclick="openModal('m-ogc')">+ Öğrenci Ekle</button></div>
+  <div class="tw"><table><thead><tr><th>No</th><th>Ad Soyad</th><th>Sınıf</th><th>IBAN</th><th class="tr">Üretim Günü</th><th></th></tr></thead><tbody id="ogc-tb"></tbody></table></div>
+</div>
+
+<!-- DENETİM KAYDI -->
+<div id="pg-audit" class="pg">
+  <div class="ph"><div><div class="pt">Denetim Kaydı</div><div class="ps">Tüm değişiklikler — kim, ne zaman, ne yaptı</div></div>
+    <button class="btn bg" onclick="clearAudit()">Kayıtları Temizle</button>
+  </div>
+  <div class="card">
+    <div class="fx" style="margin-bottom:10px;gap:8px;flex-wrap:wrap">
+      <input type="text" id="audit-ara" placeholder="Ara..." style="max-width:250px;margin:0" oninput="rAudit()">
+      <select id="audit-kim" style="max-width:200px;margin:0" onchange="rAudit()"><option value="">Tüm kullanıcılar</option></select>
+    </div>
+    <div id="audit-list"></div>
+  </div>
+</div>
+
+<!-- YEDEKLEME -->
+<div id="pg-yedek" class="pg">
+  <div class="ph"><div><div class="pt">Veri Yedekleme</div><div class="ps">Verilerinizi koruma altına alın</div></div></div>
+  <div class="yedek-bar">
+    <div><div style="font-weight:700">Son Otomatik Yedek</div><div class="tm" id="son-yedek-tarihi">—</div></div>
+    <div class="bgrp">
+      <button class="btn bp" onclick="manuelYedek()">💾 Şimdi Yedekle</button>
+      <button class="btn bg" onclick="document.getElementById('yedek-yukle').click()">📂 Yedeği Yükle</button>
+      <input type="file" id="yedek-yukle" accept=".json" style="display:none" onchange="yukleYedek(this)">
+    </div>
+  </div>
+  <div class="card">
+    <div class="ch"><span class="ct">Yedekler</span></div>
+    <div class="tw"><table><thead><tr><th>Tarih</th><th>Boyut</th><th>Tür</th><th></th></tr></thead><tbody id="yedek-tb"></tbody></table></div>
+  </div>
+  <div class="card mt12">
+    <div class="ch"><span class="ct">Veri İstatistikleri</span></div>
+    <div id="veri-istat"></div>
+  </div>
+</div>
+
+</div><!-- /main -->
+</div><!-- /app -->
+
+<div class="toast" id="toast"></div>
+
+<!-- ══════════════ MODALLER ══════════════ -->
+<!-- Üretim Günü -->
+<div class="mo" id="m-uretim-gun">
+<div class="md" style="max-width:780px">
+  <div class="mt2">🏭 Üretim Günü</div>
+  <div class="g2">
+    <div class="fg"><label>Tarih</label><input type="date" id="ug-tarih"></div>
+    <div class="fg"><label>Not</label><input type="text" id="ug-not"></div>
+  </div>
+  <div class="g2" style="gap:14px;margin-bottom:12px">
+    <div>
+      <div class="pers-sec-hdr ogr-hdr">👨‍🏫 Görevli Öğretmenler</div>
+      <div class="pers-list" id="ug-ogr-cb"></div>
+    </div>
+    <div>
+      <div class="pers-sec-hdr ogc-hdr">🎓 Görevli Öğrenciler</div>
+      <div class="pers-list" id="ug-ogc-cb"></div>
+    </div>
+  </div>
+  <div style="display:flex;justify-content:space-between;align-items:center;margin:10px 0 7px">
+    <div class="ct">Üretilen Ürünler</div><button class="btn bg bsm" onclick="addUgK()">+ Ürün Ekle</button>
+  </div>
+  <div id="ug-kalemler"></div>
+  <div class="mf"><button class="btn bg" onclick="closeModal('m-uretim-gun')">İptal</button><button class="btn bp" onclick="saveUretimGun()">Kaydet</button></div>
+</div>
+</div>
+
+<!-- Sipariş Ekle/Düzenle -->
+<div class="mo" id="m-siparis">
+<div class="md" style="max-width:680px">
+  <div class="mt2" id="sip-modal-baslik">📋 Yeni Sipariş</div>
+  <div class="g2">
+    <div class="fg"><label>Müşteri</label><select id="sm-mus"></select></div>
+    <div class="fg"><label>Sipariş Tarihi</label><input type="date" id="sm-tar"></div>
+  </div>
+  <div class="fg"><label>Teslim Tarihi</label><input type="date" id="sm-tel"></div>
+  <div style="display:flex;justify-content:space-between;align-items:center;margin:8px 0 6px">
+    <div class="ct">Kalemler</div><button class="btn bg bsm" onclick="addSipK()">+ Ürün</button>
+  </div>
+  <div id="sm-kalemler"></div>
+  <div class="fg mt8"><label>Not</label><textarea id="sm-not"></textarea></div>
+  <input type="hidden" id="sm-eid">
+  <div class="mf"><button class="btn bg" onclick="closeModal('m-siparis')">İptal</button><button class="btn bp" onclick="saveSiparis()">Kaydet</button></div>
+</div>
+</div>
+
+<!-- Sevkiyat -->
+<div class="mo" id="m-sevkiyat">
+<div class="md" style="max-width:720px">
+  <div class="mt2">🚚 Sevkiyat Oluştur</div>
+  <div class="g2">
+    <div class="fg"><label>Tarih</label><input type="date" id="sv-tar"></div>
+    <div class="fg"><label>Araç Plakası</label><input type="text" id="sv-pla" placeholder="31 ABC 123"></div>
+  </div>
+  <div class="fg"><label>Sürücü</label><input type="text" id="sv-sur"></div>
+  <div style="display:flex;justify-content:space-between;align-items:center;margin:8px 0 6px">
+    <div class="ct">Dahil Edilen Siparişler</div><button class="btn bg bsm" onclick="addSvSip()">+ Sipariş Ekle</button>
+  </div>
+  <div id="sv-siparisler"></div>
+  <div style="display:flex;justify-content:space-between;align-items:center;margin:8px 0 6px">
+    <div class="ct">Ekstra Ürün (Siparişsiz)</div><button class="btn bg bsm" onclick="addSvEk()">+ Ürün</button>
+  </div>
+  <div id="sv-ekstralar"></div>
+  <div class="fg mt8"><label>Not</label><input type="text" id="sv-not"></div>
+  <div class="mf"><button class="btn bg" onclick="closeModal('m-sevkiyat')">İptal</button><button class="btn bs" onclick="saveSevkiyat()">Sevkiyat Oluştur</button></div>
+</div>
+</div>
+
+<!-- Müşteri -->
+<div class="mo" id="m-musteri">
+<div class="md">
+  <div class="mt2">🏥 Müşteri</div>
+  <div class="g2">
+    <div class="fg"><label>Kurum Adı</label><input type="text" id="mu-ad"></div>
+    <div class="fg"><label>İlçe</label><input type="text" id="mu-il"></div>
+  </div>
+  <div class="g2">
+    <div class="fg"><label>Telefon</label><input type="text" id="mu-tel"></div>
+    <div class="fg"><label>Yetkili</label><input type="text" id="mu-yetk"></div>
+  </div>
+  <div class="fg"><label>Adres</label><textarea id="mu-adr" style="min-height:50px"></textarea></div>
+  <input type="hidden" id="mu-id">
+  <div class="mf"><button class="btn bg" onclick="closeModal('m-musteri')">İptal</button><button class="btn bp" onclick="saveMus()">Kaydet</button></div>
+</div>
+</div>
+
+<!-- Ürün Stok -->
+<div class="mo" id="m-urun-stok">
+<div class="md">
+  <div class="mt2">🧴 Ürün Stok</div>
+  <div class="g2">
+    <div class="fg"><label>Ürün</label><select id="uss-u"></select></div>
+    <div class="fg"><label>Hareket</label><select id="uss-t"><option value="giris">Giriş</option><option value="cikis">Çıkış</option></select></div>
+  </div>
+  <div class="g2">
+    <div class="fg"><label>Miktar (kg)</label><input type="number" id="uss-kg" min="0"></div>
+    <div class="fg"><label>Min Eşik (kg)</label><input type="number" id="uss-e" min="0"></div>
+  </div>
+  <div class="mf"><button class="btn bg" onclick="closeModal('m-urun-stok')">İptal</button><button class="btn bp" onclick="saveUsStok()">Kaydet</button></div>
+</div>
+</div>
+
+<!-- Bidon -->
+<div class="mo" id="m-bidon">
+<div class="md">
+  <div class="mt2">📦 Bidon Hareketi</div>
+  <div class="fg"><label>Tip</label><select id="bd-t"><option value="giris">Giriş</option><option value="cikis">Çıkış</option></select></div>
+  <div class="g3">
+    <div class="fg"><label>1L</label><input type="number" id="bd-1" value="0" min="0"></div>
+    <div class="fg"><label>5L</label><input type="number" id="bd-5" value="0" min="0"></div>
+    <div class="fg"><label>20L</label><input type="number" id="bd-20" value="0" min="0"></div>
+  </div>
+  <div class="fg"><label>Not</label><input type="text" id="bd-n"></div>
+  <div class="mf"><button class="btn bg" onclick="closeModal('m-bidon')">İptal</button><button class="btn bp" onclick="saveBidon()">Kaydet</button></div>
+</div>
+</div>
+
+<!-- Koli -->
+<div class="mo" id="m-koli">
+<div class="md">
+  <div class="mt2">📫 Koli Hareketi</div>
+  <div class="g2">
+    <div class="fg"><label>Tip</label><select id="kl-t"><option value="giris">Giriş</option><option value="cikis">Çıkış</option></select></div>
+    <div class="fg"><label>Adet</label><input type="number" id="kl-a" min="0"></div>
+  </div>
+  <div class="fg"><label>Not</label><input type="text" id="kl-n"></div>
+  <div class="mf"><button class="btn bg" onclick="closeModal('m-koli')">İptal</button><button class="btn bp" onclick="saveKoli()">Kaydet</button></div>
+</div>
+</div>
+
+<!-- Ham Madde -->
+<div class="mo" id="m-hm">
+<div class="md">
+  <div class="mt2">🧪 Ham Madde — Stok / Alış Faturası</div>
+  <div class="g2">
+    <div class="fg"><label>Ham Madde</label><select id="hm-m"></select></div>
+    <div class="fg"><label>Hareket</label><select id="hm-t"><option value="giris">Alış (Fatura)</option><option value="cikis">Çıkış (Kullanım)</option></select></div>
+  </div>
+  <div class="g2">
+    <div class="fg"><label>Miktar (kg)</label><input type="number" id="hm-mk" min="0"></div>
+    <div class="fg"><label>Birim Fiyat (₺/kg)</label><input type="number" id="hm-bf" min="0" step="0.01"></div>
+  </div>
+  <div class="g3">
+    <div class="fg"><label>Tedarikçi</label><input type="text" id="hm-ted"></div>
+    <div class="fg"><label>Fatura No</label><input type="text" id="hm-fno"></div>
+    <div class="fg"><label>Tarih</label><input type="date" id="hm-tar"></div>
+  </div>
+  <div class="fg"><label>Min Eşik (kg)</label><input type="number" id="hm-e" min="0"></div>
+  <div class="tm" style="margin-top:2px">💡 Alışta birim fiyat girilirse maliyet fiyatı güncellenir ve kâr marjları otomatik değişir. Fatura görselini eklemek için ham madde satırındaki 📎 düğmesini kullanın.</div>
+  <div class="mf"><button class="btn bg" onclick="closeModal('m-hm')">İptal</button><button class="btn bp" onclick="saveHm()">Kaydet</button></div>
+</div>
+</div>
+
+<!-- Esans Tanım -->
+<div class="mo" id="m-esans-tanim">
+<div class="md">
+  <div class="mt2">🌸 Yeni Esans</div>
+  <div class="g2">
+    <div class="fg"><label>Esans Adı</label><input type="text" id="et-ad"></div>
+    <div class="fg"><label>Renk</label><input type="color" id="et-rk" value="#10b981"></div>
+  </div>
+  <div class="fg"><label>Açıklama</label><input type="text" id="et-ac"></div>
+  <div class="fg"><label>Min Stok (kg)</label><input type="number" id="et-e" value="5" min="0"></div>
+  <div class="mf"><button class="btn bg" onclick="closeModal('m-esans-tanim')">İptal</button><button class="btn bp" onclick="saveEsansTanim()">Kaydet</button></div>
+</div>
+</div>
+
+<!-- Esans Giriş -->
+<div class="mo" id="m-esans-giris">
+<div class="md">
+  <div class="mt2">🌸 Esans Stok Hareketi</div>
+  <div class="g2">
+    <div class="fg"><label>Esans</label><select id="eg-e"></select></div>
+    <div class="fg"><label>Hareket</label><select id="eg-t"><option value="giris">Giriş</option><option value="cikis">Çıkış</option></select></div>
+  </div>
+  <div class="fg"><label>Miktar (kg)</label><input type="number" id="eg-m" step="0.1" min="0"></div>
+  <div class="fg"><label>Not</label><input type="text" id="eg-n"></div>
+  <div class="mf"><button class="btn bg" onclick="closeModal('m-esans-giris')">İptal</button><button class="btn bp" onclick="saveEsansGiris()">Kaydet</button></div>
+</div>
+</div>
+
+<!-- Esans Eşleştirme -->
+<div class="mo" id="m-eslas">
+<div class="md" style="max-width:700px">
+  <div class="mt2">🔗 Ürün–Esans Eşleştirme</div>
+  <div id="esl-form"></div>
+  <div class="mf"><button class="btn bg" onclick="closeModal('m-eslas')">İptal</button><button class="btn bp" onclick="saveEslestirme()">Kaydet</button></div>
+</div>
+</div>
+
+<!-- Öğretmen -->
+<div class="mo" id="m-ogr">
+<div class="md">
+  <div class="mt2">👨‍🏫 Öğretmen</div>
+  <div class="g2">
+    <div class="fg"><label>Ad Soyad</label><input type="text" id="ot-ad"></div>
+    <div class="fg"><label>Görev</label><input type="text" id="ot-gv" placeholder="Kimya Öğretmeni"></div>
+  </div>
+  <div class="g2">
+    <div class="fg"><label>Şifre</label><input type="password" id="ot-sif" placeholder="Giriş şifresi"></div>
+    <div class="fg"><label>Telefon</label><input type="text" id="ot-tel"></div>
+  </div>
+  <input type="hidden" id="ot-id">
+  <div class="mf"><button class="btn bg" onclick="closeModal('m-ogr')">İptal</button><button class="btn bp" onclick="saveOgr()">Kaydet</button></div>
+</div>
+</div>
+
+<!-- Yardım / Üretim Rehberi -->
+<div class="mo" id="m-yardim">
+<div class="md" style="max-width:900px;padding-top:0">
+  <!-- Yapışık Başlık + Sekmeler -->
+  <div style="position:sticky;top:0;z-index:10;background:var(--card);border-bottom:2px solid var(--bord);border-radius:12px 12px 0 0;padding:14px 20px 0;margin:0 -20px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+      <div class="mt2" style="margin:0">📚 Üretim Rehberi & Sorun Giderme</div>
+      <button class="btn bd" onclick="closeModal('m-yardim')">✕ Kapat</button>
+    </div>
+    <div class="ftab" style="margin:0;padding-bottom:2px">
+      <button class="ftb yh-tb active" onclick="yhTab('yh-kisibak',this)">🧴 Kişisel Bakım</button>
+      <button class="ftb yh-tb" onclick="yhTab('yh-evtem',this)">🏠 Ev Temizliği</button>
+      <button class="ftb yh-tb" onclick="yhTab('yh-endustri',this)">🏭 Endüstriyel</button>
+      <button class="ftb yh-tb" onclick="yhTab('yh-katisabun',this)">🧼 Katı Sabun</button>
+      <button class="ftb yh-tb" onclick="yhTab('yh-sorunlar',this)">🔧 Sorun Giderme</button>
+    </div>
+  </div>
+  <div style="padding-top:14px">
+
+  <!-- ─── TAB 1: KİŞİSEL BAKIM ─── -->
+  <div id="yh-kisibak" class="yh-sec">
+
+    <!-- Sıvı El Sabunu -->
+    <div class="card" style="border-left:4px solid #1565C0;margin-bottom:10px">
+      <div class="ch"><span class="ct">🧴 Sıvı El Sabunu (SLES Bazlı)</span><span class="ba bb">Kazan: 900 kg varsayılan</span></div>
+      <div class="g2">
+        <div>
+          <div style="font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--mut);margin-bottom:5px">Formülasyon</div>
+          <table style="font-size:.75rem;width:100%">
+            <tr><td style="padding:2px 5px">Su</td><td style="text-align:right;padding:2px 5px;color:var(--mut)">%88.53</td></tr>
+            <tr><td style="padding:2px 5px">SLES</td><td style="text-align:right;padding:2px 5px;font-weight:700">%5.50</td></tr>
+            <tr><td style="padding:2px 5px">Betain</td><td style="text-align:right;padding:2px 5px">%1.00</td></tr>
+            <tr><td style="padding:2px 5px">Kokamid DEA</td><td style="text-align:right;padding:2px 5px">%1.00</td></tr>
+            <tr><td style="padding:2px 5px">Tuz (kıvam)</td><td style="text-align:right;padding:2px 5px">%3.00</td></tr>
+            <tr><td style="padding:2px 5px">Koruyucu + Esans + Sitrik Asit</td><td style="text-align:right;padding:2px 5px">%0.47</td></tr>
+          </table>
+          <div style="font-size:.69rem;color:var(--mut);margin-top:5px">Hedef pH: 5.5–6.5 · Viskozite: 2000–5000 cP</div>
+        </div>
+        <div>
+          <div style="font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--mut);margin-bottom:5px">Üretim Adımları</div>
+          <ol style="font-size:.74rem;line-height:1.75;padding-left:15px">
+            <li>Suyun ~2/3'ünü 40–45°C'ye ısıt</li>
+            <li>SLES'i çok <b>yavaş ve köpürtmeden</b> yavaşça suya ekle</li>
+            <li>Betain ve Kokamid DEA ekle, düşük devirde karıştır</li>
+            <li>Koruyucuyu az sıcak suda eritip ekle</li>
+            <li>Sitrik asidi az suda çöz, pH 5.5–6.5 olana kadar ekle</li>
+            <li>Kalan suyu ekle, homojen karış</li>
+            <li>&lt;40°C'de esansı ekle, yavaşça karıştır</li>
+            <li>Tuz çözeltisiyle (%10'luk) istenen kıvama getir</li>
+          </ol>
+          <div style="background:rgba(21,101,192,.07);border-radius:6px;padding:6px 9px;font-size:.7rem;margin-top:7px">⚠️ SLES hızlı karıştırılırsa köpürür, hava kabarcığı kalır, görünüm bozulur. Yavaş ve düşük devirde çalış.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Köpük Sabun -->
+    <div class="card" style="border-left:4px solid #0288D1;margin-bottom:10px">
+      <div class="ch"><span class="ct">🫧 Köpük Sabun (Foamer Tipi)</span><span class="ba bb">Kazan: 20 kg varsayılan</span></div>
+      <div class="g2">
+        <div>
+          <table style="font-size:.75rem;width:100%">
+            <tr><td style="padding:2px 5px">Su</td><td style="text-align:right;padding:2px 5px;color:var(--mut)">%88.80</td></tr>
+            <tr><td style="padding:2px 5px">SLES (yüksek köpük)</td><td style="text-align:right;padding:2px 5px;font-weight:700">%7.50</td></tr>
+            <tr><td style="padding:2px 5px">Betain + Kokamid DEA</td><td style="text-align:right;padding:2px 5px">%2.40</td></tr>
+            <tr><td style="padding:2px 5px">Gliserin (nemlendirici)</td><td style="text-align:right;padding:2px 5px">%0.75</td></tr>
+            <tr><td style="padding:2px 5px">Koruyucu + Esans + Sitrik Asit</td><td style="text-align:right;padding:2px 5px">%0.55</td></tr>
+          </table>
+          <div style="font-size:.69rem;color:var(--mut);margin-top:5px">Hedef pH: 5.5–6.5 · Kıvam: İnce (foamer pompa için)</div>
+        </div>
+        <div>
+          <ol style="font-size:.74rem;line-height:1.75;padding-left:15px">
+            <li>Sıvı el sabunu ile aynı üretim sırası</li>
+            <li>SLES oranı daha yüksek → daha bol köpük</li>
+            <li><b>Tuz ekleme!</b> Foamer pompa için ince kıvamlı olmalı</li>
+            <li>Gliserini SLES'ten sonra ekle</li>
+            <li>pH 5.5–6.5 ayarla, köpük testi yap</li>
+          </ol>
+          <div style="background:rgba(2,136,209,.07);border-radius:6px;padding:6px 9px;font-size:.7rem;margin-top:7px">💡 Foamer pompalarda %1–3 sürfaktan yeterli. Yüksek konsantrasyon pompayı tıkayabilir.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- El Dezenfektanı -->
+    <div class="card" style="border-left:4px solid #E64A19;margin-bottom:10px">
+      <div class="ch"><span class="ct">🧪 El Dezenfektanı (%75 Alkol)</span><span class="ba br">Alev riski — dikkatli çalış</span></div>
+      <div class="g2">
+        <div>
+          <table style="font-size:.75rem;width:100%">
+            <tr><td style="padding:2px 5px">Etil Alkol (%96)</td><td style="text-align:right;padding:2px 5px;font-weight:700">%75.00</td></tr>
+            <tr><td style="padding:2px 5px">Su (damıtık)</td><td style="text-align:right;padding:2px 5px;color:var(--mut)">%24.38</td></tr>
+            <tr><td style="padding:2px 5px">Gliserin</td><td style="text-align:right;padding:2px 5px">%0.50</td></tr>
+            <tr><td style="padding:2px 5px">Esans (isteğe bağlı)</td><td style="text-align:right;padding:2px 5px">%0.12</td></tr>
+          </table>
+          <div style="font-size:.69rem;color:var(--mut);margin-top:5px">WHO oranı · %60+ alkol virüs/bakteri için gerekli · Kazan: 5 kg</div>
+        </div>
+        <div>
+          <ol style="font-size:.74rem;line-height:1.75;padding-left:15px">
+            <li><b>Açık ateş yok!</b> Elektrik kıvılcımından uzak çalış</li>
+            <li>Gliserini suya ekle, karıştır</li>
+            <li>Gliserin+su karışımını alkole ekle (tersi değil)</li>
+            <li>Yavaşça karıştır, köpürtme</li>
+            <li>Esansı en son ekle</li>
+            <li>Kapalı kapta en az 72 saat beklet (olası kontaminasyon için)</li>
+          </ol>
+          <div style="background:rgba(230,74,25,.07);border-radius:6px;padding:6px 9px;font-size:.7rem;margin-top:7px">⚠️ %96 alkol kullanılarak %75'e seyreltilir. Formülde %75 = nihai ürün alkolü. Üretim ortamında hiç ateş kaynağı bulunmamalı.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Kolonya -->
+    <div class="card" style="border-left:4px solid #7B1FA2">
+      <div class="ch"><span class="ct">🌸 Kolonya (%80 Alkol)</span><span class="ba bpu2">Alev riski</span></div>
+      <div class="g2">
+        <div>
+          <table style="font-size:.75rem;width:100%">
+            <tr><td style="padding:2px 5px">Etil Alkol (%96)</td><td style="text-align:right;padding:2px 5px;font-weight:700">%83.00</td></tr>
+            <tr><td style="padding:2px 5px">Su (damıtık)</td><td style="text-align:right;padding:2px 5px;color:var(--mut)">%15.00</td></tr>
+            <tr><td style="padding:2px 5px">Esans</td><td style="text-align:right;padding:2px 5px">%2.00</td></tr>
+          </table>
+          <div style="font-size:.69rem;color:var(--mut);margin-top:5px">Son ürün ~%80 alkol · Kazan: 100 kg varsayılan</div>
+        </div>
+        <div>
+          <ol style="font-size:.74rem;line-height:1.75;padding-left:15px">
+            <li>Alkolü kaba al (açık alev kaynağı yok!)</li>
+            <li>Esansı alkole ekle, iyice karıştır (esans alkolde çözünür)</li>
+            <li>Suyu yavaşça ekle, bulanıklık normaldir</li>
+            <li>Kapalı kapta 24–48 saat dinlendir</li>
+            <li>İsteğe göre filtrele, şişele</li>
+          </ol>
+          <div style="background:rgba(123,31,162,.07);border-radius:6px;padding:6px 9px;font-size:.7rem;margin-top:7px">💡 Esans oranı %1–3 arası değiştirilebilir. %2 genel kullanım için yeterlidir. Limon esansı en çok tercih edilendir.</div>
+        </div>
+      </div>
+    </div>
+  </div><!-- /yh-kisibak -->
+
+  <!-- ─── TAB 2: EV TEMİZLİĞİ ─── -->
+  <div id="yh-evtem" class="yh-sec" style="display:none">
+
+    <!-- Genel Temizlik -->
+    <div class="card" style="border-left:4px solid #2E7D32;margin-bottom:10px">
+      <div class="ch"><span class="ct">🧹 Genel Temizlik / Çok Amaçlı Sprey</span><span class="ba bg2">Kazan: 5 kg varsayılan</span></div>
+      <div class="g2">
+        <div>
+          <table style="font-size:.75rem;width:100%">
+            <tr><td style="padding:2px 5px">Su</td><td style="text-align:right;padding:2px 5px;color:var(--mut)">%94.80</td></tr>
+            <tr><td style="padding:2px 5px">IPA (izopropil alkol)</td><td style="text-align:right;padding:2px 5px">%3.00</td></tr>
+            <tr><td style="padding:2px 5px">NP10 (noniyonik)</td><td style="text-align:right;padding:2px 5px">%0.90</td></tr>
+            <tr><td style="padding:2px 5px">Koruyucu</td><td style="text-align:right;padding:2px 5px">%0.10</td></tr>
+            <tr><td style="padding:2px 5px">Esans</td><td style="text-align:right;padding:2px 5px">%0.40</td></tr>
+          </table>
+          <div style="font-size:.69rem;color:var(--mut);margin-top:5px">pH: 6–8 · İz bırakmaz · Hızlı kurur</div>
+        </div>
+        <div>
+          <ol style="font-size:.74rem;line-height:1.75;padding-left:15px">
+            <li>Suya NP10 ekle, iyice karıştır (NP10 suda çözünür)</li>
+            <li>IPA ekle ve karıştır</li>
+            <li>Koruyucuyu az sıcak suda eritip ekle</li>
+            <li>Oda sıcaklığında esansı ekle</li>
+            <li>pH kontrolü yap (6–8 ideal)</li>
+          </ol>
+          <div style="background:rgba(46,125,50,.07);border-radius:6px;padding:6px 9px;font-size:.7rem;margin-top:7px">💡 NP10 (noniyonik sürfaktan) yağ çözer, iz bırakmaz. IPA alkol bazlı olduğundan alev riski — iyi havalandırılan ortam.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Cam Silici -->
+    <div class="card" style="border-left:4px solid #00838F;margin-bottom:10px">
+      <div class="ch"><span class="ct">🪟 Cam Silici</span><span class="ba bg2">İz bırakmayan formül</span></div>
+      <div class="g2">
+        <div>
+          <table style="font-size:.75rem;width:100%">
+            <tr><td style="padding:2px 5px">Su</td><td style="text-align:right;padding:2px 5px;color:var(--mut)">%95.10</td></tr>
+            <tr><td style="padding:2px 5px">IPA (%99)</td><td style="text-align:right;padding:2px 5px;font-weight:700">%4.00</td></tr>
+            <tr><td style="padding:2px 5px">NP10 (çok az)</td><td style="text-align:right;padding:2px 5px">%0.60</td></tr>
+            <tr><td style="padding:2px 5px">Koruyucu</td><td style="text-align:right;padding:2px 5px">%0.12</td></tr>
+          </table>
+          <div style="font-size:.69rem;color:var(--mut);margin-top:5px">pH: 6.5–8 · Çizgi bırakmaz · Kazan: 900 kg</div>
+        </div>
+        <div>
+          <ol style="font-size:.74rem;line-height:1.75;padding-left:15px">
+            <li>Suya çok az NP10 ekle (köpürmemeli)</li>
+            <li>IPA ekle, yavaşça karıştır</li>
+            <li>Koruyucuyu ekle</li>
+            <li>Esans ekleme — iz bırakır</li>
+          </ol>
+          <div style="background:rgba(0,131,143,.07);border-radius:6px;padding:6px 9px;font-size:.7rem;margin-top:7px">⚠️ NP10 fazla konursa cam üzerinde yağlı iz bırakır. %0.5–0.8 arası ideal. Musluk suyu kullanılırsa kireç izleri oluşur — damıtık su önerilir.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bulaşık Deterjanı -->
+    <div class="card" style="border-left:4px solid #F57F17;margin-bottom:10px">
+      <div class="ch"><span class="ct">🍋 Bulaşık Deterjanı (LABSA Bazlı)</span><span class="ba bam">Kazan: 4 kg varsayılan</span></div>
+      <div class="g2">
+        <div>
+          <table style="font-size:.75rem;width:100%">
+            <tr><td style="padding:2px 5px">Su</td><td style="text-align:right;padding:2px 5px;color:var(--mut)">%90.85</td></tr>
+            <tr><td style="padding:2px 5px">SLES</td><td style="text-align:right;padding:2px 5px;font-weight:700">%4.50</td></tr>
+            <tr><td style="padding:2px 5px">LABSA</td><td style="text-align:right;padding:2px 5px">%1.50</td></tr>
+            <tr><td style="padding:2px 5px">TEA (nötralizör)</td><td style="text-align:right;padding:2px 5px">%1.00</td></tr>
+            <tr><td style="padding:2px 5px">Kokamid DEA + Sıvı Kostik</td><td style="text-align:right;padding:2px 5px">%1.90</td></tr>
+            <tr><td style="padding:2px 5px">Tuz + Limon Esansı</td><td style="text-align:right;padding:2px 5px">%2.25</td></tr>
+          </table>
+          <div style="font-size:.69rem;color:var(--mut);margin-top:5px">pH: 6–7.5 · Kıvam: 2000–4000 cP</div>
+        </div>
+        <div>
+          <ol style="font-size:.74rem;line-height:1.75;padding-left:15px">
+            <li>Suya LABSA ekle (asidik — pH ~2)</li>
+            <li>TEA ile LABSA'yı nötralize et → pH 6–7 olmalı (ısınır)</li>
+            <li>SLES'i yavaşça ekle, köpürtme</li>
+            <li>Kokamid DEA ve Sıvı Kostik ekle</li>
+            <li>Tuz çözeltisiyle kıvam ayarla</li>
+            <li>&lt;40°C'de Limon Esansı ekle</li>
+          </ol>
+          <div style="background:rgba(245,127,23,.07);border-radius:6px;padding:6px 9px;font-size:.7rem;margin-top:7px">⚠️ LABSA asidik yapısıyla cilde zarar verir — eldiven kullan. TEA ile nötralizasyon adımını atlarsan ürün cilt dostu olmaz.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Çamaşır Suyu -->
+    <div class="card" style="border-left:4px solid #1565C0;margin-bottom:10px">
+      <div class="ch"><span class="ct">🫧 Çamaşır Suyu (Hipoklorit)</span><span class="ba br">Kimyasal uyumsuzluk riski</span></div>
+      <div class="g2">
+        <div>
+          <table style="font-size:.75rem;width:100%">
+            <tr><td style="padding:2px 5px">Su</td><td style="text-align:right;padding:2px 5px;color:var(--mut)">%77.80</td></tr>
+            <tr><td style="padding:2px 5px">Sodyum Hipoklorit %16</td><td style="text-align:right;padding:2px 5px;font-weight:700">%22.20</td></tr>
+          </table>
+          <div style="font-size:.69rem;color:var(--mut);margin-top:5px">Son ürün ~%3.5 aktif klor · pH: 11–13 · Kazan: 900 kg</div>
+        </div>
+        <div>
+          <ol style="font-size:.74rem;line-height:1.75;padding-left:15px">
+            <li>Suyu kaba al</li>
+            <li>Hipoklorit'i yavaşça suya ekle (ters değil!)</li>
+            <li>Soğuk ortamda karıştır — klor buharı zehirlidir</li>
+            <li>pH kontrolü: 11–13 arasında olmalı</li>
+          </ol>
+          <div style="background:rgba(21,101,192,.07);border-radius:6px;padding:6px 9px;font-size:.7rem;margin-top:7px">🚫 <b>ASLA</b> asitli ürünlerle (WC temizleyici, limon, sirke) karıştırma → zehirli klor gazı oluşur. Serin ve karanlıkta sakla (ışık bozundurur).</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Kıvamlı Çamaşır Suyu -->
+    <div class="card" style="border-left:4px solid #4527A0">
+      <div class="ch"><span class="ct">💧 Kıvamlı Çamaşır Suyu (Jel)</span><span class="ba bam">Viskoz formül</span></div>
+      <div class="g2">
+        <div>
+          <table style="font-size:.75rem;width:100%">
+            <tr><td style="padding:2px 5px">Su</td><td style="text-align:right;padding:2px 5px;color:var(--mut)">%71.875</td></tr>
+            <tr><td style="padding:2px 5px">Sodyum Hipoklorit %16</td><td style="text-align:right;padding:2px 5px;font-weight:700">%20.00</td></tr>
+            <tr><td style="padding:2px 5px">Kostik (kıvam)</td><td style="text-align:right;padding:2px 5px">%3.00</td></tr>
+            <tr><td style="padding:2px 5px">SLES (kıvamlandırır)</td><td style="text-align:right;padding:2px 5px">%5.00</td></tr>
+            <tr><td style="padding:2px 5px">Köpük Kesici</td><td style="text-align:right;padding:2px 5px">%0.125</td></tr>
+          </table>
+          <div style="font-size:.69rem;color:var(--mut);margin-top:5px">pH: 11–13 · Kıvam: 500–1500 cP</div>
+        </div>
+        <div>
+          <ol style="font-size:.74rem;line-height:1.75;padding-left:15px">
+            <li>Soğuk suyun yarısına Kostik eritip ekle (ısınır, soğut)</li>
+            <li>SLES'i yavaşça ekle, köpürtme</li>
+            <li>Köpük Kesici ekle</li>
+            <li>Kalan suyu ekle</li>
+            <li>En son, soğumuş karışıma <b>Hipoklorit'i</b> ekle</li>
+            <li>Köpürmüşse Köpük Kesici artır</li>
+          </ol>
+          <div style="background:rgba(69,39,160,.07);border-radius:6px;padding:6px 9px;font-size:.7rem;margin-top:7px">⚠️ Hipoklorit her zaman <b>en son</b> eklenir. Sıcak ortamda bozunur, soğuk karışıma ekle. Kostik ve hipoklorit birbirine direk temas etmemeli.</div>
+        </div>
+      </div>
+    </div>
+  </div><!-- /yh-evtem -->
+
+  <!-- ─── TAB 3: ENDÜSTRİYEL ─── -->
+  <div id="yh-endustri" class="yh-sec" style="display:none">
+
+    <!-- Yağ Çözücü -->
+    <div class="card" style="border-left:4px solid #BF360C;margin-bottom:10px">
+      <div class="ch"><span class="ct">🔧 Yağ Çözücü (Alkalin Degreaser)</span><span class="ba br">pH 12–13 · Korozif</span></div>
+      <div class="g2">
+        <div>
+          <table style="font-size:.75rem;width:100%">
+            <tr><td style="padding:2px 5px">Su</td><td style="text-align:right;padding:2px 5px;color:var(--mut)">%90.80</td></tr>
+            <tr><td style="padding:2px 5px">Kostik (NaOH)</td><td style="text-align:right;padding:2px 5px;font-weight:700;color:var(--acc4)">%6.50</td></tr>
+            <tr><td style="padding:2px 5px">NP10 (noniyonik)</td><td style="text-align:right;padding:2px 5px">%2.50</td></tr>
+            <tr><td style="padding:2px 5px">Esans</td><td style="text-align:right;padding:2px 5px">%0.20</td></tr>
+          </table>
+          <div style="font-size:.69rem;color:var(--mut);margin-top:5px">pH: 12–13 · Kazan: 400 kg · Eldiven zorunlu</div>
+        </div>
+        <div>
+          <ol style="font-size:.74rem;line-height:1.75;padding-left:15px">
+            <li>Suyun 2/3'ünü kaba al, eldiven giy</li>
+            <li>Kostiki yavaşça suya ekle (ısınır! ~80°C)</li>
+            <li>Soğumasını bekle (&lt;50°C)</li>
+            <li>NP10'u ekle, karıştır</li>
+            <li>Kalan suyu ve esansı ekle</li>
+            <li>pH kontrolü: 12–13</li>
+          </ol>
+          <div style="background:rgba(191,54,12,.07);border-radius:6px;padding:6px 9px;font-size:.7rem;margin-top:7px">⚠️ Yüksek pH (12+) alüminyum, çinko ve anodize yüzeylere zarar verir. Seyreltilmeden kullanılmamalı. Cilt teması → bol su ile yıka.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- WC/Banyo -->
+    <div class="card" style="border-left:4px solid #AD1457;margin-bottom:10px">
+      <div class="ch"><span class="ct">🚽 WC / Banyo Temizleyici (Asit Bazlı)</span><span class="ba br">Asit + Klorlu ürünlerle karıştırma!</span></div>
+      <div class="g2">
+        <div>
+          <table style="font-size:.75rem;width:100%">
+            <tr><td style="padding:2px 5px">Su</td><td style="text-align:right;padding:2px 5px;color:var(--mut)">%86.15</td></tr>
+            <tr><td style="padding:2px 5px">Fosforik Asit (%85)</td><td style="text-align:right;padding:2px 5px;font-weight:700;color:var(--acc4)">%12.00</td></tr>
+            <tr><td style="padding:2px 5px">NP10</td><td style="text-align:right;padding:2px 5px">%1.50</td></tr>
+            <tr><td style="padding:2px 5px">Asit İnhibitörü + Esans</td><td style="text-align:right;padding:2px 5px">%0.35</td></tr>
+          </table>
+          <div style="font-size:.69rem;color:var(--mut);margin-top:5px">pH: 1.5–2.5 · Kireç çözücü + beyazlatıcı · Kazan: 20 kg</div>
+        </div>
+        <div>
+          <ol style="font-size:.74rem;line-height:1.75;padding-left:15px">
+            <li>Suya fosforik asidi <b>yavaşça</b> ekle (asla tersi!)</li>
+            <li>NP10 ekle (asidik ortamda çözünür)</li>
+            <li>Asit İnhibitörü ekle (metal korozyonunu önler)</li>
+            <li>Esansı ekle, karıştır</li>
+            <li>pH: 1.5–2.5 arası kontrol et</li>
+          </ol>
+          <div style="background:rgba(173,20,87,.07);border-radius:6px;padding:6px 9px;font-size:.7rem;margin-top:7px">🚫 Çamaşır suyu/hipoklorit ile ASLA karıştırma → klor gazı! Metal yüzeylerde uzun süre bırakma. Asit elleri ve gözleri yakar — KKE zorunlu.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tuz Ruhu -->
+    <div class="card" style="border-left:4px solid #37474F;margin-bottom:10px">
+      <div class="ch"><span class="ct">⚗️ Tuz Ruhu (Seyreltik HCl)</span><span class="ba br">pH &lt;1 · Tehlikeli asit</span></div>
+      <div class="g2">
+        <div>
+          <table style="font-size:.75rem;width:100%">
+            <tr><td style="padding:2px 5px">Su</td><td style="text-align:right;padding:2px 5px;color:var(--mut)">%67.00</td></tr>
+            <tr><td style="padding:2px 5px">HCl (%32–37 konsantre)</td><td style="text-align:right;padding:2px 5px;font-weight:700;color:var(--acc4)">%33.00</td></tr>
+          </table>
+          <div style="font-size:.69rem;color:var(--mut);margin-top:5px">Son ürün ~%10–12 HCl · Kazan: 30 kg</div>
+        </div>
+        <div>
+          <ol style="font-size:.74rem;line-height:1.75;padding-left:15px">
+            <li>Havalandırmalı ortamda çalış (HCl buharı zehirlidir)</li>
+            <li>Suyu plastik kaba al</li>
+            <li>HCl'yi suya yavaşça ekle (tersi = şiddetli tepkime!)</li>
+            <li>Kap soğumasını bekle, kapatıp etiketle</li>
+          </ol>
+          <div style="background:rgba(55,71,79,.07);border-radius:6px;padding:6px 9px;font-size:.7rem;margin-top:7px">🚨 <b>KKE Zorunlu:</b> Kimyasal eldiven + yüz siperi + önlük + duman maskesi. Solunum yolları için tehlikeli. Metal, mermer, çini yüzeyleri bozar.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Kireç Çözücü -->
+    <div class="card" style="border-left:4px solid #455A64">
+      <div class="ch"><span class="ct">🧱 Kireç Çözücü (Seyreltik HNO₃)</span><span class="ba br">pH &lt;1 · Yükseltgen asit</span></div>
+      <div class="g2">
+        <div>
+          <table style="font-size:.75rem;width:100%">
+            <tr><td style="padding:2px 5px">Su</td><td style="text-align:right;padding:2px 5px;color:var(--mut)">%67.00</td></tr>
+            <tr><td style="padding:2px 5px">HNO₃ (%65 konsantre)</td><td style="text-align:right;padding:2px 5px;font-weight:700;color:var(--acc4)">%33.00</td></tr>
+          </table>
+          <div style="font-size:.69rem;color:var(--mut);margin-top:5px">Son ürün ~%20 HNO₃ · Paslanmaz çelik için uygun · Kazan: 400 kg</div>
+        </div>
+        <div>
+          <ol style="font-size:.74rem;line-height:1.75;padding-left:15px">
+            <li>HCl ile aynı güvenlik önlemleri alın</li>
+            <li>Suya asidi ekle (tersi değil!)</li>
+            <li>HNO₃ yükseltgen — organik maddeyle tepkimeye girer</li>
+            <li>Paslanmaz çelik temizliğinde HCl'ye üstündür</li>
+          </ol>
+          <div style="background:rgba(69,90,100,.07);border-radius:6px;padding:6px 9px;font-size:.7rem;margin-top:7px">⚠️ HNO₃ bazı metallerle (bakır, demir) şiddetli tepkime verir, zehirli NO₂ gazı çıkar. Plastik/cam kaplar kullan. HCl ile asla karıştırma (aqua regia oluşur).</div>
+        </div>
+      </div>
+    </div>
+  </div><!-- /yh-endustri -->
+
+  <!-- ─── TAB 4: KATI SABUN ─── -->
+  <div id="yh-katisabun" class="yh-sec" style="display:none">
+
+    <!-- GENEL BİLGİ -->
+    <div class="card" style="background:rgba(21,101,192,.06);border-color:rgba(21,101,192,.2);margin-bottom:10px">
+      <div class="ch"><span class="ct" style="color:var(--acc)">⚗️ Temel Sabunlaşma Bilgisi</span></div>
+      <div style="font-size:.78rem;line-height:1.7;color:var(--txt)">
+        <b>Sabun = Yağ + NaOH (Kostik) + Su</b> tepkimesidir. Her yağın farklı <b>sabunlaşma katsayısı (SAP)</b> vardır.<br>
+        <span style="color:var(--mut)">Zeytinyağı SAP: 0.134 · Defne Yağı SAP: 0.1365 (NaOH için)</span><br>
+        <b>%5 Superfat:</b> Kostikten %5 indirim yapılır → cilt kuruluğu önlenir, fazla yağ şartlandırıcı olarak kalır.<br>
+        <b>Su oranı:</b> Yağın %33-38'i kadar kullanılır. Az su → sert/hızlı, Çok su → yumuşak/yavaş kurur.<br>
+        <span style="color:var(--acc4);font-weight:700">⚠️ GÜVENLİK: NaOH şiddetli korozif. Eldiven + gözlük + önlük zorunlu. NaOH'u DAIMA suya ekle, suyu NaOH'a asla!</span>
+      </div>
+    </div>
+
+    <!-- YÖNTEM 1 -->
+    <div class="card" style="border-left:4px solid #1565C0;margin-bottom:10px">
+      <div class="ch"><span class="ct">YÖNTEM 1 — Kastilya Sabunu · Soğuk Proses · %100 Zeytinyağı</span><span class="ba bb">Başlangıç seviyesi</span></div>
+      <div class="g2" style="margin-bottom:10px">
+        <div>
+          <div style="font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--mut);margin-bottom:6px">Malzemeler (2 kg sabun)</div>
+          <table style="font-size:.77rem;width:100%">
+            <tr style="border-bottom:1px solid var(--bord)"><th style="text-align:left;padding:4px 6px;color:var(--mut)">Malzeme</th><th style="text-align:right;padding:4px 6px;color:var(--mut)">%</th><th style="text-align:right;padding:4px 6px;color:var(--mut)">Miktar</th></tr>
+            <tr><td style="padding:3px 6px">Zeytinyağı (saf/riviera)</td><td style="text-align:right;padding:3px 6px">%66.5</td><td style="text-align:right;padding:3px 6px;font-weight:700">1330 g</td></tr>
+            <tr><td style="padding:3px 6px">Su (damıtık)</td><td style="text-align:right;padding:3px 6px">%25.0</td><td style="text-align:right;padding:3px 6px;font-weight:700">500 g</td></tr>
+            <tr style="color:var(--acc)"><td style="padding:3px 6px">NaOH – Kostik (pul)</td><td style="text-align:right;padding:3px 6px">%8.5</td><td style="text-align:right;padding:3px 6px;font-weight:700">170 g</td></tr>
+            <tr style="border-top:1px solid var(--bord);font-weight:800"><td style="padding:4px 6px">TOPLAM</td><td></td><td style="text-align:right;padding:4px 6px">2000 g</td></tr>
+          </table>
+          <div style="font-size:.7rem;color:var(--mut);margin-top:6px">Superfat %5 · Su = %37.6 yağ ağırlığı · Sıcaklık: 35–40°C</div>
+        </div>
+        <div>
+          <div style="font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--mut);margin-bottom:6px">Adım Adım</div>
+          <ol style="font-size:.76rem;line-height:1.8;padding-left:16px">
+            <li>Koruyucu ekipman giyin (eldiven, gözlük, önlük)</li>
+            <li>NaOH'u <b>soğuk suya</b> yavaşça ekle, karıştır. Isı ~80°C'ye çıkar, 35–40°C'ye soğusun</li>
+            <li>Zeytinyağını 35–40°C'ye hafifçe ısıt</li>
+            <li>Her ikisi aynı sıcaklıkta → NaOH çözeltisini ince akış halinde yağa ekle, blenderla karıştır</li>
+            <li><b>Trace</b> aşamasına kadar karıştır: karışım yoğurt kıvamına geldiğinde hazır (5–30 dk)</li>
+            <li>Kalıba dök, üstünü plastikle ört, battaniyeyle sar, 24–48 saat beklet</li>
+            <li>Kalıptan çıkar, sabunlara kes, havalandırmalı alanda diz</li>
+            <li><b>4–8 hafta olgunlaştır</b> (Kastilya için min. 6 hafta önerilir)</li>
+          </ol>
+          <div style="background:rgba(21,101,192,.07);border-radius:6px;padding:7px 10px;font-size:.72rem;margin-top:8px">
+            💡 <b>İpucu:</b> Kastilya sabunu başta yumuşak görünür, zamanla sertleşir. Sabunlaşma kokusu (limon çayı kokusu gibi) olgunlaşınca kaybolur.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- YÖNTEM 2 -->
+    <div class="card" style="border-left:4px solid #2E7D32;margin-bottom:10px">
+      <div class="ch"><span class="ct">YÖNTEM 2 — Kastilya Sabunu · Sıcak Proses · %100 Zeytinyağı</span><span class="ba bg2">Daha hızlı kullanım</span></div>
+      <div class="g2" style="margin-bottom:10px">
+        <div>
+          <div style="font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--mut);margin-bottom:6px">Malzemeler (2 kg sabun)</div>
+          <table style="font-size:.77rem;width:100%">
+            <tr style="border-bottom:1px solid var(--bord)"><th style="text-align:left;padding:4px 6px;color:var(--mut)">Malzeme</th><th style="text-align:right;padding:4px 6px;color:var(--mut)">%</th><th style="text-align:right;padding:4px 6px;color:var(--mut)">Miktar</th></tr>
+            <tr><td style="padding:3px 6px">Zeytinyağı</td><td style="text-align:right;padding:3px 6px">%70.0</td><td style="text-align:right;padding:3px 6px;font-weight:700">1400 g</td></tr>
+            <tr><td style="padding:3px 6px">Su (damıtık)</td><td style="text-align:right;padding:3px 6px">%21.0</td><td style="text-align:right;padding:3px 6px;font-weight:700">420 g</td></tr>
+            <tr style="color:var(--acc)"><td style="padding:3px 6px">NaOH – Kostik (pul)</td><td style="text-align:right;padding:3px 6px">%9.0</td><td style="text-align:right;padding:3px 6px;font-weight:700">180 g</td></tr>
+            <tr style="border-top:1px solid var(--bord);font-weight:800"><td style="padding:4px 6px">TOPLAM</td><td></td><td style="text-align:right;padding:4px 6px">2000 g</td></tr>
+          </table>
+          <div style="font-size:.7rem;color:var(--mut);margin-top:6px">Superfat %5 · Az su = pişirme sırasında buharlaşır · Alüminyumsuz kap</div>
+        </div>
+        <div>
+          <div style="font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--mut);margin-bottom:6px">Adım Adım</div>
+          <ol style="font-size:.76rem;line-height:1.8;padding-left:16px">
+            <li>NaOH'u suya ekle, soğut (Soğuk Proses ile aynı)</li>
+            <li>Yağı trace'e getir (Soğuk Proses 1–4. adımlar aynı)</li>
+            <li>Paslanmaz çelik/cam tencereye al, <b>en düşük ateşte</b> pişir</li>
+            <li>Sürekli karıştırarak ~60–90 dk bekle: önce balık yumurtası → sonra pürüzlü macun kıvamı</li>
+            <li>"Elma püresi" kıvamına gelince ateşten al, <b>pH testi yap</b> (9–10 olmalı)</li>
+            <li>İsteğe göre esans/kil bu aşamada eklenebilir</li>
+            <li>Kalıba bas, 24 saat soğut, kes</li>
+            <li><b>1–2 hafta</b> olgunlaştır — çok daha kısa!</li>
+          </ol>
+          <div style="background:rgba(46,125,50,.07);border-radius:6px;padding:7px 10px;font-size:.72rem;margin-top:8px">
+            💡 <b>Avantaj:</b> Bir haftada kullanıma hazır. Superfat pişirme sonrası eklenebilir → daha kontrollü. <b>Dezavantaj:</b> Yüzey görünümü soğuk prosese göre pürüzlüdür.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- YÖNTEM 3 -->
+    <div class="card" style="border-left:4px solid #E64A19;margin-bottom:10px">
+      <div class="ch"><span class="ct">YÖNTEM 3 — Halep Sabunu Klasik · Soğuk Proses · %80 ZY + %20 Defne</span><span class="ba br">Geleneksel Halep</span></div>
+      <div class="g2" style="margin-bottom:10px">
+        <div>
+          <div style="font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--mut);margin-bottom:6px">Malzemeler (2 kg sabun)</div>
+          <table style="font-size:.77rem;width:100%">
+            <tr style="border-bottom:1px solid var(--bord)"><th style="text-align:left;padding:4px 6px;color:var(--mut)">Malzeme</th><th style="text-align:right;padding:4px 6px;color:var(--mut)">%</th><th style="text-align:right;padding:4px 6px;color:var(--mut)">Miktar</th></tr>
+            <tr><td style="padding:3px 6px">Zeytinyağı</td><td style="text-align:right;padding:3px 6px">%53.0</td><td style="text-align:right;padding:3px 6px;font-weight:700">1060 g</td></tr>
+            <tr><td style="padding:3px 6px">Defne Yağı (defne meyvesi)</td><td style="text-align:right;padding:3px 6px">%13.0</td><td style="text-align:right;padding:3px 6px;font-weight:700">260 g</td></tr>
+            <tr><td style="padding:3px 6px">Su (damıtık)</td><td style="text-align:right;padding:3px 6px">%25.5</td><td style="text-align:right;padding:3px 6px;font-weight:700">510 g</td></tr>
+            <tr style="color:var(--acc)"><td style="padding:3px 6px">NaOH – Kostik (pul)</td><td style="text-align:right;padding:3px 6px">%8.5</td><td style="text-align:right;padding:3px 6px;font-weight:700">170 g</td></tr>
+            <tr style="border-top:1px solid var(--bord);font-weight:800"><td style="padding:4px 6px">TOPLAM</td><td></td><td style="text-align:right;padding:4px 6px">2000 g</td></tr>
+          </table>
+          <div style="font-size:.7rem;color:var(--mut);margin-top:6px">Defne SAP: 0.1365 · Karma SAP: ≈0.1348 · Olgunlaşma: 6–12 ay</div>
+        </div>
+        <div>
+          <div style="font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--mut);margin-bottom:6px">Özel Notlar</div>
+          <ul style="font-size:.76rem;line-height:1.8;padding-left:16px">
+            <li>Soğuk proses yöntemi ile üretilir (Yöntem 1 adımları)</li>
+            <li>Defne yağı yüksek sıcaklıkta bozulur — yağları <b>35°C'de</b> karıştır</li>
+            <li>Taze sabun <b>dışı yeşil, içi kahverengi</b> olur — bu normaldir</li>
+            <li>Olgunlaşırken yeşil renk kahverengiye döner — bu kalite işareti</li>
+            <li>Güçlü antibakteriyel: <b>laurin asidi</b> içeriği sayesinde</li>
+            <li>Hassas, egzamalı ciltler için önerilir</li>
+          </ul>
+          <div style="background:rgba(230,74,25,.07);border-radius:6px;padding:7px 10px;font-size:.72rem;margin-top:8px">
+            🏆 Geleneksel Halep sabunu toprak altında 1–7 yıl bekletilir. Atölye üretiminde 6 ay yeterlidir.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- YÖNTEM 4 -->
+    <div class="card" style="border-left:4px solid #512DA8;margin-bottom:10px">
+      <div class="ch"><span class="ct">YÖNTEM 4 — Halep Sabunu Standart · Soğuk Proses · %70 ZY + %30 Defne</span><span class="ba bam">Dengeli formül</span></div>
+      <div class="g2">
+        <div>
+          <table style="font-size:.77rem;width:100%">
+            <tr style="border-bottom:1px solid var(--bord)"><th style="text-align:left;padding:4px 6px;color:var(--mut)">Malzeme</th><th style="text-align:right;padding:4px 6px;color:var(--mut)">%</th><th style="text-align:right;padding:4px 6px;color:var(--mut)">Miktar</th></tr>
+            <tr><td style="padding:3px 6px">Zeytinyağı</td><td style="text-align:right;padding:3px 6px">%46.0</td><td style="text-align:right;padding:3px 6px;font-weight:700">920 g</td></tr>
+            <tr><td style="padding:3px 6px">Defne Yağı</td><td style="text-align:right;padding:3px 6px">%20.0</td><td style="text-align:right;padding:3px 6px;font-weight:700">400 g</td></tr>
+            <tr><td style="padding:3px 6px">Su (damıtık)</td><td style="text-align:right;padding:3px 6px">%25.5</td><td style="text-align:right;padding:3px 6px;font-weight:700">510 g</td></tr>
+            <tr style="color:var(--acc)"><td style="padding:3px 6px">NaOH – Kostik</td><td style="text-align:right;padding:3px 6px">%8.5</td><td style="text-align:right;padding:3px 6px;font-weight:700">170 g</td></tr>
+          </table>
+          <div style="font-size:.7rem;color:var(--mut);margin-top:6px">Karma SAP: ≈0.1350 · Yoğun antibakteriyel etki</div>
+        </div>
+        <div style="font-size:.76rem;line-height:1.7">
+          <b>%30 Defne → %20'ye kıyasla:</b>
+          <ul style="padding-left:14px;margin-top:5px">
+            <li>Daha güçlü antimikrobiyal etki</li>
+            <li>Daha yoğun, karakteristik Halep kokusu</li>
+            <li>Daha sert bar — daha uzun ömürlü</li>
+            <li>Deodorant sabun olarak uygun</li>
+          </ul>
+          <div style="background:rgba(81,45,168,.07);border-radius:6px;padding:7px 10px;font-size:.72rem;margin-top:8px">
+            📋 Soğuk proses Yöntem 1 adımlarını izle. Defne yağı ile yağ karışımını 35°C'den fazla ısıtma.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- YÖNTEM 5 -->
+    <div class="card" style="border-left:4px solid #C62828;margin-bottom:10px">
+      <div class="ch"><span class="ct">YÖNTEM 5 — Halep Sabunu Premium · Soğuk Proses · %60 ZY + %40 Defne</span><span class="ba br">Premium / Tıbbi</span></div>
+      <div class="g2">
+        <div>
+          <table style="font-size:.77rem;width:100%">
+            <tr style="border-bottom:1px solid var(--bord)"><th style="text-align:left;padding:4px 6px;color:var(--mut)">Malzeme</th><th style="text-align:right;padding:4px 6px;color:var(--mut)">%</th><th style="text-align:right;padding:4px 6px;color:var(--mut)">Miktar</th></tr>
+            <tr><td style="padding:3px 6px">Zeytinyağı</td><td style="text-align:right;padding:3px 6px">%40.0</td><td style="text-align:right;padding:3px 6px;font-weight:700">800 g</td></tr>
+            <tr><td style="padding:3px 6px">Defne Yağı</td><td style="text-align:right;padding:3px 6px">%26.5</td><td style="text-align:right;padding:3px 6px;font-weight:700">530 g</td></tr>
+            <tr><td style="padding:3px 6px">Su (damıtık)</td><td style="text-align:right;padding:3px 6px">%25.0</td><td style="text-align:right;padding:3px 6px;font-weight:700">500 g</td></tr>
+            <tr style="color:var(--acc)"><td style="padding:3px 6px">NaOH – Kostik</td><td style="text-align:right;padding:3px 6px">%8.5</td><td style="text-align:right;padding:3px 6px;font-weight:700">170 g</td></tr>
+          </table>
+          <div style="font-size:.7rem;color:var(--mut);margin-top:6px">Karma SAP: ≈0.1352 · Piyasadaki en yüksek defne oranı</div>
+        </div>
+        <div style="font-size:.76rem;line-height:1.7">
+          <b>%40 Defne yağı özellikleri:</b>
+          <ul style="padding-left:14px;margin-top:5px">
+            <li>Maksimum laurin asidi → güçlü antimikrobiyal</li>
+            <li>Sedef hastalığı, egzama için geleneksel kullanım</li>
+            <li>Çok yoğun karakteristik koku — bazı kullanıcılar tercih etmez</li>
+            <li>Minimum 6 ay, ideal 12 ay olgunlaştırılmalı</li>
+          </ul>
+          <div style="background:rgba(198,40,40,.07);border-radius:6px;padding:7px 10px;font-size:.72rem;margin-top:8px">
+            ⚠️ %40 defne yağı pahalı bir formüldür (≈ 3× Kastilya maliyet). Lüks/özel üretim için uygundur.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- KARŞILAŞTIRMA TABLOSU -->
+    <div class="card">
+      <div class="ch"><span class="ct">📊 Yöntem Karşılaştırma Tablosu</span></div>
+      <div class="tw"><table style="font-size:.74rem">
+        <thead><tr><th>Yöntem</th><th>Defne %</th><th>Olgunlaşma</th><th>Zorluk</th><th>Özellik</th></tr></thead>
+        <tbody>
+          <tr><td><b>Kastilya Soğuk</b></td><td class="tc">—</td><td>6–8 hafta</td><td><span class="ba bg2">Kolay</span></td><td>Hafif, günlük kullanım</td></tr>
+          <tr><td><b>Kastilya Sıcak</b></td><td class="tc">—</td><td>1–2 hafta</td><td><span class="ba bam">Orta</span></td><td>Hızlı, çok amaçlı</td></tr>
+          <tr><td><b>Halep Klasik</b></td><td class="tc">%20</td><td>3–6 ay</td><td><span class="ba bg2">Kolay</span></td><td>Hafif antibakteriyel</td></tr>
+          <tr><td><b>Halep Standart</b></td><td class="tc">%30</td><td>6–9 ay</td><td><span class="ba bam">Orta</span></td><td>Güçlü antibakteriyel</td></tr>
+          <tr><td><b>Halep Premium</b></td><td class="tc">%40</td><td>9–12 ay</td><td><span class="ba br">İleri</span></td><td>Tıbbi / lüks kalite</td></tr>
+        </tbody>
+      </table></div>
+    </div>
+  </div><!-- /yh-katisabun -->
+
+  <!-- ── TAB 2: SORUN GİDERME ── -->
+  <div id="yh-sorunlar" class="yh-sec" style="display:none">
+    <div style="font-size:.77rem;color:var(--mut);margin-bottom:10px">Bu rehber zeytinyağı bazlı katı sabun üretiminde karşılaşılan yaygın sorunları ve çözümlerini içermektedir.</div>
+
+    <!-- S1 -->
+    <div class="card" style="border-left:3px solid var(--acc4);margin-bottom:8px">
+      <div class="ch" style="margin-bottom:6px"><span class="ct" style="color:var(--acc4)">🔴 Sabun Sertleşmiyor / Çok Yumuşak Kalıyor</span></div>
+      <div style="font-size:.76rem;line-height:1.7">
+        <b>Nedenler:</b>
+        <ul style="padding-left:14px;margin:4px 0">
+          <li>Çok fazla su kullanıldı (zeytinyağı doğası gereği yavaş sertleşir)</li>
+          <li>Kostik miktarı az / yanlış hesaplandı</li>
+          <li>Ortam çok sıcak — sabun ısı fazlasıyla eridi (volcano/kaynamış)</li>
+        </ul>
+        <b>Çözümler:</b>
+        <ul style="padding-left:14px;margin:4px 0">
+          <li>Su miktarını %33–35'e düşür (yağ ağırlığına göre)</li>
+          <li>Sabunu buzdolabına koy — soğuk sertleşmeyi hızlandırır</li>
+          <li>24 saat sonra hâlâ yumuşaksa → normal, 72 saate kadar bekle</li>
+          <li>Sabun sertleşmezse: "Rebatch" yöntemi ile kurtarılabilir (rendeleyip yeniden pişir)</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- S2 -->
+    <div class="card" style="border-left:3px solid #FF8F00;margin-bottom:8px">
+      <div class="ch" style="margin-bottom:6px"><span class="ct" style="color:#FF8F00">🟡 Yüzeyde Beyaz Toz / Soda Külü (Soda Ash)</span></div>
+      <div style="font-size:.76rem;line-height:1.7">
+        <b>Neden olur:</b> Ham sabundaki kostik havadaki CO₂ ile tepkimeye girer → yüzeyde beyaz sodyum karbonat tabakası oluşur.
+        <ul style="padding-left:14px;margin:4px 0">
+          <li>Tamamen <b>zararsız</b>, sabun kalitesini etkilemez</li>
+          <li>Yüzey ıslak bezle silinebilir ya da hafifçe kazınabilir</li>
+        </ul>
+        <b>Önlemek için:</b>
+        <ul style="padding-left:14px;margin:4px 0">
+          <li>Döküm sonrası plastik streç filmle yüzeyi kapat</li>
+          <li>%99 izopropil alkol spreyini yüzeye püskürt</li>
+          <li>Trace biraz kalınlaştıktan sonra dök (ince trace → daha fazla soda külü)</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- S3 -->
+    <div class="card" style="border-left:3px solid var(--acc4);margin-bottom:8px">
+      <div class="ch" style="margin-bottom:6px"><span class="ct" style="color:var(--acc4)">🔴 Sabun Ayrışıyor — Yağ Üstte Kalıyor (Separation)</span></div>
+      <div style="font-size:.76rem;line-height:1.7">
+        <b>Nedenler:</b>
+        <ul style="padding-left:14px;margin:4px 0">
+          <li>Yetersiz karıştırma — emülsifikasyon sağlanmadı</li>
+          <li>Yağ ve kostik çözeltisinin sıcaklık farkı çok büyüktü</li>
+          <li>Uyumsuz koku yağı kullanıldı (sabunlaşmayı bozabilir)</li>
+        </ul>
+        <b>Kurtarma:</b>
+        <ul style="padding-left:14px;margin:4px 0">
+          <li>Tencereye al, düşük ateşte ısıt, blenderla karıştır → sıcak proses olarak tamamla</li>
+          <li>Eğer yağ miktarı aşırıysa ve hâlâ ham kostik varsa → kullanma, güvenli değil</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- S4 -->
+    <div class="card" style="border-left:3px solid #0288D1;margin-bottom:8px">
+      <div class="ch" style="margin-bottom:6px"><span class="ct" style="color:#0288D1">🔵 Trace Gelmiyor / Çok Yavaş (False Trace)</span></div>
+      <div style="font-size:.76rem;line-height:1.7">
+        <b>Kastilya sabunu trace'i yavaş gelir</b> — bu normaldir. Zeytinyağı %70+ oleik asit içerir, emülsifikasyon yavaştır.
+        <ul style="padding-left:14px;margin:4px 0">
+          <li><b>False trace:</b> Karışım soğuk olduğu için kalınlaştı ama emülsifiye olmadı → ısıtınca tekrar sıvılaşır</li>
+          <li><b>Gerçek trace:</b> Karıştırma durduğunda kıvam korunur, yüzey iz bırakır</li>
+        </ul>
+        <b>Çözüm:</b>
+        <ul style="padding-left:14px;margin:4px 0">
+          <li>Blenderı darbe darbe (pulse) kullan, aralarda el ile karıştır</li>
+          <li>Sabunun sıcaklığı 35–40°C'de tutulmalı, soğuk ortamda trace gelir</li>
+          <li>Süre: Kastilya'da 30–90 dk normal sayılır</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- S5 -->
+    <div class="card" style="border-left:3px solid #FF8F00;margin-bottom:8px">
+      <div class="ch" style="margin-bottom:6px"><span class="ct" style="color:#FF8F00">🟡 Aşırı Hızlı Trace / Seizing (Sabun Anında Katılaşıyor)</span></div>
+      <div style="font-size:.76rem;line-height:1.7">
+        <b>Nedenler:</b>
+        <ul style="padding-left:14px;margin:4px 0">
+          <li>Yüksek sıcaklıkta (60°C+) karıştırıldı</li>
+          <li>Uçucu koku yağı veya baharatlar eklendi (karanfil, tarçın — hızlandırır)</li>
+          <li>Şeker / süt / bal eklendi (şeker sabunlaşmayı hızlandırır)</li>
+        </ul>
+        <b>Çözüm:</b>
+        <ul style="padding-left:14px;margin:4px 0">
+          <li>Hızlıca kalıba dök, düzlemeye çalışma</li>
+          <li>Sonraki seferde: yağ ve kostik 30°C'de birleştir</li>
+          <li>Koku yağlarını trace sonra en son ekle, çabuk karıştırıp dök</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- S6 -->
+    <div class="card" style="border-left:3px solid var(--acc4);margin-bottom:8px">
+      <div class="ch" style="margin-bottom:6px"><span class="ct" style="color:var(--acc4)">🔴 Portakal Lekeler — DOS (Dreaded Orange Spots)</span></div>
+      <div style="font-size:.76rem;line-height:1.7">
+        <b>Neden:</b> Erken oksidasyon (ransidite) belirtisidir. Zeytinyağı kendi başına stabil olsa da diğer etkenler tetikler.
+        <ul style="padding-left:14px;margin:4px 0">
+          <li>Musluk suyu kullanıldı (klor/mineral içeriği)</li>
+          <li>Nem almış, bozuk yağ kullanıldı</li>
+          <li>Metalleri kataliz eden katkı maddeleri</li>
+        </ul>
+        <b>Önlem:</b>
+        <ul style="padding-left:14px;margin:4px 0">
+          <li>Daima <b>damıtık veya arı su</b> kullan</li>
+          <li>Taze, soğuk muhafaza edilmiş zeytinyağı kullan</li>
+          <li>%0.5 E vitamin (TOE) antioksidan olarak ekle</li>
+          <li>Kuru, serin, hava almayan yerde muhafaza et</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- S7 -->
+    <div class="card" style="border-left:3px solid #FF8F00;margin-bottom:8px">
+      <div class="ch" style="margin-bottom:6px"><span class="ct" style="color:#FF8F00">🟡 Sabun Çatladı / Kenarlar Ufalıyor</span></div>
+      <div style="font-size:.76rem;line-height:1.7">
+        <b>Çatlama:</b> Sabun kalıpta çok soğuk ortamda tutuldu veya çok çabuk soğutuldu.
+        <ul style="padding-left:14px;margin:4px 0"><li>Battaniyeyle sarıp 24–48 saat yavaş soğut (insülasyon)</li><li>Buzluğa koyma!</li></ul>
+        <b>Ufalanma:</b> Kostik fazla, superfat çok düşük ya da erken kesildi.
+        <ul style="padding-left:14px;margin:4px 0"><li>72 saat kalıpta beklet, sonra kes</li><li>Bir sonraki üretimde superfat'ı %5'ten %7–8'e çıkar</li></ul>
+      </div>
+    </div>
+
+    <!-- S8 -->
+    <div class="card" style="border-left:3px solid #0288D1;margin-bottom:8px">
+      <div class="ch" style="margin-bottom:6px"><span class="ct" style="color:#0288D1">🔵 Sabun Çok Sert / Granüllü Yapı (Calcification)</span></div>
+      <div style="font-size:.76rem;line-height:1.7">
+        Zeytinyağı sabunu normalde pürüzsüzdür. Granüllü yapı → kalsiyum sabun (sert su kullanıldı) veya yağların donma noktasının altında çalışıldı.
+        <ul style="padding-left:14px;margin:4px 0">
+          <li>Damıtık su kullan, musluk suyu kullanma</li>
+          <li>Defne yağını 30°C'nin altında tutma (donabilir)</li>
+          <li>Tüm malzemeleri 35–40°C'ye getirdikten sonra birleştir</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- S9 -->
+    <div class="card" style="border-left:3px solid #2E7D32;margin-bottom:8px">
+      <div class="ch" style="margin-bottom:6px"><span class="ct" style="color:#2E7D32">🟢 pH Testi & Güvenlik Kontrolü</span></div>
+      <div style="font-size:.76rem;line-height:1.7">
+        <b>Zap Testi:</b> Sabunun ucunu dile dokun — elektrik çarpar gibi acı hissedilirse sabun hâlâ kostik içeriyor demektir, bekletmeye devam et.
+        <div class="g2" style="margin-top:8px;gap:8px">
+          <div style="background:rgba(46,125,50,.07);padding:8px;border-radius:6px">
+            <div style="font-weight:700;margin-bottom:4px">pH Kağıdı ile Test</div>
+            <table style="font-size:.72rem;width:100%">
+              <tr><td>pH 8–9</td><td style="text-align:right;color:var(--acc3)">✅ Kullanıma hazır</td></tr>
+              <tr><td>pH 10–11</td><td style="text-align:right;color:#FF8F00">⏳ Birkaç hafta daha</td></tr>
+              <tr><td>pH 12+</td><td style="text-align:right;color:var(--acc4)">❌ Olgunlaşmamış</td></tr>
+            </table>
+          </div>
+          <div style="background:rgba(21,101,192,.07);padding:8px;border-radius:6px">
+            <div style="font-weight:700;margin-bottom:4px">Olgunlaşma Süresi</div>
+            <table style="font-size:.72rem;width:100%">
+              <tr><td>Kastilya Sıcak</td><td style="text-align:right">1–2 hafta</td></tr>
+              <tr><td>Kastilya Soğuk</td><td style="text-align:right">6–8 hafta</td></tr>
+              <tr><td>Halep %20</td><td style="text-align:right">3–6 ay</td></tr>
+              <tr><td>Halep %40</td><td style="text-align:right">9–12 ay</td></tr>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- S10 -->
+    <div class="card" style="border-left:3px solid #455A64">
+      <div class="ch" style="margin-bottom:6px"><span class="ct">⚫ Genel Güvenlik Hatırlatması</span></div>
+      <div style="font-size:.76rem;line-height:1.8">
+        <ul style="padding-left:14px">
+          <li><b>Eldiven + gözlük + önlük</b> — kostik deri ve göze zarar verir</li>
+          <li>NaOH'u <b>DAIMA suya ekle</b> — tersi şiddetli sıçrama yapar</li>
+          <li>Kostik çözeltisi hazırlanırken <b>buhar soluma</b> — havalandırmalı ortamda çalış</li>
+          <li>Alüminyum kap <b>kullanma</b> — NaOH ile tepkimeye girer, hidrojen gazı çıkar</li>
+          <li>Çocuklar ve hayvanlardan uzak tut</li>
+          <li>Sabun kalıpları <b>gıda kapları ile karıştırma</b></li>
+          <li>Cilde kostik teması → bol suyla yıka, gerekirse 0.9% serum fizyolojik uygula</li>
+        </ul>
+      </div>
+    </div>
+  </div><!-- /yh-sorunlar -->
+
+  </div><!-- /padding-top div -->
+</div>
+</div>
+
+<!-- Öğrenci -->
+<div class="mo" id="m-ogc">
+<div class="md">
+  <div class="mt2">🎓 Öğrenci</div>
+  <div class="g3">
+    <div class="fg"><label>Okul No</label><input type="text" id="oc-no"></div>
+    <div class="fg"><label>Ad Soyad</label><input type="text" id="oc-ad"></div>
+    <div class="fg"><label>Sınıf</label><input type="text" id="oc-sn" placeholder="12/ATP"></div>
+  </div>
+  <div class="fg"><label>IBAN</label><input type="text" id="oc-ib" placeholder="TR..."></div>
+  <input type="hidden" id="oc-id">
+  <div class="mf"><button class="btn bg" onclick="closeModal('m-ogc')">İptal</button><button class="btn bp" onclick="saveOgc()">Kaydet</button></div>
+</div>
+</div>
+
+<!-- Belgeler (fatura / sipariş formu / irsaliye) -->
+<div class="mo" id="m-belge">
+<div class="md" style="max-width:640px">
+  <div class="mt2" id="belge-baslik">📎 Belgeler</div>
+  <div class="belge-drop" id="belge-drop" onclick="document.getElementById('belge-input').click()">
+    <input type="file" id="belge-input" multiple accept="image/*,.pdf,.doc,.docx,.xls,.xlsx" style="display:none" onchange="belgeYukle(this)">
+    <div style="font-size:1.6rem">📤</div>
+    <div style="font-weight:700;font-size:.82rem">Belge yüklemek için tıkla veya sürükle</div>
+    <div class="tm">Fotoğraf, PDF, Word, Excel · birden fazla seçilebilir</div>
+  </div>
+  <div id="belge-progress" class="tm" style="margin:6px 0;display:none"></div>
+  <div id="belge-list" style="margin-top:10px"></div>
+  <div class="mf"><button class="btn bg" onclick="closeModal('m-belge')">Kapat</button></div>
+</div>
+</div>
+
+<!-- Yeni Fiyat Listesi Yükle -->
+<div class="mo" id="m-fiyat-yukle">
+<div class="md" style="max-width:640px">
+  <div class="mt2">📄 Yeni Fiyat Listesi Yükle</div>
+  <div class="tm" style="margin-bottom:8px">Komisyon kararı / güncel satış listesi belgesini yükleyin ve fiyatları belgeye göre girin. Satış fiyatları yalnızca bu işlemle güncellenir.</div>
+  <div class="g2">
+    <div class="fg"><label>Yürürlük Tarihi</label><input type="date" id="fy-tar"></div>
+    <div class="fg"><label>Belge (PDF / Foto / Word / Excel)</label><input type="file" id="fy-belge" accept="image/*,.pdf,.doc,.docx,.xls,.xlsx"></div>
+  </div>
+  <div class="ct" style="margin:10px 0 6px">Satış Fiyatları (₺) — belgeye göre</div>
+  <div id="fy-fiyatlar" style="max-height:300px;overflow-y:auto;border:1px solid var(--bord);border-radius:8px;padding:9px"></div>
+  <div class="mf"><button class="btn bg" onclick="closeModal('m-fiyat-yukle')">İptal</button><button class="btn bp" onclick="saveFiyatYukle()">Kaydet & Yükle</button></div>
+</div>
+</div>
+
+<!-- İrsaliye Oluştur -->
+<div class="mo" id="m-irsaliye">
+<div class="md" style="max-width:720px">
+  <div class="mt2">🧾 Sevk İrsaliyesi Oluştur</div>
+  <div class="g2">
+    <div class="fg"><label>Müşteri (Alıcı)</label><select id="ir-mus"></select></div>
+    <div class="fg"><label>Tarih</label><input type="date" id="ir-tar"></div>
+  </div>
+  <div class="g3">
+    <div class="fg"><label>Araç Plakası</label><input type="text" id="ir-plaka" placeholder="31 ABC 123"></div>
+    <div class="fg"><label>Sürücü</label><input type="text" id="ir-surucu"></div>
+    <div class="fg"><label>Taşıyan</label><input type="text" id="ir-tasiyan"></div>
+  </div>
+  <div class="fg"><label>Alıcı VKN / TCKN (opsiyonel)</label><input type="text" id="ir-vergi"></div>
+  <div style="display:flex;justify-content:space-between;align-items:center;margin:8px 0 6px;flex-wrap:wrap;gap:6px">
+    <div class="ct">Kalemler (Malın Cinsi)</div>
+    <div class="bgrp"><button class="btn bg bsm" onclick="irsSiparistenDoldur()">⟳ Siparişlerden Doldur</button><button class="btn bg bsm" onclick="addIrsK()">+ Ürün</button></div>
+  </div>
+  <div id="ir-kalemler"></div>
+  <div class="fg mt8"><label>Not</label><input type="text" id="ir-not"></div>
+  <div class="mf"><button class="btn bg" onclick="closeModal('m-irsaliye')">İptal</button><button class="btn bp" onclick="saveIrsaliye()">Oluştur & Yazdır</button></div>
+</div>
+</div>
+
+<!-- Global Arama -->
+<div class="mo" id="m-arama">
+<div class="md" style="max-width:560px">
+  <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px">
+    <input type="text" id="arama-input" placeholder="Ara… (müşteri, sipariş, ürün, irsaliye)" oninput="aramaYap()" onkeydown="if(event.key==='Escape')closeModal('m-arama')" style="margin:0;flex:1">
+    <button class="btn bg" onclick="closeModal('m-arama')">Kapat</button>
+  </div>
+  <div id="arama-sonuc" style="max-height:62vh;overflow-y:auto"></div>
+</div>
+</div>
+
+<!-- Bildirimler -->
+<div class="mo" id="m-bildirim">
+<div class="md" style="max-width:520px">
+  <div class="mt2">🔔 Bildirimler</div>
+  <div id="bildirim-list"></div>
+  <div class="mf"><button class="btn bg" onclick="closeModal('m-bildirim')">Kapat</button></div>
+</div>
+</div>
+
+<script type="module" src="/src/main.ts"></script>
+</body>
+</html>

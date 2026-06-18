@@ -1,0 +1,21 @@
+{
+  "name": "formulab-pro",
+  "private": true,
+  "version": "6.0.0",
+  "type": "module",
+  "description": "Kimya Üretim Atölyesi Yönetim Programı",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.45.0",
+    "xlsx": "^0.18.5"
+  },
+  "devDependencies": {
+    "typescript": "^5.5.4",
+    "vite": "^5.4.0",
+    "vite-plugin-pwa": "^1.3.0"
+  }
+}
