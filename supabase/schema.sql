@@ -149,6 +149,44 @@ create table if not exists eslestirmeler (
   esans_ids jsonb default '[]'::jsonb
 );
 
+-- ── Kalite Kontrol Defteri ────────────────────────────────────
+create table if not exists kalite_kontrol (
+  id         bigint generated always as identity primary key,
+  tarih      date not null,
+  urun_id    text,
+  parti_no   text default '',
+  uretim_id  bigint,
+  ph         numeric,
+  yogunluk   numeric,
+  gorunum    text default '',
+  koku       text default '',
+  viskozite  text default '',
+  sonuc      text default 'uygun',
+  olcen      text default '',
+  notu       text default '',
+  created_at timestamptz default now()
+);
+
+-- ── Partiler (izlenebilirlik + etiket) ────────────────────────
+create table if not exists partiler (
+  id          bigint generated always as identity primary key,
+  parti_no    text not null,
+  urun_id     text,
+  tarih       date not null,
+  uretim_id   bigint,
+  kg          numeric default 0,
+  amb_lt      integer default 0,
+  raf_omru_ay integer default 24,
+  skt         date,
+  ogrenciler  jsonb default '[]'::jsonb,
+  ogretmenler jsonb default '[]'::jsonb,
+  notu        text default '',
+  created_at  timestamptz default now()
+);
+
+create index if not exists kalite_tarih_idx on kalite_kontrol (tarih desc);
+create index if not exists parti_tarih_idx on partiler (tarih desc);
+
 -- ── Denetim kaydı ─────────────────────────────────────────────
 create table if not exists denetim (
   id     bigint generated always as identity primary key,

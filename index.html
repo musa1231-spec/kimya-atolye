@@ -45,55 +45,78 @@
 
 <!-- ══ ANA UYGULAMA ══ -->
 <div id="app">
-<div class="sb">
-  <div class="sb-logo"><div class="n">KİMYA ÜRETİM ATÖLYESİ<br>YÖNETİM PROGRAMI</div><div class="s">Üretim & Maliyet Takip Sistemi</div></div>
-  <div class="sb-user">
-    <div class="ua" id="sb-avatar">—</div>
-    <div><div class="un" id="sb-name">—</div><div class="ut">Giriş yapıldı</div></div>
-    <button class="logout-btn" onclick="openArama()" title="Ara (Ctrl+K)" style="font-size:.95rem;color:var(--acc)">🔍</button>
-    <button class="logout-btn" onclick="openBildirim()" title="Bildirimler" style="position:relative;font-size:.95rem;color:var(--acc)">🔔<span id="bell-badge" class="bell-badge" style="display:none">0</span></button>
-    <button class="logout-btn" onclick="doLogout()" title="Çıkış">✕</button>
+<header id="topbar">
+  <div class="tb-brand"><span class="tb-logo">🧪</span><span class="tb-bt">KİMYA ÜRETİM<br>ATÖLYESİ</span></div>
+  <nav class="tb-nav" id="tb-nav">
+    <div class="tb-grp sb-g-genel">
+      <button class="tb-head" onclick="tbToggle(this,event)">Genel<span class="tb-car">⌄</span></button>
+      <div class="tb-menu">
+        <div class="ni active" onclick="go('dashboard',this)"><span class="ic">📊</span>Gösterge</div>
+        <div class="ni" onclick="go('uretim',this)"><span class="ic">🏭</span>Üretim Günleri</div>
+        <div class="ni" onclick="go('asistan',this)"><span class="ic">🧑‍🔬</span>Üretim Asistanı</div>
+        <div class="ni" onclick="go('aylik',this)"><span class="ic">📈</span>Aylık Rapor</div>
+        <div class="ni" onclick="go('rapor',this)"><span class="ic">📑</span>Yıllık Rapor</div>
+      </div>
+    </div>
+    <div class="tb-grp sb-g-kalite">
+      <button class="tb-head" onclick="tbToggle(this,event)">Kalite & İzlenebilirlik<span class="tb-car">⌄</span></button>
+      <div class="tb-menu">
+        <div class="ni" onclick="go('kalite',this)"><span class="ic">🧪</span>Kalite Kontrol</div>
+        <div class="ni" onclick="go('parti',this)"><span class="ic">🏷️</span>Parti & Etiket</div>
+      </div>
+    </div>
+    <div class="tb-grp sb-g-form">
+      <button class="tb-head" onclick="tbToggle(this,event)">Formülasyon & Maliyet<span class="tb-car">⌄</span></button>
+      <div class="tb-menu">
+        <div class="ni" onclick="go('formulasyon',this)"><span class="ic">⚗️</span>Formülasyon</div>
+        <div class="ni" onclick="go('maliyet',this)"><span class="ic">💰</span>Maliyet Analizi</div>
+        <div class="ni" onclick="go('fiyat-liste',this)"><span class="ic">🏷️</span>Fiyat Listesi</div>
+        <div class="ni" onclick="go('plan',this)"><span class="ic">🧮</span>Üretim Planı</div>
+      </div>
+    </div>
+    <div class="tb-grp sb-g-sip">
+      <button class="tb-head" onclick="tbToggle(this,event)">Siparişler<span class="nb" id="bb"></span><span class="tb-car">⌄</span></button>
+      <div class="tb-menu">
+        <div class="ni" onclick="go('siparisler',this)"><span class="ic">📋</span>Siparişler</div>
+        <div class="ni" onclick="go('sevkiyat',this)"><span class="ic">🚚</span>Sevkiyat</div>
+        <div class="ni" onclick="go('irsaliye',this)"><span class="ic">🧾</span>İrsaliye</div>
+        <div class="ni" onclick="go('musteriler',this)"><span class="ic">🏥</span>Müşteriler</div>
+      </div>
+    </div>
+    <div class="tb-grp sb-g-stok">
+      <button class="tb-head" onclick="tbToggle(this,event)">Stok<span class="tb-car">⌄</span></button>
+      <div class="tb-menu">
+        <div class="ni" onclick="go('urun-stok',this)"><span class="ic">🧴</span>Ürün Stoku</div>
+        <div class="ni" onclick="go('bidon-stok',this)"><span class="ic">📦</span>Bidon Stoku</div>
+        <div class="ni" onclick="go('koli-stok',this)"><span class="ic">📫</span>Karton Stoku</div>
+        <div class="ni" onclick="go('hm-stok',this)"><span class="ic">🧪</span>Ham Madde</div>
+        <div class="ni" onclick="go('esans-stok',this)"><span class="ic">🌸</span>Esans Stoku</div>
+        <div class="ni" onclick="go('siparis-oneri',this)"><span class="ic">🛒</span>Sipariş Önerisi</div>
+      </div>
+    </div>
+    <div class="tb-grp sb-g-pers">
+      <button class="tb-head" onclick="tbToggle(this,event)">Personel<span class="tb-car">⌄</span></button>
+      <div class="tb-menu">
+        <div class="ni" onclick="go('ogretmenler',this)"><span class="ic">👨‍🏫</span>Öğretmenler</div>
+        <div class="ni" onclick="go('ogrenciler',this)"><span class="ic">🎓</span>Öğrenciler</div>
+        <div class="ni" onclick="openModal('m-yardim')" style="border:1px dashed rgba(183,28,28,.35);background:rgba(183,28,28,.06)"><span class="ic">📚</span>Üretim Rehberi</div>
+      </div>
+    </div>
+    <div class="tb-grp sb-g-sis">
+      <button class="tb-head" onclick="tbToggle(this,event)">Sistem<span class="tb-car">⌄</span></button>
+      <div class="tb-menu">
+        <div class="ni" onclick="go('audit',this)"><span class="ic">🔍</span>Denetim Kaydı</div>
+        <div class="ni" onclick="go('yedek',this)"><span class="ic">💾</span>Yedekleme</div>
+      </div>
+    </div>
+  </nav>
+  <div class="tb-right">
+    <div class="tb-user"><div class="ua" id="sb-avatar">—</div><span class="un" id="sb-name">—</span></div>
+    <button class="tb-ic" onclick="openArama()" title="Ara (Ctrl+K)">🔍</button>
+    <button class="tb-ic" onclick="openBildirim()" title="Bildirimler">🔔<span id="bell-badge" class="bell-badge" style="display:none">0</span></button>
+    <button class="tb-ic" onclick="doLogout()" title="Çıkış">✕</button>
   </div>
-  <div class="sb-group sb-g-genel">
-    <div class="sb-sec">Genel</div>
-    <div class="ni active" onclick="go('dashboard',this)"><span class="ic">📊</span>Gösterge</div>
-    <div class="ni" onclick="go('uretim',this)"><span class="ic">🏭</span>Üretim Günleri</div>
-    <div class="ni" onclick="go('aylik',this)"><span class="ic">📈</span>Aylık Rapor</div>
-  </div>
-  <div class="sb-group sb-g-form">
-    <div class="sb-sec">Formülasyon & Maliyet</div>
-    <div class="ni" onclick="go('formulasyon',this)"><span class="ic">⚗️</span>Formülasyon</div>
-    <div class="ni" onclick="go('maliyet',this)"><span class="ic">💰</span>Maliyet Analizi</div>
-    <div class="ni" onclick="go('fiyat-liste',this)"><span class="ic">🏷️</span>Fiyat Listesi</div>
-    <div class="ni" onclick="go('plan',this)"><span class="ic">🧮</span>Üretim Planı</div>
-  </div>
-  <div class="sb-group sb-g-sip">
-    <div class="sb-sec">Siparişler</div>
-    <div class="ni" onclick="go('siparisler',this)"><span class="ic">📋</span>Siparişler <span class="nb" id="bb"></span></div>
-    <div class="ni" onclick="go('sevkiyat',this)"><span class="ic">🚚</span>Sevkiyat</div>
-    <div class="ni" onclick="go('irsaliye',this)"><span class="ic">🧾</span>İrsaliye</div>
-    <div class="ni" onclick="go('musteriler',this)"><span class="ic">🏥</span>Müşteriler</div>
-  </div>
-  <div class="sb-group sb-g-stok">
-    <div class="sb-sec">Stok</div>
-    <div class="ni" onclick="go('urun-stok',this)"><span class="ic">🧴</span>Ürün Stoku</div>
-    <div class="ni" onclick="go('bidon-stok',this)"><span class="ic">📦</span>Bidon Stoku</div>
-    <div class="ni" onclick="go('koli-stok',this)"><span class="ic">📫</span>Karton Stoku</div>
-    <div class="ni" onclick="go('hm-stok',this)"><span class="ic">🧪</span>Ham Madde</div>
-    <div class="ni" onclick="go('esans-stok',this)"><span class="ic">🌸</span>Esans Stoku</div>
-  </div>
-  <div class="sb-group sb-g-pers">
-    <div class="sb-sec">Personel</div>
-    <div class="ni" onclick="go('ogretmenler',this)"><span class="ic">👨‍🏫</span>Öğretmenler</div>
-    <div class="ni" onclick="go('ogrenciler',this)"><span class="ic">🎓</span>Öğrenciler</div>
-    <div class="ni" onclick="openModal('m-yardim')" style="margin-top:4px;border:1px dashed rgba(183,28,28,.35);background:rgba(183,28,28,.06)"><span class="ic">📚</span>Üretim Rehberi</div>
-  </div>
-  <div class="sb-group sb-g-sis">
-    <div class="sb-sec">Sistem</div>
-    <div class="ni" onclick="go('audit',this)"><span class="ic">🔍</span>Denetim Kaydı</div>
-    <div class="ni" onclick="go('yedek',this)"><span class="ic">💾</span>Yedekleme</div>
-  </div>
-</div>
+</header>
 
 <div class="main">
 
@@ -148,6 +171,93 @@
       <div class="tw"><table><thead><tr><th>Ürün</th><th class="tr">kg</th></tr></thead><tbody id="ay-ur"></tbody></table></div>
     </div>
   </div>
+</div>
+
+<!-- ÜRETİM ASİSTANI -->
+<div id="pg-asistan" class="pg">
+  <div class="ph"><div><div class="pt">🧑‍🔬 Atölye Üretim Asistanı</div><div class="ps">Adım adım rehberli üretim — öğrenci tabletiyle kullanın</div></div></div>
+
+  <div id="as-setup" class="card" style="max-width:520px;margin:0 auto">
+    <div class="ch"><span class="ct">Üretime Başla</span></div>
+    <div class="fg"><label>Ürün</label><select id="as-urun" onchange="asistanUrunDegisti()"></select></div>
+    <div class="fg"><label>Hedef Miktar (kg)</label><input type="number" id="as-kg" min="1" value="900"></div>
+    <div class="tm" style="margin-bottom:14px">Kategori: <b id="as-kat">—</b> · Reçete bu miktara otomatik ölçeklenecek.</div>
+    <button class="btn bp" style="width:100%;font-size:1rem;padding:13px" onclick="asistanBasla()">▶ Üretime Başla</button>
+  </div>
+
+  <div id="as-run" style="display:none;max-width:620px;margin:0 auto">
+    <div style="text-align:center;font-weight:800;color:var(--acc);margin-bottom:6px" id="as-run-baslik"></div>
+    <div id="as-progress"></div>
+    <div class="card as-card"><div id="as-adim"></div></div>
+    <div class="bgrp as-nav-bar" id="as-nav" style="justify-content:space-between;margin-top:14px"></div>
+    <div class="as-liste-wrap" id="as-liste"></div>
+  </div>
+</div>
+
+<!-- YILLIK RAPOR -->
+<div id="pg-rapor" class="pg">
+  <div class="ph"><div><div class="pt" id="rp-baslik">Yıllık Faaliyet Raporu</div><div class="ps">Döner sermaye üretim özeti — MEB/idare sunumu için</div></div>
+    <div class="bgrp">
+      <input type="number" id="rp-yil" style="width:90px;margin:0" value="2025" onchange="rRapor()">
+      <button class="btn bs" onclick="yazdirRapor()">🖨 Yazdır / PDF</button>
+    </div>
+  </div>
+  <div class="sg" id="rp-stats"></div>
+  <div class="g2">
+    <div class="card"><div class="ch"><span class="ct">Aylık Üretim</span></div>
+      <div class="tw"><table><thead><tr><th>Ay</th><th class="tr">kg</th><th class="tr">Gün</th></tr></thead><tbody id="rp-ay"></tbody></table></div>
+    </div>
+    <div class="card"><div class="ch"><span class="ct">Ürün Bazlı (maliyet & ciro tahmini)</span></div>
+      <div class="tw"><table><thead><tr><th>Ürün</th><th class="tr">kg</th><th class="tr">Maliyet</th><th class="tr">Ciro</th></tr></thead><tbody id="rp-urun"></tbody></table></div>
+    </div>
+  </div>
+  <div class="card"><div class="ch"><span class="ct">Personel Üretim Katkısı</span></div><div id="rp-pers"></div></div>
+</div>
+
+<!-- KALİTE KONTROL -->
+<div id="pg-kalite" class="pg">
+  <div class="ph"><div><div class="pt">Kalite Kontrol Defteri</div><div class="ps">Her parti için pH, yoğunluk, görünüm ve sonuç kaydı</div></div>
+    <div class="bgrp">
+      <button class="btn bs" onclick="yazdirKalite()">🖨 Yazdır</button>
+      <button class="btn bp" onclick="openModal('m-kalite')">+ Kalite Kaydı</button>
+    </div>
+  </div>
+  <div class="fx" style="margin-bottom:11px;gap:10px;flex-wrap:wrap">
+    <input type="month" id="kf-ay" style="margin:0;width:auto" onchange="rKalite()">
+    <select id="kf-urun" style="margin:0;width:auto" onchange="rKalite()"></select>
+    <span class="tm" id="kf-ozet"></span>
+  </div>
+  <div id="kalite-list"></div>
+</div>
+
+<!-- PARTİ & ETİKET -->
+<div id="pg-parti" class="pg">
+  <div class="ph"><div><div class="pt">Parti & Etiket</div><div class="ps">Parti izlenebilirliği — parti no, üretim/son kullanma tarihi, üreten</div></div>
+    <div class="bgrp">
+      <button class="btn bp" onclick="openModal('m-parti')">+ Yeni Parti</button>
+    </div>
+  </div>
+  <div class="fx" style="margin-bottom:11px;gap:10px;flex-wrap:wrap">
+    <input type="month" id="ptf-ay" style="margin:0;width:auto" onchange="rParti()">
+    <select id="ptf-urun" style="margin:0;width:auto" onchange="rParti()"></select>
+    <span class="tm" id="ptf-ozet"></span>
+  </div>
+  <div id="parti-list"></div>
+</div>
+
+<!-- SİPARİŞ ÖNERİSİ -->
+<div id="pg-siparis-oneri" class="pg">
+  <div class="ph"><div><div class="pt">Akıllı Sipariş Önerisi</div><div class="ps">Kritik stoktaki ham madde, esans ve ambalaj için alım listesi</div></div>
+    <div class="bgrp">
+      <button class="btn bs" onclick="yazdirSiparisOneri()">🖨 Satın Alma Listesi</button>
+    </div>
+  </div>
+  <div class="fx" style="margin-bottom:11px;gap:10px;align-items:center;flex-wrap:wrap">
+    <label style="font-size:.75rem;color:var(--mut)">Hedef stok katsayısı (min ×)</label>
+    <input type="number" id="so-kat" value="2" min="1" step="0.5" style="margin:0;width:80px" oninput="rSiparisOneri()">
+    <span class="tm" id="so-ozet"></span>
+  </div>
+  <div id="so-list"></div>
 </div>
 
 <!-- FORMÜLASYON -->
@@ -365,6 +475,60 @@
 <div class="toast" id="toast"></div>
 
 <!-- ══════════════ MODALLER ══════════════ -->
+<!-- Kalite Kontrol -->
+<div class="mo" id="m-kalite">
+<div class="md" style="max-width:560px">
+  <div class="mt2">🧪 Kalite Kontrol Kaydı</div>
+  <div class="g2">
+    <div class="fg"><label>Tarih</label><input type="date" id="kk-tarih"></div>
+    <div class="fg"><label>Ürün</label><select id="kk-urun"></select></div>
+  </div>
+  <div class="g2">
+    <div class="fg"><label>Parti No (opsiyonel)</label><input type="text" id="kk-parti" placeholder="örn. SES-260618-01"></div>
+    <div class="fg"><label>Sonuç</label><select id="kk-sonuc">
+      <option value="uygun">✅ Uygun</option><option value="sartli">⚠️ Şartlı Kabul</option><option value="red">❌ Ret</option>
+    </select></div>
+  </div>
+  <div class="g4">
+    <div class="fg"><label>pH</label><input type="number" id="kk-ph" step="0.1" placeholder="6.5"></div>
+    <div class="fg"><label>Yoğunluk</label><input type="number" id="kk-yog" step="0.01" placeholder="1.04"></div>
+    <div class="fg"><label>Viskozite</label><input type="text" id="kk-visk" placeholder="akışkan"></div>
+    <div class="fg"><label>Ölçen</label><input type="text" id="kk-olcen"></div>
+  </div>
+  <div class="g2">
+    <div class="fg"><label>Görünüm</label><input type="text" id="kk-gorunum" placeholder="berrak / bulanık"></div>
+    <div class="fg"><label>Koku</label><input type="text" id="kk-koku" placeholder="karakteristik / limon"></div>
+  </div>
+  <div class="fg"><label>Not</label><input type="text" id="kk-not"></div>
+  <div class="mf"><button class="btn bg" onclick="closeModal('m-kalite')">İptal</button><button class="btn bp" onclick="saveKalite()">Kaydet</button></div>
+</div>
+</div>
+
+<!-- Parti -->
+<div class="mo" id="m-parti">
+<div class="md" style="max-width:560px">
+  <div class="mt2">🏷️ Yeni Parti</div>
+  <div class="fg"><label>Üretim Gününe Bağla (opsiyonel — üreten öğrenci/öğretmeni taşır)</label><select id="pt-uretim" onchange="partiFromUretim()"></select></div>
+  <div class="g2">
+    <div class="fg"><label>Ürün</label><select id="pt-urun" onchange="partiUrunDegisti()"></select></div>
+    <div class="fg"><label>Üretim Tarihi</label><input type="date" id="pt-tarih" onchange="partiUrunDegisti()"></div>
+  </div>
+  <div class="g4">
+    <div class="fg"><label>Parti No</label><input type="text" id="pt-no"></div>
+    <div class="fg"><label>Miktar (kg)</label><input type="number" id="pt-kg" min="0"></div>
+    <div class="fg"><label>Ambalaj</label><select id="pt-amb">
+      <option value="0">Ambalajsız</option><option value="1">1 L</option><option value="5" selected>5 L</option><option value="20">20 L</option>
+    </select></div>
+    <div class="fg"><label>Raf Ömrü (ay)</label><input type="number" id="pt-raf" min="1" oninput="partiRafDegisti()"></div>
+  </div>
+  <div class="g2">
+    <div class="fg"><label>Son Kullanma Tarihi</label><input type="date" id="pt-skt"></div>
+    <div class="fg"><label>Not</label><input type="text" id="pt-not"></div>
+  </div>
+  <div class="mf"><button class="btn bg" onclick="closeModal('m-parti')">İptal</button><button class="btn bp" onclick="saveParti()">Kaydet</button></div>
+</div>
+</div>
+
 <!-- Üretim Günü -->
 <div class="mo" id="m-uretim-gun">
 <div class="md" style="max-width:780px">
@@ -375,12 +539,16 @@
   </div>
   <div class="g2" style="gap:14px;margin-bottom:12px">
     <div>
-      <div class="pers-sec-hdr ogr-hdr">👨‍🏫 Görevli Öğretmenler</div>
-      <div class="pers-list" id="ug-ogr-cb"></div>
+      <div class="pers-sec-hdr ogr-hdr">👨‍🏫 Görevli Öğretmenler · <span id="ug-ogr-say">0 seçili</span></div>
+      <input class="picker-search" id="ug-ogr-ara" placeholder="🔍 Öğretmen ara…" oninput="ugFilter('ogr')" autocomplete="off">
+      <div class="picker-chips" id="ug-ogr-chips"></div>
+      <div class="pers-list" id="ug-ogr-list"></div>
     </div>
     <div>
-      <div class="pers-sec-hdr ogc-hdr">🎓 Görevli Öğrenciler</div>
-      <div class="pers-list" id="ug-ogc-cb"></div>
+      <div class="pers-sec-hdr ogc-hdr">🎓 Görevli Öğrenciler · <span id="ug-ogc-say">0 seçili</span></div>
+      <input class="picker-search" id="ug-ogc-ara" placeholder="🔍 Öğrenci adı yazın…" oninput="ugFilter('ogc')" autocomplete="off">
+      <div class="picker-chips" id="ug-ogc-chips"></div>
+      <div class="pers-list" id="ug-ogc-list"></div>
     </div>
   </div>
   <div style="display:flex;justify-content:space-between;align-items:center;margin:10px 0 7px">

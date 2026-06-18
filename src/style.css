@@ -10,9 +10,38 @@ body{background:var(--bg);color:var(--txt);font-family:'Plus Jakarta Sans',sans-
 .login-logo .ls{font-size:.72rem;color:var(--mut);margin-top:4px}
 .login-error{background:rgba(255,23,68,.1);border:1px solid var(--acc4);color:var(--acc4);padding:8px 12px;border-radius:7px;font-size:.78rem;margin-bottom:12px;display:none}
 /* ── ANA UYGULAMA ── */
-#app{display:none;grid-template-columns:230px 1fr;min-height:100vh}
-#app.show{display:grid}
-@media(max-width:800px){#app.show{grid-template-columns:1fr}}
+#app{display:none;min-height:100vh}
+#app.show{display:block}
+/* ── ÜST BAR (yatay menü + açılır alt menü) ── */
+#topbar{position:sticky;top:0;z-index:400;display:flex;align-items:center;gap:6px;background:#dde2ea;border-bottom:2px solid #b8c4d2;padding:5px 12px;box-shadow:0 2px 6px rgba(0,0,0,.08)}
+.tb-brand{display:flex;align-items:center;gap:7px;white-space:nowrap;padding-right:10px;border-right:1px solid #b8c4d2;margin-right:2px}
+.tb-brand .tb-logo{font-size:1.3rem}
+.tb-brand .tb-bt{font-size:.6rem;font-weight:900;color:var(--acc);line-height:1.15;letter-spacing:.2px}
+.tb-nav{display:flex;align-items:center;gap:1px;flex:1;flex-wrap:wrap}
+.tb-grp{position:relative}
+.tb-head{display:flex;align-items:center;gap:5px;background:transparent;border:none;cursor:pointer;font-family:inherit;font-size:.75rem;font-weight:800;color:var(--txt);padding:8px 11px;border-radius:8px;white-space:nowrap}
+.tb-head:hover{background:rgba(0,0,0,.06)}
+.tb-grp.open .tb-head{background:rgba(33,150,243,.16)}
+.tb-grp.has-active .tb-head{box-shadow:inset 0 -3px 0 var(--acc)}
+.tb-car{font-size:.8rem;opacity:.5;transition:transform .2s}
+.tb-grp.open .tb-car{transform:rotate(180deg)}
+.tb-menu{display:none;position:absolute;top:100%;left:0;margin-top:5px;background:var(--surf);border:1px solid var(--bord);border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,.2);padding:5px;min-width:215px;z-index:500}
+.tb-grp.open .tb-menu{display:block;animation:tbDrop .15s ease}
+@keyframes tbDrop{from{opacity:0;transform:translateY(-5px)}to{opacity:1;transform:none}}
+.tb-right{display:flex;align-items:center;gap:3px;margin-left:auto}
+.tb-user{display:flex;align-items:center;gap:7px;padding:0 8px 0 4px}
+.tb-user .ua{width:28px;height:28px;border-radius:50%;background:var(--acc);display:flex;align-items:center;justify-content:center;font-size:.65rem;font-weight:800;color:#fff;flex-shrink:0}
+.tb-user .un{font-size:.72rem;font-weight:700;white-space:nowrap}
+.tb-ic{background:transparent;border:none;cursor:pointer;font-size:1.05rem;color:var(--acc);padding:6px 7px;border-radius:7px;position:relative;line-height:1}
+.tb-ic:hover{background:rgba(0,0,0,.07)}
+/* üst bar grup renkleri (başlık) */
+.tb-grp.sb-g-genel .tb-head{color:#0D47A1}
+.tb-grp.sb-g-kalite .tb-head{color:#00838F}
+.tb-grp.sb-g-form .tb-head{color:#1B5E20}
+.tb-grp.sb-g-sip .tb-head{color:#BF360C}
+.tb-grp.sb-g-stok .tb-head{color:#4527A0}
+.tb-grp.sb-g-pers .tb-head{color:#B71C1C}
+.tb-grp.sb-g-sis .tb-head{color:#37474F}
 /* ── SIDEBAR ── */
 .sb{background:#dde2ea;border-right:2px solid #b8c4d2;position:sticky;top:0;height:100vh;overflow-y:auto;display:flex;flex-direction:column}
 .sb-logo{padding:12px 14px;border-bottom:2px solid #b8c4d2;background:linear-gradient(135deg,#1565C0,#1976D2)}
@@ -31,7 +60,7 @@ body{background:var(--bg);color:var(--txt);font-family:'Plus Jakarta Sans',sans-
 .ni .ic{width:17px;text-align:center;font-size:.88rem}
 .nb{margin-left:auto;background:var(--acc4);color:#fff;font-size:.57rem;padding:1px 5px;border-radius:8px;font-family:'IBM Plex Mono',monospace}
 /* ── MAIN ── */
-.main{padding:18px;overflow-y:auto;max-height:100vh}
+.main{padding:18px}
 .pg{display:none}.pg.active{display:block}
 .ph{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;gap:10px;flex-wrap:wrap}
 .pt{font-size:1.2rem;font-weight:800}
@@ -177,6 +206,17 @@ tr:hover td{background:rgba(0,0,0,.04)}
 .pers-name{flex:1;font-size:.78rem;font-weight:600;color:var(--txt)}
 .pers-sub{font-size:.59rem;color:#fff;background:#B71C1C;padding:1px 6px;border-radius:4px;font-weight:700;white-space:nowrap}
 .pers-gorev{font-size:.59rem;color:var(--mut);white-space:nowrap}
+/* ── ARAMALI SEÇİCİ (üretim: öğretmen/öğrenci) ── */
+.picker-search{width:100%;border:1px solid var(--bord);border-top:none;padding:8px 11px;font-size:.78rem;background:var(--surf);color:var(--txt);outline:none;box-sizing:border-box}
+.picker-search:focus{background:rgba(33,150,243,.05)}
+.picker-chips{display:flex;flex-wrap:wrap;gap:4px;padding:7px 9px;border-left:1px solid var(--bord);border-right:1px solid var(--bord);background:rgba(0,0,0,.02);min-height:16px}
+.picker-empty{font-size:.67rem;color:var(--mut);font-style:italic}
+.chip-x{background:none;border:none;color:inherit;cursor:pointer;font-size:.72rem;padding:0 0 0 3px;line-height:1;opacity:.65}
+.chip-x:hover{opacity:1}
+.pers-row.on{background:rgba(0,200,83,.10)}
+.pers-check{font-size:.9rem;font-weight:800;color:var(--mut);flex-shrink:0;width:18px;text-align:center}
+.pers-row.on .pers-check{color:var(--acc3)}
+.picker-hint{padding:11px;font-size:.7rem;color:var(--mut);text-align:center;font-style:italic}
 /* ── SIDEBAR BÖLÜM GRUPLARI ── */
 .sb-group{border-bottom:1px solid #c5cdd8}
 .sb-group:last-child{border-bottom:none}
@@ -190,8 +230,15 @@ tr:hover td{background:rgba(0,0,0,.04)}
   #mob-header{display:flex}
   body{padding-top:52px}
   #app.show{display:block}
-  .sb{position:fixed;top:0;left:0;width:260px;height:100vh;z-index:460;transform:translateX(-100%);transition:transform .25s ease;box-shadow:4px 0 20px rgba(0,0,0,.3)}
-  .sb.mob-open{transform:translateX(0)}
+  #topbar{position:fixed;top:52px;left:0;right:0;flex-direction:column;align-items:stretch;gap:0;padding:0;max-height:calc(100vh - 52px);overflow-y:auto;z-index:460;display:none;box-shadow:4px 4px 20px rgba(0,0,0,.3)}
+  #topbar.mob-open{display:flex}
+  .tb-brand{display:none}
+  .tb-right{margin:0;padding:8px;border-top:1px solid var(--bord);justify-content:flex-end}
+  .tb-nav{flex-direction:column;align-items:stretch;gap:0;flex:none}
+  .tb-grp{position:static}
+  .tb-head{width:100%;justify-content:space-between;border-radius:0;padding:13px 16px;border-bottom:1px solid var(--bord);font-size:.82rem}
+  .tb-menu{position:static;box-shadow:none;border:none;border-radius:0;margin:0;min-width:0;width:100%;background:rgba(0,0,0,.03);padding:0}
+  .tb-menu .ni{padding:11px 16px 11px 30px;border-radius:0;margin:0}
   #sb-overlay.mob-open{display:block}
   .main{padding:12px;max-height:none;overflow-y:visible;min-height:calc(100vh - 52px)}
   .audit-row{grid-template-columns:1fr;gap:4px}
@@ -244,6 +291,27 @@ tr:hover td{background:rgba(0,0,0,.04)}
 .sb-g-sis .ni{color:#263238;font-weight:600}
 .sb-g-sis .ni:hover{background:rgba(55,71,79,.12);color:#37474F}
 .sb-g-sis .ni.active{background:#455A64;color:#fff;border-left:3px solid #37474F}
+/* ── ÜRETİM ASİSTANI ── */
+.as-bar{height:9px;background:var(--bord);border-radius:6px;overflow:hidden}
+.as-bar-f{height:100%;background:linear-gradient(90deg,var(--acc),var(--acc3));border-radius:6px;transition:width .3s}
+.as-prog-t{text-align:center;font-size:.7rem;color:var(--mut);margin:5px 0 10px;font-weight:700}
+.as-card{text-align:center;padding:26px 20px}
+.as-ad-tip{font-size:2.6rem;line-height:1;margin-bottom:8px}
+.as-ad-bas{font-size:1.25rem;color:var(--txt);margin-bottom:6px}
+.as-ad-ac{font-size:.85rem;color:var(--mut);max-width:440px;margin:0 auto 6px;line-height:1.5}
+.as-tart{font-size:2.6rem;font-weight:900;color:var(--acc);font-family:'IBM Plex Mono',monospace;margin:6px 0 2px}
+.as-tart-s{font-size:.8rem;color:var(--mut);margin-bottom:8px}
+.as-kkd{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:12px 0}
+.as-kkd-i{background:rgba(33,150,243,.1);border:1px solid var(--acc2);color:var(--acc);border-radius:9px;padding:9px 13px;font-size:.84rem;font-weight:700}
+.as-uyari{background:#fff3e0;border:1px solid #ffcc80;border-radius:9px;padding:10px 13px;font-size:.78rem;color:#a15c00;line-height:1.5;text-align:left;max-width:460px;margin:10px auto 0}
+.as-uyari ul{margin:5px 0 0 18px}
+.as-timer{font-size:3.2rem;font-weight:900;font-family:'IBM Plex Mono',monospace;color:var(--acc3);margin:6px 0}
+.as-nav-bar .btn{flex:1;padding:13px;font-size:.92rem}
+.as-liste-wrap{margin-top:16px;display:flex;flex-direction:column;gap:3px}
+.as-li{padding:8px 12px;border-radius:7px;font-size:.76rem;font-weight:600;color:var(--dim);cursor:pointer;border:1px solid var(--bord);background:var(--surf)}
+.as-li:hover{border-color:var(--acc2)}
+.as-li.akt{background:rgba(33,150,243,.14);color:var(--acc);border-color:var(--acc2);font-weight:800}
+.as-li.ok{color:var(--acc3)}
 /* ── BELGELER ── */
 .belge-drop{border:2px dashed var(--bord);border-radius:10px;padding:18px;text-align:center;cursor:pointer;display:flex;flex-direction:column;gap:4px;align-items:center;transition:all .15s;background:var(--surf)}
 .belge-drop:hover,.belge-drop.dragover{border-color:var(--acc);background:rgba(33,150,243,.06)}

@@ -172,6 +172,37 @@ export interface Belge {
   olusturma: string;
 }
 
+export interface KaliteKontrol {
+  id: number;
+  tarih: string;
+  urunId: string;
+  partiNo: string;
+  uretimId: number | null;
+  ph: number | null;
+  yogunluk: number | null;
+  gorunum: string;
+  koku: string;
+  viskozite: string;
+  sonuc: string; // "uygun" | "sartli" | "red"
+  olcen: string;
+  notu: string;
+}
+
+export interface Parti {
+  id: number;
+  partiNo: string;
+  urunId: string;
+  tarih: string;
+  uretimId: number | null;
+  kg: number;
+  ambLt: number;
+  rafOmruAy: number;
+  skt: string;
+  ogrenciler: number[];
+  ogretmenler: number[];
+  notu: string;
+}
+
 export interface AuditKayit {
   id: number;
   kim: string;
@@ -235,4 +266,6 @@ export interface Store {
   satisFiyat: Record<string, SatisFiyat>;
   alisFaturalari: AlisFatura[];
   irsaliyeler: Irsaliye[];
+  kaliteKayitlari: KaliteKontrol[];
+  partiler: Parti[];
 }

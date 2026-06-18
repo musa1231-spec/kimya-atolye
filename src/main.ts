@@ -12,6 +12,7 @@ import { initLoginScreen, doLogin, doLogout } from "./login";
 import { rDash } from "./modules/dashboard";
 import {
   prepUretimGun, addUgK, ugRefresh, ugCalc, saveUretimGun, delGun, rUretim,
+  ugFilter, ugToggle,
 } from "./modules/uretim";
 import { rAylik } from "./modules/aylik";
 import { rFormulasyon, rFormDetay, rFormDetayHesap } from "./modules/formulasyon";
@@ -47,6 +48,16 @@ import { openArama, aramaYap, aramaGit } from "./modules/arama";
 import {
   rIrsaliye, prepIrsaliye, addIrsK, irsSiparistenDoldur, saveIrsaliye, delIrsaliye, yazdirIrsaliye, paylasIrsaliye,
 } from "./modules/irsaliye";
+import { rKalite, prepKalite, saveKalite, delKalite, yazdirKalite } from "./modules/kalite";
+import {
+  rParti, prepParti, saveParti, delParti, etiketParti, partiFromUretim, partiUrunDegisti, partiRafDegisti,
+} from "./modules/parti";
+import { rRapor, yazdirRapor } from "./modules/rapor";
+import { rSiparisOneri, yazdirSiparisOneri } from "./modules/siparisoneri";
+import {
+  rAsistan, asistanUrunDegisti, asistanBasla, asSonraki, asGeri, asGoto,
+  asTimerBaslat, asTimerSifirla, asBitir,
+} from "./modules/asistan";
 
 // Belge yükleme/silme sonrası sayaçları tazelemek için kaynak sayfaların
 // yenileme fonksiyonlarını kaydet (döngüsel importtan kaçınmak için).
@@ -66,6 +77,8 @@ const RENDER: Record<string, () => void> = {
   musteriler: rMus, "urun-stok": rUsStok, "bidon-stok": rBidon, "koli-stok": rKoli,
   "hm-stok": rHm, "esans-stok": rEsans, ogretmenler: rOgr, ogrenciler: rOgc,
   audit: rAudit, yedek: rYedek, "fiyat-liste": rFiyatListe, plan: rPlan, irsaliye: rIrsaliye,
+  kalite: rKalite, parti: rParti, rapor: rRapor, "siparis-oneri": rSiparisOneri,
+  asistan: rAsistan,
 };
 
 function go(name: string, el?: HTMLElement): void {
@@ -74,7 +87,13 @@ function go(name: string, el?: HTMLElement): void {
   $("pg-" + name).classList.add("active");
   // Program ile gezinince (el verilmezse) ilgili menü öğesini bul ve vurgula
   if (!el) el = (document.querySelector(`.ni[onclick*="go('${name}'"]`) as HTMLElement) || undefined;
-  if (el) el.classList.add("active");
+  // Aktif sayfanın üst-bar grubunu işaretle
+  document.querySelectorAll(".tb-grp.has-active").forEach((g) => g.classList.remove("has-active"));
+  if (el) {
+    el.classList.add("active");
+    el.closest(".tb-grp")?.classList.add("has-active");
+  }
+  tbCloseAll();
   closeSidebar();
   window.scrollTo(0, 0);
   const main = document.querySelector(".main");
@@ -83,13 +102,31 @@ function go(name: string, el?: HTMLElement): void {
   rBildirimSayac();
 }
 
+// ── Üst bar açılır menüler ────────────────────────────────────
+function tbCloseAll(): void {
+  document.querySelectorAll(".tb-grp.open").forEach((g) => g.classList.remove("open"));
+}
+function tbToggle(head: HTMLElement, ev?: Event): void {
+  ev?.stopPropagation();
+  const grp = head.closest(".tb-grp");
+  const acik = grp?.classList.contains("open");
+  tbCloseAll();
+  if (!acik) grp?.classList.add("open");
+}
+// Dışarı tıklayınca açık menüleri kapat
+document.addEventListener("click", (e) => {
+  if (!(e.target as HTMLElement).closest(".tb-grp")) tbCloseAll();
+});
+
+// Mobil: hamburger üst bar panelini açar/kapar
 function toggleSidebar(): void {
-  document.querySelector(".sb")?.classList.toggle("mob-open");
+  $("topbar").classList.toggle("mob-open");
   $("sb-overlay").classList.toggle("mob-open");
 }
 function closeSidebar(): void {
-  document.querySelector(".sb")?.classList.remove("mob-open");
+  $("topbar").classList.remove("mob-open");
   $("sb-overlay").classList.remove("mob-open");
+  tbCloseAll();
 }
 function yhTab(id: string, btn: HTMLElement): void {
   document.querySelectorAll<HTMLElement>(".yh-sec").forEach((s) => (s.style.display = "none"));
@@ -127,6 +164,8 @@ function openModal(id: string): void {
     case "m-ogr": resetOgrForm(); break;
     case "m-ogc": resetOgcForm(); break;
     case "m-esans-tanim": resetEsansTanimForm(); break;
+    case "m-kalite": prepKalite(); break;
+    case "m-parti": prepParti(); break;
   }
   $(id).classList.add("open");
 }
@@ -152,9 +191,9 @@ function resetEsansTanimForm(): void { setVal("et-ad", ""); setVal("et-ac", "");
 // GLOBAL HANDLER BAĞLAMA (inline onclick'ler için)
 // ════════════════════════════════════════════════════════════════
 Object.assign(window, {
-  go, openModal, closeModal, toggleSidebar, closeSidebar, fTab, yhTab,
+  go, openModal, closeModal, toggleSidebar, closeSidebar, fTab, yhTab, tbToggle,
   doLogin, doLogout, eminMisin,
-  addUgK, ugRefresh, ugCalc, saveUretimGun, delGun, rUretim,
+  addUgK, ugRefresh, ugCalc, saveUretimGun, delGun, rUretim, ugFilter, ugToggle,
   rAylik, rFormDetay, rFormDetayHesap, rMaliyet,
   rSiparisler, addSipK, saveSiparis, nextSt, delSip, editSiparis,
   addSvSip, addSvEk, saveSevkiyat, delSv,
@@ -172,6 +211,10 @@ Object.assign(window, {
   addIrsK, irsSiparistenDoldur, saveIrsaliye, delIrsaliye, yazdirIrsaliye, paylasIrsaliye,
   siparisUretimeAktar, siparisIrsaliyeAktar, siparisPaylas, paylasFiyatListesi,
   openArama, aramaYap, aramaGit,
+  rKalite, saveKalite, delKalite, yazdirKalite,
+  rParti, saveParti, delParti, etiketParti, partiFromUretim, partiUrunDegisti, partiRafDegisti,
+  rRapor, yazdirRapor, rSiparisOneri, yazdirSiparisOneri,
+  asistanUrunDegisti, asistanBasla, asSonraki, asGeri, asGoto, asTimerBaslat, asTimerSifirla, asBitir,
 });
 
 // ════════════════════════════════════════════════════════════════
@@ -198,6 +241,8 @@ Object.assign(window, {
   });
 
   initLoginScreen();
+  // Açılışta aktif (Gösterge) sayfasının grubunu işaretle
+  document.querySelector(".ni.active")?.closest(".tb-grp")?.classList.add("has-active");
   setVal("uf-ay", today().substring(0, 7));
   setInterval(otomatikYedekKontrol, 30 * 60 * 1000);
 

@@ -24,6 +24,8 @@ export const store: Store = {
   satisFiyat: {},
   alisFaturalari: [],
   irsaliyeler: [],
+  kaliteKayitlari: [],
+  partiler: [],
 };
 
 // Giriş yapan kullanıcı (Current User)

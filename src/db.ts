@@ -6,7 +6,7 @@ import {
 import type {
   Ogretmen, Ogrenci, Musteri, UretimGun, Siparis, Sevkiyat, Esans,
   BidonHareket, KoliHareket, EsansHareket, AuditKayit, SiparisDurum,
-  Belge, BelgeTur, AlisFatura, Irsaliye,
+  Belge, BelgeTur, AlisFatura, Irsaliye, KaliteKontrol, Parti,
 } from "./types";
 
 const BUCKET = "belgeler";
@@ -28,13 +28,15 @@ const mapAudit = (r: any): AuditKayit => ({ id: r.id, kim: r.kim, kimId: r.kim_i
 const mapBelge = (r: any): Belge => ({ id: r.id, tur: r.tur, ref: r.ref, dosyaAdi: r.dosya_adi, yol: r.yol, boyut: Number(r.boyut) || 0, mime: r.mime || "", yukleyen: r.yukleyen || "", olusturma: r.created_at });
 const mapAlis = (r: any): AlisFatura => ({ id: r.id, tarih: r.tarih, tedarikci: r.tedarikci || "", faturaNo: r.fatura_no || "", hmId: r.hm_id, miktar: Number(r.miktar) || 0, birimFiyat: Number(r.birim_fiyat) || 0, tutar: Number(r.tutar) || 0, kim: r.kim || "" });
 const mapIrsaliye = (r: any): Irsaliye => ({ id: r.id, tarih: r.tarih, saat: r.saat || "", musteriId: r.musteri_id, plaka: r.plaka || "", surucu: r.surucu || "", tasiyan: r.tasiyan || "", aliciVergi: r.alici_vergi || "", not: r.notu || "", kalemler: r.kalemler || [], kim: r.kim || "" });
+const mapKalite = (r: any): KaliteKontrol => ({ id: r.id, tarih: r.tarih, urunId: r.urun_id || "", partiNo: r.parti_no || "", uretimId: r.uretim_id ?? null, ph: r.ph === null ? null : Number(r.ph), yogunluk: r.yogunluk === null ? null : Number(r.yogunluk), gorunum: r.gorunum || "", koku: r.koku || "", viskozite: r.viskozite || "", sonuc: r.sonuc || "uygun", olcen: r.olcen || "", notu: r.notu || "" });
+const mapParti = (r: any): Parti => ({ id: r.id, partiNo: r.parti_no, urunId: r.urun_id || "", tarih: r.tarih, uretimId: r.uretim_id ?? null, kg: Number(r.kg) || 0, ambLt: Number(r.amb_lt) || 0, rafOmruAy: Number(r.raf_omru_ay) || 0, skt: r.skt || "", ogrenciler: r.ogrenciler || [], ogretmenler: r.ogretmenler || [], notu: r.notu || "" });
 
 // ════════════════════════════════════════════════════════════════
 // TÜM VERİYİ YÜKLE
 // ════════════════════════════════════════════════════════════════
 export async function loadAll(): Promise<void> {
   const [
-    ogr, ogc, mus, ure, sip, sev, ust, hst, gst, bh, kh, es, eh, esl, den, bel, sat, alis, irs,
+    ogr, ogc, mus, ure, sip, sev, ust, hst, gst, bh, kh, es, eh, esl, den, bel, sat, alis, irs, kal, par,
   ] = await Promise.all([
     sb.from("ogretmenler").select("*").order("id"),
     sb.from("ogrenciler").select("*").order("id"),
@@ -55,6 +57,8 @@ export async function loadAll(): Promise<void> {
     sb.from("satis_fiyatlari").select("*"),
     sb.from("alis_faturalari").select("*").order("id", { ascending: false }).limit(1000),
     sb.from("irsaliyeler").select("*").order("id", { ascending: false }),
+    sb.from("kalite_kontrol").select("*").order("tarih", { ascending: false }),
+    sb.from("partiler").select("*").order("tarih", { ascending: false }),
   ]);
 
   store.ogretmenler = (ogr.data || []).map(mapOgretmen);
@@ -71,6 +75,8 @@ export async function loadAll(): Promise<void> {
   store.belgeler = (bel.data || []).map(mapBelge);
   store.alisFaturalari = (alis.data || []).map(mapAlis);
   store.irsaliyeler = (irs.data || []).map(mapIrsaliye);
+  store.kaliteKayitlari = (kal.data || []).map(mapKalite);
+  store.partiler = (par.data || []).map(mapParti);
   store.satisFiyat = {};
   (sat.data || []).forEach((r: any) => (store.satisFiyat[r.urun_id] = { f5: r.f5 ?? null, f20: r.f20 ?? null, f1: r.f1 ?? null }));
 
@@ -221,6 +227,24 @@ export const insertIrsaliye = async (i: Omit<Irsaliye, "id">): Promise<Irsaliye>
     tasiyan: i.tasiyan, alici_vergi: i.aliciVergi, notu: i.not, kalemler: i.kalemler, kim: i.kim,
   }));
 export const deleteIrsaliye = (id: number) => del("irsaliyeler", id);
+
+// ── Kalite Kontrol ────────────────────────────────────────────
+export const insertKalite = async (k: Omit<KaliteKontrol, "id">): Promise<KaliteKontrol> =>
+  mapKalite(await ins("kalite_kontrol", {
+    tarih: k.tarih, urun_id: k.urunId, parti_no: k.partiNo, uretim_id: k.uretimId,
+    ph: k.ph, yogunluk: k.yogunluk, gorunum: k.gorunum, koku: k.koku, viskozite: k.viskozite,
+    sonuc: k.sonuc, olcen: k.olcen, notu: k.notu,
+  }));
+export const deleteKalite = (id: number) => del("kalite_kontrol", id);
+
+// ── Partiler ──────────────────────────────────────────────────
+export const insertParti = async (p: Omit<Parti, "id">): Promise<Parti> =>
+  mapParti(await ins("partiler", {
+    parti_no: p.partiNo, urun_id: p.urunId, tarih: p.tarih, uretim_id: p.uretimId,
+    kg: p.kg, amb_lt: p.ambLt, raf_omru_ay: p.rafOmruAy, skt: p.skt || null,
+    ogrenciler: p.ogrenciler, ogretmenler: p.ogretmenler, notu: p.notu,
+  }));
+export const deleteParti = (id: number) => del("partiler", id);
 export const updateGenelStok = async (patch: { b1?: number; b5?: number; b20?: number; koli?: number }) => {
   const { error } = await sb.from("genel_stok").upsert({ id: 1, ...patch });
   if (error) throw error;
@@ -287,7 +311,7 @@ async function wipe(table: string, idCol = "id", numeric = true) {
 
 export async function restoreAll(snap: Store): Promise<void> {
   // 1) Temizle (çocuklar önce)
-  for (const t of ["sevkiyatlar", "siparisler", "uretim_gunleri", "denetim", "bidon_hareketleri", "koli_hareketleri", "esans_hareketleri", "belgeler", "alis_faturalari", "irsaliyeler"]) await wipe(t);
+  for (const t of ["sevkiyatlar", "siparisler", "uretim_gunleri", "denetim", "bidon_hareketleri", "koli_hareketleri", "esans_hareketleri", "belgeler", "alis_faturalari", "irsaliyeler", "kalite_kontrol", "partiler"]) await wipe(t);
   for (const t of ["urun_stok"]) await wipe(t, "urun_id", false);
   await wipe("hm_stok", "hm_id", false);
   await wipe("satis_fiyatlari", "urun_id", false);
@@ -355,4 +379,7 @@ export async function restoreAll(snap: Store): Promise<void> {
   if (snap.belgeler?.length) await sb.from("belgeler").insert(snap.belgeler.map((b) => ({ tur: b.tur, ref: b.ref, dosya_adi: b.dosyaAdi, yol: b.yol, boyut: b.boyut, mime: b.mime, yukleyen: b.yukleyen })));
   if (snap.alisFaturalari?.length) await sb.from("alis_faturalari").insert(snap.alisFaturalari.map((a) => ({ tarih: a.tarih, tedarikci: a.tedarikci, fatura_no: a.faturaNo, hm_id: a.hmId, miktar: a.miktar, birim_fiyat: a.birimFiyat, tutar: a.tutar, kim: a.kim })));
   if (snap.irsaliyeler?.length) await sb.from("irsaliyeler").insert(snap.irsaliyeler.map((i) => ({ tarih: i.tarih, saat: i.saat, musteri_id: musMap.get(i.musteriId) ?? null, plaka: i.plaka, surucu: i.surucu, tasiyan: i.tasiyan, alici_vergi: i.aliciVergi, notu: i.not, kalemler: i.kalemler, kim: i.kim })));
+  // Kalite/Parti: üretim_id eski PK'ye dayandığı ve toplu insert'te yeni ID yakalanmadığı için null'lanır; öğrenci/öğretmen ID'leri remap edilir.
+  if (snap.kaliteKayitlari?.length) await sb.from("kalite_kontrol").insert(snap.kaliteKayitlari.map((k) => ({ tarih: k.tarih, urun_id: k.urunId, parti_no: k.partiNo, uretim_id: null, ph: k.ph, yogunluk: k.yogunluk, gorunum: k.gorunum, koku: k.koku, viskozite: k.viskozite, sonuc: k.sonuc, olcen: k.olcen, notu: k.notu })));
+  if (snap.partiler?.length) await sb.from("partiler").insert(snap.partiler.map((p) => ({ parti_no: p.partiNo, urun_id: p.urunId, tarih: p.tarih, uretim_id: null, kg: p.kg, amb_lt: p.ambLt, raf_omru_ay: p.rafOmruAy, skt: p.skt || null, ogrenciler: (p.ogrenciler || []).map((id) => ogcMap.get(id)).filter((x) => x != null), ogretmenler: (p.ogretmenler || []).map((id) => ogrMap.get(id)).filter((x) => x != null), notu: p.notu })));
 }

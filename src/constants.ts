@@ -109,6 +109,34 @@ export const ATOLYE_BILGI = {
   vergi: "", // Vergi Dairesi / VKN (varsa)
 };
 
+// ── Etiket: ham madde tehlike/uyarı notları (GHS özet) ────────
+// Reçetede bu ham maddeler varsa ürün etiketine ilgili uyarı eklenir.
+export const HM_TEHLIKE: Record<string, string> = {
+  Kostik: "Aşındırıcı — cilde ve göze ciddi zarar verir.",
+  "Sıvı Kostik": "Aşındırıcı — cilde ve göze ciddi zarar verir.",
+  HCl: "Aşındırıcı asit — solunmamalı, gözden/ciltten uzak tutun.",
+  HNO3: "Aşındırıcı asit — solunmamalı, gözden/ciltten uzak tutun.",
+  "Fosforik Asit": "Aşındırıcı — cilt/göz teması zararlıdır.",
+  "Hipoklorit %16": "Asitle karıştırmayın — zehirli klor gazı açığa çıkar.",
+  "Etil Alkol": "Yüksek oranda alev alır — ateşten uzak tutun.",
+  IPA: "Kolay alev alır — ateşten uzak tutun.",
+  NP10: "Tahriş edici — göz/cilt temasından kaçının.",
+  LABSA: "Tahriş edici — göz/cilt temasından kaçının.",
+  TEA: "Tahriş edici olabilir.",
+};
+
+// Etiket için varsayılan raf ömrü (ay) — kategoriye göre
+export const RAF_OMRU: Record<string, number> = {
+  "Kişisel Bakım": 24, "Ev Temizliği": 24, "Endüstriyel": 12, "Katı Sabun": 36,
+};
+
+// Kalite kontrol sonuç seçenekleri
+export const KALITE_SONUC = [
+  { v: "uygun", ad: "✅ Uygun", renk: "#00C853" },
+  { v: "sartli", ad: "⚠️ Şartlı Kabul", renk: "#FF9800" },
+  { v: "red", ad: "❌ Ret", renk: "#D32F2F" },
+] as const;
+
 // ── İlk kurulum öğretmen/öğrenci tohumu ───────────────────────
 export const OGR_SEED = [
   { ad: "Musa Karabiber", gorev: "Üretim Öğretmeni", tel: "", sif: "musa123" },

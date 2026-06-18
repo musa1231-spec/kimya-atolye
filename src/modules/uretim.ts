@@ -14,12 +14,81 @@ import { rDash } from "./dashboard";
 
 let ugN = 0;
 
+// ── Aramalı öğretmen/öğrenci seçici ───────────────────────────
+const selOgr = new Set<number>();
+const selOgc = new Set<number>();
+
+// Türkçe karakter duyarsız arama (ö→o, ş→s, ı/İ→i, ç→c, ü→u, ğ→g)
+const TR_MAP: Record<string, string> = {
+  ç: "c", Ç: "c", ğ: "g", Ğ: "g", ı: "i", İ: "i", I: "i",
+  ö: "o", Ö: "o", ş: "s", Ş: "s", ü: "u", Ü: "u", â: "a", î: "i", û: "u",
+};
+function fold(s: string): string {
+  return s.replace(/[çÇğĞıİIöÖşŞüÜâîû]/g, (c) => TR_MAP[c] || c).toLowerCase();
+}
+
+const persOf = (k: string) => (k === "ogr" ? store.ogretmenler : store.ogrenciler);
+const selOf = (k: string) => (k === "ogr" ? selOgr : selOgc);
+
+function ugInitPickers(): void {
+  selOgr.clear();
+  selOgc.clear();
+  ["ogr", "ogc"].forEach((k) => {
+    const ara = $(`ug-${k}-ara`) as HTMLInputElement;
+    if (ara) ara.value = "";
+    ugRenderChips(k);
+    ugRenderList(k);
+  });
+}
+
+function ugRenderChips(k: string): void {
+  const sel = selOf(k);
+  const list = persOf(k);
+  const cls = k === "ogr" ? "cot" : "cog";
+  const ico = k === "ogr" ? "👨‍🏫" : "🎓";
+  const arr = [...sel].map((id) => list.find((p) => p.id === id)).filter(Boolean) as { id: number; ad: string }[];
+  setHTML(`ug-${k}-chips`, arr.length
+    ? arr.map((p) => `<span class="chip ${cls}">${ico} ${p.ad}<button class="chip-x" onclick="ugToggle('${k}',${p.id})">✕</button></span>`).join("")
+    : `<span class="picker-empty">Henüz seçilmedi — yukarıdan arayıp tıklayın</span>`);
+  setText(`ug-${k}-say`, `${arr.length} seçili`);
+}
+
+function ugRenderList(k: string): void {
+  const q = fold((($(`ug-${k}-ara`) as HTMLInputElement)?.value || "").trim());
+  const sel = selOf(k);
+  const list = persOf(k) as { id: number; ad: string; gorev?: string; sn?: string }[];
+  let items = list;
+  if (q) items = list.filter((p) => fold(p.ad).includes(q));
+  else if (list.length > 12) { setHTML(`ug-${k}-list`, `<div class="picker-hint">İsim yazarak arayın…</div>`); return; }
+  if (!items.length) { setHTML(`ug-${k}-list`, `<div class="picker-hint">Eşleşen yok</div>`); return; }
+  setHTML(`ug-${k}-list`, items.map((p) => {
+    const on = sel.has(p.id);
+    const av = k === "ogr" ? p.ad.split(" ").map((w) => w[0]).join("").substring(0, 2) : p.ad.charAt(0);
+    const sub = k === "ogr" ? `<span class="pers-gorev">${p.gorev || ""}</span>` : (p.sn ? `<span class="pers-sub">${p.sn}</span>` : "");
+    return `<div class="pers-row${on ? " on" : ""}" onclick="ugToggle('${k}',${p.id})">
+      <span class="pers-av ${k}-av">${av}</span>
+      <span class="pers-name">${p.ad}</span>${sub}
+      <span class="pers-check">${on ? "✓" : "+"}</span>
+    </div>`;
+  }).join(""));
+}
+
+export function ugFilter(k: string): void {
+  ugRenderList(k);
+}
+
+export function ugToggle(k: string, id: number): void {
+  const sel = selOf(k);
+  if (sel.has(id)) sel.delete(id); else sel.add(id);
+  ugRenderChips(k);
+  ugRenderList(k);
+}
+
 function prepUretimBase(): void {
   ($("ug-tarih") as HTMLInputElement).value = today();
   ($("ug-not") as HTMLInputElement).value = "";
   setHTML("ug-kalemler", "");
-  setHTML("ug-ogr-cb", store.ogretmenler.map((o) => `<label class="pers-row"><input type="checkbox" value="${o.id}"><span class="pers-av ogr-av">${o.ad.split(" ").map((w) => w[0]).join("").substring(0, 2)}</span><span class="pers-name">${o.ad}</span><span class="pers-gorev">${o.gorev || ""}</span></label>`).join(""));
-  setHTML("ug-ogc-cb", store.ogrenciler.map((o) => `<label class="pers-row"><input type="checkbox" value="${o.id}"><span class="pers-av ogc-av">${o.ad.charAt(0)}</span><span class="pers-name">${o.ad}</span>${o.sn ? `<span class="pers-sub">${o.sn}</span>` : ""}</label>`).join(""));
+  ugInitPickers();
 }
 
 // Modal hazırlığı (openModal'dan çağrılır — boş)
@@ -110,8 +179,8 @@ export async function saveUretimGun(): Promise<void> {
   if (rk > store.koliStok) uyar.push(`Koli: ${store.koliStok} var, ${rk} gerekiyor`);
   if (uyar.length && !confirm(`⚠️ Stok uyarısı:\n${uyar.join("\n")}\n\nYine de kaydet?`)) return;
 
-  const ogrs = [...document.querySelectorAll<HTMLInputElement>("#ug-ogr-cb input:checked")].map((x) => parseInt(x.value));
-  const ogcs = [...document.querySelectorAll<HTMLInputElement>("#ug-ogc-cb input:checked")].map((x) => parseInt(x.value));
+  const ogrs = [...selOgr];
+  const ogcs = [...selOgc];
 
   const gun = await insertUretim({ tarih, not: ($("ug-not") as HTMLInputElement).value, kalemler, ogretmenler: ogrs, ogrenciler: ogcs });
   store.uretimGunleri.push(gun);
