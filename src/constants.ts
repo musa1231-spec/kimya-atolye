@@ -2,7 +2,7 @@ import type { Urun, HamMadde } from "./types";
 
 // ── Ürün reçeteleri (sabit referans verisi) ──────────────────
 export const URUNLER: Urun[] = [
-  { id: "sivi-sabun", ad: "Sıvı El Sabunu", kat: "Kişisel Bakım", yog: 1.04, batch: 900, ings: [["Su", 88.53], ["SLES", 5.5], ["Betain", 1.0], ["Kokamid DEA", 1.0], ["Koruyucu", 0.1], ["Esans", 0.3], ["Sitrik Asit", 0.07], ["Tuz", 3.0]] },
+  { id: "sivi-sabun", ad: "Sıvı El Sabunu", kat: "Kişisel Bakım", yog: 1.04, batch: 900, ings: [["Su", 88.72], ["SLES", 5.5], ["Betain", 1.0], ["Kokamid DEA", 1.0], ["Koruyucu", 0.1], ["Esans", 0.3], ["Sitrik Asit", 0.04], ["Boya", 0.01], ["Tuz", 3.33]] },
   { id: "kopuk-sabun", ad: "Köpük Sabun", kat: "Kişisel Bakım", yog: 1.02, batch: 20, ings: [["Su", 88.8], ["SLES", 7.5], ["Betain", 1.2], ["Kokamid DEA", 1.2], ["Koruyucu", 0.12], ["Esans", 0.35], ["Sitrik Asit", 0.08], ["Gliserin", 0.75]] },
   { id: "dezenfektan", ad: "El Dezenfektanı", kat: "Kişisel Bakım", yog: 0.88, batch: 5, ings: [["Su", 24.38], ["Etil Alkol", 75.0], ["Gliserin", 0.5], ["Esans", 0.12]] },
   { id: "kolonya", ad: "Kolonya", kat: "Kişisel Bakım", yog: 0.88, batch: 100, ings: [["Su", 15.0], ["Etil Alkol", 83.0], ["Esans", 2.0]] },
@@ -28,7 +28,7 @@ export const HM_FIYAT: Record<string, number> = {
   "Sitrik Asit": 85, Gliserin: 130, Tuz: 6, IPA: 260, NP10: 200, "Hipoklorit %16": 70,
   LABSA: 115, TEA: 140, "Sıvı Kostik": 40, Kostik: 70, "Fosforik Asit": 175, HCl: 40,
   HNO3: 75, "Etil Alkol": 250, "Köpük Kesici": 120, "Limon Esansı": 280,
-  "Asit İnhibitörü": 200, Zeytinyağı: 180, "Defne Yağı": 600,
+  "Asit İnhibitörü": 200, Zeytinyağı: 180, "Defne Yağı": 600, Boya: 180,
 };
 
 export const HM_LIST: HamMadde[] = Object.keys(HM_FIYAT).map((ad) => ({

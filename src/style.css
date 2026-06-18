@@ -305,6 +305,12 @@ tr:hover td{background:rgba(0,0,0,.04)}
 .as-kkd-i{background:rgba(33,150,243,.1);border:1px solid var(--acc2);color:var(--acc);border-radius:9px;padding:9px 13px;font-size:.84rem;font-weight:700}
 .as-uyari{background:#fff3e0;border:1px solid #ffcc80;border-radius:9px;padding:10px 13px;font-size:.78rem;color:#a15c00;line-height:1.5;text-align:left;max-width:460px;margin:10px auto 0}
 .as-uyari ul{margin:5px 0 0 18px}
+.as-malz{display:flex;flex-direction:column;gap:7px;margin:10px 0;text-align:left}
+.as-malz-r{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:rgba(33,150,243,.06);border:1px solid var(--bord);border-radius:9px;padding:9px 12px}
+.as-malz-m{font-size:1.15rem;font-weight:900;font-family:'IBM Plex Mono',monospace;color:var(--acc);min-width:90px}
+.as-malz-a{font-weight:800;font-size:.9rem}
+.as-malz-rol{font-size:.7rem;color:var(--mut);flex-basis:100%}
+.as-sure-lbl{font-size:.8rem;color:var(--mut);font-weight:700;margin-top:8px}
 .as-timer{font-size:3.2rem;font-weight:900;font-family:'IBM Plex Mono',monospace;color:var(--acc3);margin:6px 0}
 .as-nav-bar .btn{flex:1;padding:13px;font-size:.92rem}
 .as-liste-wrap{margin-top:16px;display:flex;flex-direction:column;gap:3px}
