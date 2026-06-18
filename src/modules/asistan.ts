@@ -1,4 +1,4 @@
-import { URUNLER, HM_TEHLIKE } from "../constants";
+import { URUNLER, HM_TEHLIKE, URUN_RENK } from "../constants";
 import { prosesUret, HM_ROL, SAF_SU } from "../proses";
 import type { ProsesAdim } from "../proses";
 import { acUretimGunWithLines } from "./uretim";
@@ -81,12 +81,17 @@ function goster(): void {
     govde = `<div class="as-kkd">${(a.kkd || []).map((k) => `<span class="as-kkd-i">${k}</span>`).join("")}</div>`
       + (a.uyarilar && a.uyarilar.length ? `<div class="as-uyari"><b>⚠️ Bu üründeki tehlikeler:</b><ul>${a.uyarilar.map((u) => `<li>${u}</li>`).join("")}</ul></div>` : "");
   } else if (a.tip === "ekle" && a.ekle) {
-    govde = `<div class="as-malz">${a.ekle.map((ad) => `
+    const renk = urun ? URUN_RENK[urun.id] : "";
+    govde = `<div class="as-malz">${a.ekle.map((ad) => {
+      const adGoster = ad === "Boya" && renk ? `Boya (${renk})` : ad;
+      const rol = ad === "Boya" && renk ? `🎨 ${renk} renk verir — az miktar, tona göre ayarlayın` : HM_ROL[ad];
+      return `
       <div class="as-malz-r">
         <span class="as-malz-m">${miktarYaz(miktarAd(ad))}</span>
-        <span class="as-malz-a">${ad}</span>
-        ${HM_ROL[ad] ? `<span class="as-malz-rol">${HM_ROL[ad]}</span>` : ""}
-      </div>`).join("")}</div>`;
+        <span class="as-malz-a">${adGoster}</span>
+        ${rol ? `<span class="as-malz-rol">${rol}</span>` : ""}
+      </div>`;
+    }).join("")}</div>`;
     if (a.safSu) govde += `<div class="as-uyari">💧 <b>Saf / deiyonize su kullanın.</b> Musluk suyundaki kireç bulanıklık ve çökelme yapar.</div>`;
     if (sn > 0) govde += timerBlok(a.sureDk || 0);
   } else if (a.tip === "karistir") {

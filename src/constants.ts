@@ -6,9 +6,9 @@ export const URUNLER: Urun[] = [
   { id: "kopuk-sabun", ad: "Köpük Sabun", kat: "Kişisel Bakım", yog: 1.02, batch: 20, ings: [["Su", 88.8], ["SLES", 7.5], ["Betain", 1.2], ["Kokamid DEA", 1.2], ["Koruyucu", 0.12], ["Esans", 0.35], ["Sitrik Asit", 0.08], ["Gliserin", 0.75]] },
   { id: "dezenfektan", ad: "El Dezenfektanı", kat: "Kişisel Bakım", yog: 0.88, batch: 5, ings: [["Su", 24.38], ["Etil Alkol", 75.0], ["Gliserin", 0.5], ["Esans", 0.12]] },
   { id: "kolonya", ad: "Kolonya", kat: "Kişisel Bakım", yog: 0.88, batch: 100, ings: [["Su", 15.0], ["Etil Alkol", 83.0], ["Esans", 2.0]] },
-  { id: "genel-temiz", ad: "Genel Temizlik", kat: "Ev Temizliği", yog: 1.0, batch: 5, ings: [["Su", 94.8], ["IPA", 3.0], ["NP10", 0.9], ["Koruyucu", 0.1], ["Esans", 0.4]] },
-  { id: "cam-silici", ad: "Cam Silici", kat: "Ev Temizliği", yog: 1.0, batch: 900, ings: [["Su", 95.1], ["NP10", 0.6], ["IPA", 4.0], ["Koruyucu", 0.12]] },
-  { id: "bulasik", ad: "Bulaşık Deterjanı", kat: "Ev Temizliği", yog: 1.04, batch: 4, ings: [["Su", 90.85], ["LABSA", 1.5], ["SLES", 4.5], ["TEA", 1.0], ["Kokamid DEA", 1.0], ["Sıvı Kostik", 0.9], ["Limon Esansı", 0.25], ["Tuz", 2.0]] },
+  { id: "genel-temiz", ad: "Yüzey Temizleyici", kat: "Ev Temizliği", yog: 1.0, batch: 5, ings: [["Su", 94.79], ["IPA", 3.0], ["NP10", 0.9], ["Koruyucu", 0.1], ["Esans", 0.4], ["Boya", 0.01]] },
+  { id: "cam-silici", ad: "Cam Silici", kat: "Ev Temizliği", yog: 1.0, batch: 900, ings: [["Su", 95.09], ["NP10", 0.6], ["IPA", 4.0], ["Koruyucu", 0.12], ["Boya", 0.01]] },
+  { id: "bulasik", ad: "Bulaşık Deterjanı", kat: "Ev Temizliği", yog: 1.04, batch: 4, ings: [["Su", 90.84], ["LABSA", 1.5], ["SLES", 4.5], ["TEA", 1.0], ["Kokamid DEA", 1.0], ["Sıvı Kostik", 0.9], ["Limon Esansı", 0.25], ["Boya", 0.01], ["Tuz", 2.0]] },
   { id: "camasir-suyu", ad: "Çamaşır Suyu", kat: "Ev Temizliği", yog: 1.07, batch: 900, ings: [["Su", 77.8], ["Hipoklorit %16", 22.2]] },
   { id: "kivamli-camasir", ad: "Kıvamlı Çamaşır Suyu", kat: "Ev Temizliği", yog: 1.06, batch: 900, ings: [["Su", 71.875], ["Kostik", 3.0], ["SLES", 5.0], ["Köpük Kesici", 0.125], ["Hipoklorit %16", 20.0]] },
   { id: "yag-cozucu", ad: "Yağ Çözücü", kat: "Endüstriyel", yog: 1.05, batch: 400, ings: [["Su", 90.8], ["Kostik", 6.5], ["NP10", 2.5], ["Esans", 0.2]] },
@@ -21,6 +21,14 @@ export const URUNLER: Urun[] = [
   { id: "halep-30", ad: "Halep Sabunu Standart (%30 Defne)", kat: "Katı Sabun", yog: 1.07, batch: 2, ings: [["Zeytinyağı", 46.0], ["Defne Yağı", 20.0], ["Su", 25.5], ["Kostik", 8.5]] },
   { id: "halep-40", ad: "Halep Sabunu Premium (%40 Defne)", kat: "Katı Sabun", yog: 1.07, batch: 2, ings: [["Zeytinyağı", 40.0], ["Defne Yağı", 26.5], ["Su", 25.0], ["Kostik", 8.5]] },
 ];
+
+// ── Ürün boya renkleri (asistan "Boya" adımında gösterilir) ───
+export const URUN_RENK: Record<string, string> = {
+  "sivi-sabun": "Yeşil",
+  "bulasik": "Sarı",
+  "genel-temiz": "Mor",
+  "cam-silici": "Mavi",
+};
 
 // ── Ham madde fiyatları (₺/kg) ────────────────────────────────
 export const HM_FIYAT: Record<string, number> = {
