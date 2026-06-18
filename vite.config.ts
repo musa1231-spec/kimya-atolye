@@ -2,6 +2,8 @@ import { defineConfig } from "vite";
 import { VitePWA } from "vite-plugin-pwa";
 
 export default defineConfig({
+  // GitHub Pages alt-yolu (musaXXX.github.io/kimya-atolye/); yerel ve Vercel'de kök "/"
+  base: process.env.GITHUB_ACTIONS ? "/kimya-atolye/" : "/",
   server: { port: 5173, open: true },
   build: { outDir: "dist", target: "es2020" },
   plugins: [
