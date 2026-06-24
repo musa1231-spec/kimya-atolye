@@ -8,7 +8,7 @@ export const URUNLER: Urun[] = [
   { id: "kolonya", ad: "Kolonya", kat: "Kişisel Bakım", yog: 0.88, batch: 100, ings: [["Su", 15.0], ["Etil Alkol", 83.0], ["Esans", 2.0]] },
   { id: "genel-temiz", ad: "Yüzey Temizleyici", kat: "Ev Temizliği", yog: 1.0, batch: 5, ings: [["Su", 94.79], ["IPA", 3.0], ["NP10", 0.9], ["Koruyucu", 0.1], ["Esans", 0.4], ["Boya", 0.01]] },
   { id: "cam-silici", ad: "Cam Silici", kat: "Ev Temizliği", yog: 1.0, batch: 900, ings: [["Su", 95.09], ["NP10", 0.6], ["IPA", 4.0], ["Koruyucu", 0.12], ["Boya", 0.01]] },
-  { id: "bulasik", ad: "Bulaşık Deterjanı", kat: "Ev Temizliği", yog: 1.04, batch: 4, ings: [["Su", 90.84], ["LABSA", 1.5], ["SLES", 4.5], ["TEA", 1.0], ["Kokamid DEA", 1.0], ["Sıvı Kostik", 0.9], ["Limon Esansı", 0.25], ["Boya", 0.01], ["Tuz", 2.0]] },
+  { id: "bulasik", ad: "Bulaşık Deterjanı", kat: "Ev Temizliği", yog: 1.04, batch: 4, ings: [["Su", 89.49], ["LABSA", 1.5], ["SLES", 4.5], ["Kokamid DEA", 1.0], ["Sıvı Kostik", 1.0], ["Limon Esansı", 0.25], ["Boya", 0.01], ["Tuz", 2.25]] },
   { id: "camasir-suyu", ad: "Çamaşır Suyu", kat: "Ev Temizliği", yog: 1.07, batch: 900, ings: [["Su", 77.8], ["Hipoklorit %16", 22.2]] },
   { id: "kivamli-camasir", ad: "Kıvamlı Çamaşır Suyu", kat: "Ev Temizliği", yog: 1.06, batch: 900, ings: [["Su", 71.875], ["Kostik", 3.0], ["SLES", 5.0], ["Köpük Kesici", 0.125], ["Hipoklorit %16", 20.0]] },
   { id: "yag-cozucu", ad: "Yağ Çözücü", kat: "Endüstriyel", yog: 1.05, batch: 400, ings: [["Su", 90.8], ["Kostik", 6.5], ["NP10", 2.5], ["Esans", 0.2]] },
@@ -41,7 +41,7 @@ export const URUN_ESANS: Record<string, string> = {
 export const HM_FIYAT: Record<string, number> = {
   Su: 0.03, SLES: 115, Betain: 110, "Kokamid DEA": 90, Koruyucu: 120, Esans: 400,
   "Sitrik Asit": 85, Gliserin: 130, Tuz: 6, IPA: 260, NP10: 200, "Hipoklorit %16": 70,
-  LABSA: 115, TEA: 140, "Sıvı Kostik": 40, Kostik: 70, "Fosforik Asit": 175, HCl: 40,
+  LABSA: 115, "Sıvı Kostik": 40, Kostik: 70, "Fosforik Asit": 175, HCl: 40,
   HNO3: 75, "Etil Alkol": 250, "Köpük Kesici": 120, "Limon Esansı": 280,
   "Asit İnhibitörü": 200, Zeytinyağı: 180, "Defne Yağı": 600, Boya: 180,
 };
@@ -137,7 +137,6 @@ export const HM_TEHLIKE: Record<string, string> = {
   IPA: "Kolay alev alır — ateşten uzak tutun.",
   NP10: "Tahriş edici — göz/cilt temasından kaçının.",
   LABSA: "Tahriş edici — göz/cilt temasından kaçının.",
-  TEA: "Tahriş edici olabilir.",
 };
 
 // Etiket için varsayılan raf ömrü (ay) — kategoriye göre
