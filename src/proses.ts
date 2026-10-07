@@ -87,7 +87,7 @@ const OZEL: Record<string, ProsesAdim[]> = {
   "bulasik": [
     { tip: "ekle", baslik: "1) Su", ekle: ["Su"], safSu: true, not: "Deiyonize/saf su kullanın." },
     { tip: "ekle", baslik: "2) LABSA", ekle: ["LABSA"], sureDk: 20, not: "Asidik ana aktif. Karıştırarak tamamen çözün." },
-    { tip: "ekle", baslik: "3) Nötralizasyon", ekle: ["Sıvı Kostik", "TEA"], not: "LABSA'yı nötralize edin; pH 6,7–7,5 olana dek azar azar ekleyin." },
+    { tip: "ekle", baslik: "3) Nötralizasyon", ekle: ["Sıvı Kostik"], not: "LABSA'yı nötralize edin; pH 6,7–7,5 olana dek azar azar ekleyin." },
     { tip: "olcum", baslik: "pH Kontrol", not: "pH 6,7–7,5 aralığında olmalı. Değilse nötralizatörü ayarlayın." },
     { tip: "ekle", baslik: "4) Yardımcı aktifler", ekle: ["SLES", "Kokamid DEA"], sureDk: 15, not: "Köpük ve performansı artırır." },
     { tip: "ekle", baslik: "5) Esans", ekle: ["Limon Esansı"], not: "Kokuyu ekleyin." },
