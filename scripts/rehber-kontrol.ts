@@ -38,6 +38,22 @@ for (const u of URUNLER) {
   }
   for (const ad of recAd) if (!eklenen.has(ad)) hatalar.push(`${u.id}: reçetedeki '${ad}' hiçbir adımda eklenmiyor`);
 }
+// Her reçetenin toplamı %100 olmalı
+for (const u of URUNLER) {
+  const t = u.ings.reduce((s, [, p]) => s + p, 0);
+  if (Math.abs(t - 100) > 0.01) hatalar.push(`${u.id}: reçete toplamı %${t.toFixed(3)} (100 olmalı)`);
+}
+// Stokiyometri (bağımsız referans): LABSA (%96 aktif, M≈322 g/mol) + serbest H2SO4 (%1,5; M=98, 2 H+)
+// → NaOH (M=40) ; sıvı kostik %50. 1 kg LABSA için ≈0,263 kg sıvı kostik. Sapma ≤ %5.
+const NAOH_KG_PER_LABSA = (0.96 / 322 + (0.015 / 98) * 2) * 40;
+const SIVI_KOSTIK_ORAN = NAOH_KG_PER_LABSA / 0.5;
+for (const u of URUNLER) {
+  const labsa = u.ings.find(([a]) => a === "LABSA")?.[1], kostik = u.ings.find(([a]) => a === "Sıvı Kostik")?.[1];
+  if (labsa && kostik) {
+    const beklenen = labsa * SIVI_KOSTIK_ORAN;
+    if (Math.abs(kostik - beklenen) / beklenen > 0.05) hatalar.push(`${u.id}: Sıvı Kostik %${kostik}, stokiyometrik ≈%${beklenen.toFixed(3)} (LABSA %${labsa})`);
+  }
+}
 if (hatalar.length) { console.error("❌ Rehber tutarlılık hatası:\n  " + hatalar.join("\n  ")); process.exit(1); }
 console.log(`✅ Rehber tutarlı: ${URUNLER.length} ürün, ${Object.keys(HM_REHBER).length} ham madde rehberi`);
 
@@ -60,10 +76,10 @@ for (const u of URUNLER) {
     if (!yakin(saf0, saf1, 0.01)) ah.push(`${u.id}/${k.tur}: saf alkol korunmadı ${saf0.toFixed(3)} → ${saf1.toFixed(3)}`);
   }
 }
-// Elle hesaplanmış örnek: Cam silici IPA %4 (saf 3,96) ← %70'lik dezenfektan: 3,96/0,624 = %6,346; su 95,09 − 2,346 = %92,744
+// Elle hesaplanmış örnek: Cam silici IPA %4 (saf 3,96) ← %70'lik dezenfektan: 3,96/0,624 = %6,346; su 95,27 − 2,346 = %92,924
 const cam = alkolUyarla(URUNLER.find((x) => x.id === "cam-silici")!, { tur: "dezenfektan", derece: 70 });
 const camD = cam.urun.ings.find(([a]) => a.startsWith(DEZENFEKTAN_AD))?.[1] ?? -1, camSu = cam.urun.ings.find(([a]) => a === "Su")?.[1] ?? -1;
-if (!yakin(camD, 6.346, 0.002) || !yakin(camSu, 92.744, 0.002)) ah.push(`cam-silici %70: dezenfektan ${camD} (6,346), su ${camSu} (92,744)`);
+if (!yakin(camD, 6.346, 0.002) || !yakin(camSu, 92.924, 0.002)) ah.push(`cam-silici %70: dezenfektan ${camD} (6,346), su ${camSu} (92,924)`);
 // Engel: 70°'lik dezenfektanla kolonya/dezenfektan yapılamaz; derece girilmeden hesap yok
 for (const id of ["kolonya", "dezenfektan"]) if (!alkolUyarla(URUNLER.find((x) => x.id === id)!, { tur: "dezenfektan", derece: 70 }).engel) ah.push(`${id}: %70 kaynakla ENGEL bekleniyordu`);
 if (!alkolUyarla(URUNLER.find((x) => x.id === "cam-silici")!, { tur: "dezenfektan" }).engel) ah.push("derece girilmeden ENGEL bekleniyordu");

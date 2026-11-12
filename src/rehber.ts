@@ -70,8 +70,9 @@ export const HM_REHBER: Record<string, Rehber> = {
   "Sıvı Kostik": {
     dikkat: [
       "AŞINDIRICI! Gözlük, eldiven ve önlük olmadan açmayın; göz duşunun yerini önceden bilin.",
-      "Hepsini birden dökmeyin: reçete miktarını 3–4 parçaya bölün, her parçadan sonra 5 dk karıştırıp pH ölçün.",
-      "Reçetedeki miktar ÜST SINIRDIR. pH hedefe gelince durun; artan kostiği üretim kaydına not edin.",
+      "Reçetedeki miktar %50'lik sıvı kostiğe göre hesaplanmış TAM nötralizasyon miktarıdır (1 kg LABSA ≈ 0,26 kg). Kostiğiniz farklı yüzdedeyse miktar değişir; öğretmene sorun.",
+      "Hepsini birden dökmeyin: önce yaklaşık %80'ini 2–3 parçada ekleyin, kalanını küçük parçalarla pH'a bakarak tamamlayın. Her ilaveden sonra 5 dk karıştırıp ölçün.",
+      "pH hedefe gelince durun; kalan kostik varsa eklemeyin, kayda not edin.",
       "Nötralizasyon ısı verir; kazan belirgin ısınırsa biraz bekleyip devam edin.",
     ],
     sorun: [
