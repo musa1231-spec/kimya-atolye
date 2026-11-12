@@ -1,7 +1,7 @@
 import { URUNLER, HM_TEHLIKE, URUN_RENK, URUN_ESANS } from "../constants";
 import { prosesUret, HM_ROL, SAF_SU } from "../proses";
 import type { ProsesAdim } from "../proses";
-import { rehberTopla } from "../rehber";
+import { rehberTopla, atlamaUyariHTML, atlamaListesi, atlamaRozet } from "../rehber";
 import { alkolUyarla, alkolSecimHTML, alkolSecimOku, alkolNotHTML, urundeAlkolVar } from "../alkol";
 import type { AlkolSonuc } from "../alkol";
 import { acUretimGunWithLines } from "./uretim";
@@ -56,6 +56,7 @@ export function asistanUrunDegisti(): void {
     setVal("as-kg", String(u.batch));
     setText("as-kat", u.kat + (SAF_SU.has(u.id) ? " · 💧 saf su gerekir" : ""));
   }
+  setHTML("as-atla", u ? atlamaListesi(u.id, u.ings.map(([a]) => a)).map((x) => atlamaUyariHTML(u.id, x.ad, true)).join("") : "");
   const w = $("as-alkol");
   if (u && urundeAlkolVar(u)) {
     if (!w.innerHTML) setHTML("as-alkol", alkolSecimHTML("as", "asAlkolDegisti") + `<div id="as-alk-not"></div>`);
@@ -112,10 +113,11 @@ function goster(): void {
       return `
       <div class="as-malz-r">
         <span class="as-malz-m">${miktarYaz(miktarAd(ad))}</span>
-        <span class="as-malz-a">${adGoster}</span>
+        <span class="as-malz-a">${adGoster}${urun ? atlamaRozet(urun.id, ad) : ""}</span>
         ${rol ? `<span class="as-malz-rol">${rol}</span>` : ""}
       </div>`;
     }).join("")}</div>`;
+    if (urun) govde += a.ekle.map((ad) => atlamaUyariHTML(urun!.id, ad)).join("");
     if (uyarli && a.ekle.some((ad) => uyarli!.adlar[ad])) govde += alkolNotHTML(uyarli);
     if (uyarli && a.ekle.includes("Su") && uyarli.notlar.some((n) => n.includes("SU azaltıldı"))) govde += `<div class="as-uyari">💧 Su miktarı, alkol kaynağıyla birlikte gelen su kadar azaltılmıştır.</div>`;
     if (a.safSu) govde += `<div class="as-uyari">💧 <b>Saf / deiyonize su kullanın.</b> Musluk suyundaki kireç bulanıklık ve çökelme yapar.</div>`;

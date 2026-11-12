@@ -388,4 +388,16 @@ tr:hover td{background:rgba(0,0,0,.04)}
 .alk-kutu .fg{flex:1 1 220px}
 .alk-not{background:#e8f5e9;border:1px solid #a5d6a7;color:#1b5e20;border-radius:9px;padding:10px 13px;font-size:.78rem;line-height:1.5;text-align:left;margin:10px 0}
 .alk-not ul{margin:5px 0 0 18px}
+/* Pek kullanılmayan ham madde uyarısı (koruyucu, köpük kesici) */
+.atl-rozet{display:inline-block;font-size:.62rem;font-weight:800;border-radius:6px;padding:1px 6px;margin-left:4px;vertical-align:middle;white-space:nowrap}
+.atl-rozet.atl-sart{background:#ffebee;color:#b71c1c;border:1px solid #ef9a9a}
+.atl-rozet.atl-onerilir{background:#fff8e1;color:#8a5a00;border:1px solid #ffd54f}
+.atl-kutu{border-radius:10px;padding:11px 13px;margin:12px auto 0;text-align:left;font-size:.8rem;line-height:1.55;max-width:620px;border:1px solid}
+.atl-kutu.atl-sart{background:#ffebee;border-color:#ef9a9a;color:#7f1d1d}
+.atl-kutu.atl-onerilir{background:#fff8e1;border-color:#ffd54f;color:#5d4200}
+.atl-bas{font-weight:800;font-size:.88rem;margin-bottom:3px}
+.atl-ne{margin-bottom:4px}
+.atl-kutu summary{cursor:pointer;font-weight:800;padding:6px 0}
+.atl-kutu ul{margin:2px 0 6px 18px;padding:0}
+.atl-kutu li{margin:3px 0}
 .alk-engel{background:#ffebee;border:1px solid #ef9a9a;color:#b71c1c;border-radius:9px;padding:10px 13px;font-size:.82rem;font-weight:700;line-height:1.5;text-align:left;margin:10px 0}

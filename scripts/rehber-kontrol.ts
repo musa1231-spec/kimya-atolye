@@ -1,9 +1,21 @@
 // Tutarlılık testi: her formülasyonun üretim rehberi eksiksiz mi?
 import { URUNLER } from "../src/constants";
 import { prosesUret } from "../src/proses";
-import { HM_REHBER, URUN_REHBER, rehberTopla } from "../src/rehber";
+import { HM_REHBER, URUN_REHBER, rehberTopla, ATLAMA_UYARI } from "../src/rehber";
 
 const hatalar: string[] = [];
+// Pek kullanılmayan ham maddeler: reçetesinde geçen her ürünün seviyesi + gerekçesi olmalı,
+// seviyesi yazılan her ürünün reçetesinde o ham madde geçmeli; asistanda bir adımda görünmeli.
+for (const [ad, au] of Object.entries(ATLAMA_UYARI)) {
+  if (!au.olmazsa.length || !au.yapilacaksa.length) hatalar.push(`ATLAMA_UYARI '${ad}': olmazsa/yapılacaksa boş`);
+  for (const u of URUNLER) {
+    const var_ = u.ings.some(([a]) => a === ad);
+    if (var_ && !au.seviye[u.id]) hatalar.push(`${u.id}: reçetede '${ad}' var ama şart/önerilir seviyesi yok`);
+    if (var_ && !au.gerekce[u.id]) hatalar.push(`${u.id}: '${ad}' için gerekçe yok`);
+    if (!var_ && au.seviye[u.id]) hatalar.push(`${u.id}: '${ad}' seviyesi yazılmış ama reçetede yok`);
+    if (var_ && !prosesUret(u).some((s) => s.ekle?.includes(ad))) hatalar.push(`${u.id}: '${ad}' uyarısı asistanda hiçbir adımda görünmez`);
+  }
+}
 for (const u of URUNLER) {
   const ur = URUN_REHBER[u.id];
   if (!ur) hatalar.push(`${u.id}: URUN_REHBER kaydı yok`);

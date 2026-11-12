@@ -499,6 +499,112 @@ export const URUN_REHBER: Record<string, UrunRehber> = {
   "halep-40": { hazirlik: HALEP_HAZIRLIK, kontrol: { dikkat: ["🎯 Kür sonunda pH 9–10; kesit yeşilimsi, dış yüzey zamanla sarı-kahverengine döner (normaldir)."], sorun: SOGUK_SABUN_SORUN } },
 };
 
+// ════════════════════════════════════════════════════════════════
+// ATÖLYEDE PEK KULLANILMAYAN HAM MADDELER — "kullanmazsak ne olur?"
+// (Musa Hocam 12 Kas 2026: koruyucu ve köpük kesici çoğu zaman konmuyor.)
+// Formülasyon › Bileşen Detayı ve Üretim Asistanı aynı kaynaktan okur.
+// ════════════════════════════════════════════════════════════════
+export type AtlamaSeviye = "sart" | "onerilir";
+export interface AtlamaUyari {
+  ne: string;                                  // ne işe yarar (tek cümle)
+  seviye: Record<string, AtlamaSeviye>;        // ürün id → şart / önerilir
+  gerekce: Record<string, string>;             // ürün id → neden bu seviyede
+  olmazsa: string[];                           // kullanılmazsa ne olur
+  yapilacaksa: string[];                       // yine de konmayacaksa en azından
+  gereksiz?: string;                           // hangi ürünlerde zaten gerekmez
+}
+
+export const ATLAMA_UYARI: Record<string, AtlamaUyari> = {
+  Koruyucu: {
+    ne: "Su bazlı üründe bakteri, maya ve küf üremesini önler; ürünün raf ömrünü belirler.",
+    seviye: { "sivi-sabun": "sart", "kopuk-sabun": "sart", "genel-temiz": "onerilir", "cam-silici": "onerilir" },
+    gerekce: {
+      "sivi-sabun": "Ürünün %90'ı su; SLES, betain ve kokamid DEA mikroplar için besindir. Pompa ağzından ve ıslak ellerden sürekli mikrop girer, ürün cilde sürülür.",
+      "kopuk-sabun": "Sıvı sabundan da seyreltik ve köpük pompası havayla temas ettirir. Ürün cilde sürülür.",
+      "genel-temiz": "%3 IPA mikropları durdurmaya yetmez (koruyucu etki için ≈%15–20 alkol gerekir). Cilde sürülmediği için risk daha düşük, ama bidonda bozulabilir.",
+      "cam-silici": "%4 IPA koruma için yetersiz; büyük partide (900 kg) ürün aylarca depoda bekler.",
+    },
+    olmazsa: [
+      "2–8 hafta içinde (yazın daha çabuk) bakteri, maya ya da küf ürer.",
+      "Koku bozulur: ekşi, çürük, rutubet kokusu; esans bu kokuyu bir süre örter.",
+      "Ürün bulanıklaşır, dibe tortu çöker, yüzeyde ya da kapak altında küf lekeleri görülür.",
+      "Kıvam DÜŞER: mikroplar yüzey aktifi ve kıvam vericiyi parçalar, sabun sulanır.",
+      "Renk değişir; bidon gaz yapıp şişebilir.",
+      "Sabunlarda asıl tehlike: mikroplu ürün cilde, açık yaraya, çocukların eline sürülür (ör. Pseudomonas ciltte ve gözde enfeksiyon yapabilir).",
+      "Satılan kozmetik ürünün mikrobiyolojik açıdan güvenli olması gerekir. Bozulan parti iade ve itibar kaybı demektir.",
+    ],
+    yapilacaksa: [
+      "Yalnız SAF/deiyonize su kullanın; mümkünse kaynatılıp soğutulmuş saf su.",
+      "Kazanı, karıştırıcıyı, hortumu ve bidonları üretimden önce yıkayıp %70 alkolle (eldeki dezenfektanla) silin.",
+      "Küçük partiler yapın, ürünü en geç 1 ayda tüketin; etikete üretim tarihini yazın.",
+      "Serin ve gölge yerde saklayın; açılmış bidonu uzun bekletmeyin.",
+      "Her partiden 1 şahit numune ayırıp 2–4 hafta gözleyin (koku, bulanıklık, kıvam); bozulma görülürse aynı partiyi dağıtmayın.",
+      "Sıvı sabunun pH'ını 5,0–5,5'e yakın tutmak mikrop üremesini biraz yavaşlatır ama koruyucunun yerini TUTMAZ.",
+    ],
+    gereksiz: "Kolonya ve el dezenfektanı (yüksek alkol), çamaşır suyu (hipoklorit), yağ çözücü (pH 12–13), tuz ruhu, kireç çözücü ve WC temizleyici (asit) kendi kendini korur; bunlara koruyucu gerekmez.",
+  },
+  "Köpük Kesici": {
+    ne: "Karıştırma ve dolum sırasında oluşan köpüğü kırar; köpüğün kalıcı olmasını önler.",
+    seviye: { "kivamli-camasir": "onerilir" },
+    gerekce: {
+      "kivamli-camasir": "Üründe %5 SLES var; kostikli, kıvamlı ortamda oluşan köpük kolay sönmez. Köpük kesici ürünün güvenliğini değil, üretimin ve kullanımın rahatlığını etkiler.",
+    },
+    olmazsa: [
+      "Karıştırırken kazanda köpük kabarır, kazan ağzından taşabilir. Taşan sıvı hipokloritli ve kostiklidir: cilde ve göze zarar verir.",
+      "Kıvamlı üründe hapsolan hava kabarcıkları günlerce çıkmaz; ürün bulutlu, köpüklü görünür.",
+      "Dolum yavaşlar; bidon köpükle dolar, köpük sönünce bidon EKSİK görünür (eksik hacim, müşteri şikâyeti).",
+      "Kullanımda, özellikle bol suyla ya da makinede kullanılırsa fazla köpük yapar, durulama uzar.",
+      "Ürünün temizleme/beyazlatma gücü DEĞİŞMEZ; köpük kesicinin yokluğu güvenlik değil, kullanım ve görünüş sorunudur.",
+    ],
+    yapilacaksa: [
+      "Karıştırıcıyı yavaş çalıştırın, pervaneyi kazanın derinine indirin; girdap oluşturmayın.",
+      "SLES'i karıştırıcı çalışırken suyun içine ekleyin, yukarıdan dökmeyin.",
+      "Dolumdan önce kazanı birkaç saat (tercihen bir gece) bekletin; kabarcıklar yüzeye çıkar.",
+      "Hortumu bidonun dibine indirerek doldurun, bidonları köpük sönünce tamamlayın.",
+      "Yüzeydeki köpüğü plastik kepçeyle alın; köpüğü söndürmek için su püskürtmeyin (ürünü sulandırır).",
+    ],
+  },
+};
+
+const SEVIYE_YAZI: Record<AtlamaSeviye, string> = { sart: "ŞART", onerilir: "ÖNERİLİR" };
+
+/** Bir üründe atlanması riskli ham maddeler (reçetede geçen ve ATLAMA_UYARI'da olanlar). */
+export function atlamaListesi(urunId: string, ingAdlari: string[]): { ad: string; u: AtlamaUyari; sv: AtlamaSeviye }[] {
+  return ingAdlari.filter((ad) => ATLAMA_UYARI[ad]?.seviye[urunId])
+    .map((ad) => ({ ad, u: ATLAMA_UYARI[ad], sv: ATLAMA_UYARI[ad].seviye[urunId] }));
+}
+
+/** Küçük rozet: "⚠️ ŞART" / "ÖNERİLİR" */
+export function atlamaRozet(urunId: string, ad: string): string {
+  const sv = ATLAMA_UYARI[ad]?.seviye[urunId];
+  return sv ? ` <span class="atl-rozet atl-${sv}" title="Atölyede çoğu zaman konmuyor — kullanılmazsa ne olur? Ayrıntı aşağıda.">${sv === "sart" ? "⚠️ " : ""}${SEVIYE_YAZI[sv]}</span>` : "";
+}
+
+/** Ayrıntılı uyarı kutusu. kisa=true → yalnız başlık + gerekçe (kurulum ekranı için). */
+export function atlamaUyariHTML(urunId: string, ad: string, kisa = false): string {
+  const u = ATLAMA_UYARI[ad]; const sv = u?.seviye[urunId];
+  if (!u || !sv) return "";
+  const bas = `<div class="atl-bas">${sv === "sart" ? "⛔" : "⚠️"} ${ad} bu üründe <b>${SEVIYE_YAZI[sv]}</b></div>
+    <div class="atl-ne">${u.ne} ${u.gerekce[urunId] || ""}</div>`;
+  if (kisa) return `<div class="atl-kutu atl-${sv}">${bas}</div>`;
+  return `<div class="atl-kutu atl-${sv}">${bas}
+    <details ${sv === "sart" ? "open" : ""}><summary>❓ ${ad} kullanılmazsa ne olur?</summary>
+      <ul>${u.olmazsa.map((x) => `<li>${x}</li>`).join("")}</ul></details>
+    <details><summary>🛡️ Yine de kullanılmayacaksa en azından…</summary>
+      <ul>${u.yapilacaksa.map((x) => `<li>${x}</li>`).join("")}</ul></details>
+  </div>`;
+}
+
+/** Bütün ürünler için özet tablo: hangi üründe şart / önerilir / gereksiz */
+export function atlamaOzetHTML(ad: string, urunler: { id: string; ad: string; ings: [string, number][] }[]): string {
+  const u = ATLAMA_UYARI[ad]; if (!u) return "";
+  const satir = urunler.filter((x) => x.ings.some(([a]) => a === ad))
+    .map((x) => `<tr><td>${x.ad}</td><td>${atlamaRozet(x.id, ad)}</td><td style="font-size:.74rem">${u.gerekce[x.id] || ""}</td></tr>`).join("");
+  return `<div class="card" style="margin-top:14px"><div class="ch"><span class="ct">${ad} hangi ürünlerde şart?</span></div>
+    <div class="tw"><table><thead><tr><th>Ürün</th><th>Durum</th><th>Neden</th></tr></thead><tbody>${satir}</tbody></table></div>
+    ${u.gereksiz ? `<div class="tm" style="margin-top:8px">ℹ️ ${u.gereksiz}</div>` : ""}</div>`;
+}
+
 /** Ürüne özel + adımın kendi notları + ham madde rehberi + adım türü rehberini birleştirir (tekrarsız). */
 export function rehberTopla(adim: ProsesAdim, urunId?: string): { dikkat: string[]; sorun: Sorun[] } {
   const ur = urunId ? URUN_REHBER[urunId] : undefined;

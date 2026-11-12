@@ -208,6 +208,7 @@
     <div class="fg"><label>Ürün</label><select id="as-urun" onchange="asistanUrunDegisti()"></select></div>
     <div class="fg"><label>Hedef Miktar (kg)</label><input type="number" id="as-kg" min="1" value="900"></div>
     <div id="as-alkol" style="display:none;margin-bottom:12px"></div>
+    <div id="as-atla"></div>
     <div class="tm" style="margin-bottom:14px">Kategori: <b id="as-kat">—</b> · Reçete bu miktara otomatik ölçeklenecek.</div>
     <button class="btn bp" style="width:100%;font-size:1rem;padding:13px" onclick="asistanBasla()">▶ Üretime Başla</button>
   </div>
@@ -296,6 +297,7 @@
   </div>
   <div id="form-liste" class="fsec active">
     <div class="tw"><table><thead><tr><th>Ürün</th><th>Kategori</th><th class="tr">Kazan Miktarı (kg)</th><th class="tr">Yoğunluk</th><th>Temel Bileşenler</th></tr></thead><tbody id="fl-tb"></tbody></table></div>
+    <div id="fl-atla"></div>
   </div>
   <div id="form-detay" class="fsec">
     <div style="display:flex;align-items:flex-end;gap:14px;margin-bottom:12px;flex-wrap:wrap">
