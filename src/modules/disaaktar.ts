@@ -1,6 +1,7 @@
 import { store } from "../state";
 import { URUNLER, HM_LIST } from "../constants";
 import { hmFiyatAd, hmFiyatId, yaklasikMaliyet, karHesap } from "../fiyat";
+import { gecerliListeTarihi, listeTarihYazi, listeSatirlari } from "./fiyatliste";
 import { fmt, urunAd, musAd, esansAd, ogrAd, ogcAd, val, showToast } from "../helpers";
 
 // ════════════════════════════════════════════════════════════════
@@ -98,25 +99,31 @@ export function exportHmStok(): void {
 const tl = (n: number) => "₺" + n.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
 export function exportFiyatListesi(): void {
-  const rows: (string | number)[][] = [["Ürün", "Satış 5L", "Satış 20L", "Satış 1L", "Maliyet 5L", "Kâr% 5L", "Maliyet 20L", "Kâr% 20L"]];
-  URUNLER.forEach((u) => {
-    const s = store.satisFiyat[u.id];
+  const rows: (string | number)[][] = [
+    [`Fiyat Listesi — Yürürlük: ${listeTarihYazi()}`],
+    ["Ürün", "Satış 5L", "Satış 20L", "Satış 1L", "Maliyet 5L", "Kâr% 5L", "Maliyet 20L", "Kâr% 20L"],
+  ];
+  listeSatirlari().forEach((x) => {
+    const s = store.satisFiyat[x.id];
     if (!s || (!s.f5 && !s.f20 && !s.f1)) return;
+    const u = URUNLER.find((y) => y.id === x.id);
+    if (!u) { rows.push([x.ad, s.f5 || "", s.f20 || "", s.f1 || "", "reçete yok", "", "reçete yok", ""]); return; }
     const m5 = yaklasikMaliyet(u, 5), m20 = yaklasikMaliyet(u, 20);
     const k5 = karHesap(s.f5, m5), k20 = karHesap(s.f20, m20);
     rows.push([
-      u.ad, s.f5 || "", s.f20 || "", s.f1 || "",
+      x.ad, s.f5 || "", s.f20 || "", s.f1 || "",
       +m5.toFixed(2), k5 ? +k5.marj.toFixed(1) : "", +m20.toFixed(2), k20 ? +k20.marj.toFixed(1) : "",
     ]);
   });
-  exportSheets(`fiyat-listesi-${damga()}.xlsx`, [{ name: "Fiyat Listesi", rows }]);
+  exportSheets(`fiyat-listesi-${gecerliListeTarihi() || damga()}.xlsx`, [{ name: "Fiyat Listesi", rows }]);
 }
 
 export function yazdirFiyatListesi(): void {
-  const sat = URUNLER.filter((u) => { const s = store.satisFiyat[u.id]; return s && (s.f5 || s.f20 || s.f1); });
+  // Resmî listenin sırası ve adlarıyla; tarih = listenin yürürlük tarihi (bugün değil)
+  const sat = listeSatirlari().filter((u) => { const s = store.satisFiyat[u.id]; return s && (s.f5 || s.f20 || s.f1); });
   const satir = sat.map((u) => {
     const s = store.satisFiyat[u.id]!;
-    return `<tr><td>${u.ad}</td><td class="tc">${s.f5 ? tl(s.f5) : ""}</td><td class="tc">${s.f20 ? tl(s.f20) : ""}</td></tr>`;
+    return `<tr><td>${u.ad.toLocaleUpperCase("tr-TR")}</td><td class="tc">${s.f5 ? tl(s.f5) : ""}</td><td class="tc">${s.f20 ? tl(s.f20) : ""}</td></tr>`;
   }).join("");
   const govde = `
     <h1 style="text-align:center;font-size:15px">ŞEHİT AHMET BENLİ MESLEKİ VE TEKNİK ANADOLU LİSESİ</h1>
@@ -124,7 +131,7 @@ export function yazdirFiyatListesi(): void {
     <div style="text-align:center;font-weight:700;font-size:13px;margin-bottom:12px">FİYAT LİSTESİ</div>
     <table><thead><tr><th>ÜRÜN</th><th class="tc">5 Litre</th><th class="tc">20 Litre</th></tr></thead><tbody>${satir}</tbody></table>
     <div style="margin-top:14px;font-size:11px;line-height:1.7">
-      <div style="text-align:right">${new Date().toLocaleDateString("tr-TR")}</div>
+      <div style="text-align:right"><b>Yürürlük tarihi:</b> ${listeTarihYazi()}</div>
       <b>NOT:</b><br>
       1- Fiyatlarımıza KDV dahil değildir.<br>
       2- Fiyatlara nakliye dahil değildir.<br>

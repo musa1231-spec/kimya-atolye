@@ -1,10 +1,21 @@
 // Tutarlılık testi: her formülasyonun üretim rehberi eksiksiz mi?
-import { URUNLER } from "../src/constants";
+import { URUNLER, FIYAT_LISTESI_DUZEN } from "../src/constants";
 import { prosesUret } from "../src/proses";
 import { HM_REHBER, URUN_REHBER, rehberTopla, ATLAMA_UYARI } from "../src/rehber";
 import { HM_GRUP } from "../src/lib/bilesen";
 
 const hatalar: string[] = [];
+// Resmî fiyat listesi düzeni: reçeteli satır programda olmalı, reçetesiz satır olmamalı, kimlik tekrarı yok
+{
+  const goruldu = new Set<string>();
+  for (const x of FIYAT_LISTESI_DUZEN) {
+    if (goruldu.has(x.id)) hatalar.push(`FIYAT_LISTESI_DUZEN: '${x.id}' iki kez geçiyor`);
+    goruldu.add(x.id);
+    const var_ = URUNLER.some((u) => u.id === x.id);
+    if (x.receteli && !var_) hatalar.push(`FIYAT_LISTESI_DUZEN: '${x.id}' reçeteli işaretli ama URUNLER'de yok`);
+    if (!x.receteli && var_) hatalar.push(`FIYAT_LISTESI_DUZEN: '${x.id}' reçetesiz işaretli ama URUNLER'de reçetesi var`);
+  }
+}
 // Pek kullanılmayan ham maddeler: reçetesinde geçen her ürünün seviyesi + gerekçesi olmalı,
 // seviyesi yazılan her ürünün reçetesinde o ham madde geçmeli; asistanda bir adımda görünmeli.
 for (const [ad, au] of Object.entries(ATLAMA_UYARI)) {

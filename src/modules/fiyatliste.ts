@@ -1,5 +1,5 @@
 import { store, session } from "../state";
-import { URUNLER, ATOLYE_BILGI } from "../constants";
+import { URUNLER, ATOLYE_BILGI, FIYAT_LISTESI_DUZEN } from "../constants";
 import { yaklasikMaliyet, karHesap } from "../fiyat";
 import { upsertSatisFiyat, uploadBelge, belgeUrl } from "../db";
 import { audit } from "../audit";
@@ -9,6 +9,22 @@ import type { Belge } from "../types";
 
 function belgeler(): Belge[] {
   return store.belgeler.filter((b) => b.tur === "fiyat-listesi").sort((a, b) => b.ref.localeCompare(a.ref));
+}
+
+/** Yürürlükteki resmî listenin tarihi (YYYY-AA-GG) — yoksa null. Yazdır/paylaş/Excel bunu basar. */
+export function gecerliListeTarihi(): string | null {
+  return belgeler()[0]?.ref || null;
+}
+/** "25.03.2026" biçimi; belge yoksa açıkça söyler. */
+export function listeTarihYazi(): string {
+  const t = gecerliListeTarihi();
+  return t ? t.split("-").reverse().join(".") : "resmî liste belgesi yüklenmedi";
+}
+
+/** Resmî listedeki sıra + listede olmayan reçeteli ürünler (ör. katı sabunlar) sonda. */
+export function listeSatirlari(): { id: string; ad: string; receteli: boolean }[] {
+  const listede = new Set(FIYAT_LISTESI_DUZEN.map((x) => x.id));
+  return [...FIYAT_LISTESI_DUZEN, ...URUNLER.filter((u) => !listede.has(u.id)).map((u) => ({ id: u.id, ad: u.ad, receteli: true }))];
 }
 
 function marjHucre(kar: ReturnType<typeof karHesap>): string {
@@ -31,12 +47,21 @@ export function rFiyatListe(): void {
       </div>`
     : `<div class="yedek-bar"><div><div style="font-weight:700">Henüz resmî fiyat listesi belgesi yüklenmedi</div><div class="tm">Satış fiyatları yalnızca "Yeni Fiyat Listesi Yükle" ile güncellenir.</div></div></div>`);
 
-  setHTML("fl-fiyat-tb", URUNLER.map((u) => {
-    const s = store.satisFiyat[u.id] || { f5: null, f20: null, f1: null };
+  setHTML("fl-fiyat-tb", listeSatirlari().map((x) => {
+    const s = store.satisFiyat[x.id] || { f5: null, f20: null, f1: null };
+    const u = URUNLER.find((y) => y.id === x.id);
+    if (!u) {
+      // Resmî listede var, reçetesi programda yok → maliyet/kâr hesaplanamaz
+      return `<tr style="background:rgba(148,163,184,.07)">
+        <td><strong>${x.ad}</strong><div class="tm"><span class="ba bgr" title="Bu ürünün formülü programa girilmedi">reçetesi programda yok</span></div></td>
+        <td class="tr mo2" style="color:var(--mut)">—</td><td class="tr mo2">${s.f5 ? s.f5 + " ₺" : "—"}</td><td class="tr mo2" style="color:var(--mut)">—</td>
+        <td class="tr mo2" style="color:var(--mut)">—</td><td class="tr mo2">${s.f20 ? s.f20 + " ₺" : "—"}</td><td class="tr mo2" style="color:var(--mut)">—</td>
+      </tr>`;
+    }
     const m5 = yaklasikMaliyet(u, 5), m20 = yaklasikMaliyet(u, 20);
     const k5 = karHesap(s.f5, m5), k20 = karHesap(s.f20, m20);
     return `<tr>
-      <td><strong>${u.ad}</strong><div class="tm">${u.kat}</div></td>
+      <td><strong>${x.ad}</strong><div class="tm">${u.kat}${x.ad !== u.ad ? ` · programda: ${u.ad}` : ""}</div></td>
       <td class="tr mo2">${m5.toFixed(2)} ₺</td>
       <td class="tr mo2">${s.f5 ? s.f5 + " ₺" : "—"}</td>
       ${marjHucre(k5)}
@@ -56,10 +81,10 @@ export function prepFiyatYukle(): void {
   setVal("fy-tar", new Date().toISOString().slice(0, 10));
   const inp = document.getElementById("fy-belge") as HTMLInputElement;
   if (inp) inp.value = "";
-  setHTML("fy-fiyatlar", URUNLER.map((u) => {
+  setHTML("fy-fiyatlar", listeSatirlari().map((u) => {
     const s = store.satisFiyat[u.id] || { f5: null, f20: null, f1: null };
     return `<div style="display:grid;grid-template-columns:1.6fr 1fr 1fr;gap:6px;align-items:center;margin-bottom:5px">
-      <div style="font-size:.76rem;font-weight:600">${u.ad}</div>
+      <div style="font-size:.76rem;font-weight:600">${u.ad}${u.receteli ? "" : ` <span class="tm">(reçetesiz)</span>`}</div>
       <input type="number" min="0" placeholder="5L ₺" value="${s.f5 ?? ""}" id="fy-${u.id}-5" style="margin:0">
       <input type="number" min="0" placeholder="20L ₺" value="${s.f20 ?? ""}" id="fy-${u.id}-20" style="margin:0">
     </div>`;
@@ -79,7 +104,7 @@ export async function saveFiyatYukle(): Promise<void> {
   store.belgeler.unshift(bel);
 
   // 2) Belgedeki satış fiyatlarını uygula
-  for (const u of URUNLER) {
+  for (const u of listeSatirlari()) {
     const f5v = numVal(`fy-${u.id}-5`);
     const f20v = numVal(`fy-${u.id}-20`);
     const cur = store.satisFiyat[u.id] || { f5: null, f20: null, f1: null };
@@ -94,7 +119,7 @@ export async function saveFiyatYukle(): Promise<void> {
 }
 
 export function paylasFiyatListesi(): void {
-  const satir = URUNLER.flatMap((u) => {
+  const satir = listeSatirlari().flatMap((u) => {
     const s = store.satisFiyat[u.id];
     if (!s) return [];
     const a: string[] = [];
@@ -104,6 +129,6 @@ export function paylasFiyatListesi(): void {
     return a;
   });
   if (!satir.length) { showToast("Önce fiyat listesi yükleyin"); return; }
-  const metin = `${ATOLYE_BILGI.ad}\nTemizlik Ürünleri Fiyat Listesi (${new Date().toLocaleDateString("tr-TR")})\n\n${satir.join("\n")}\n\nNot: Fiyatlara KDV ve nakliye dahil değildir.\nİletişim: ${ATOLYE_BILGI.tel}`;
+  const metin = `${ATOLYE_BILGI.ad}\nTemizlik Ürünleri Fiyat Listesi — Yürürlük: ${listeTarihYazi()}\n\n${satir.join("\n")}\n\nNot: Fiyatlara KDV ve nakliye dahil değildir.\nİletişim: ${ATOLYE_BILGI.tel}`;
   cihazPaylas("Fiyat Listesi", metin);
 }

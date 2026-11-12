@@ -22,6 +22,34 @@ export const URUNLER: Urun[] = [
   { id: "halep-40", ad: "Halep Sabunu Premium (%40 Defne)", kat: "Katı Sabun", yog: 1.07, batch: 2, ings: [["Zeytinyağı", 40.0], ["Defne Yağı", 26.5], ["Su", 25.0], ["Kostik", 8.5]] },
 ];
 
+// ── Resmî fiyat listesinin satır düzeni ───────────────────────
+// Okulun resmî listesindeki sıra ve adlar (25.03.2026 listesi).
+// FİYATLAR BURADA DEĞİL: veritabanı satis_fiyatlari tablosunda durur ve yalnız
+// "Yeni Fiyat Listesi Yükle" (resmî belge) ile değişir. Reçetesi programda
+// olmayan ürünler de (receteli: false) aynı tabloda kendi kimlikleriyle tutulur.
+export const FIYAT_LISTESI_DUZEN: { id: string; ad: string; receteli: boolean }[] = [
+  { id: "dezenfektan", ad: "El Dezenfektanı", receteli: true },
+  { id: "kolonya", ad: "Kolonya", receteli: true },
+  { id: "oda-parfumu", ad: "Oda Parfümü", receteli: false },
+  { id: "yuzey-dezenfektani", ad: "Yüzey Dezenfektanı", receteli: false },
+  { id: "camasir-suyu", ad: "Çamaşır Suyu Normal", receteli: true },
+  { id: "kivamli-camasir", ad: "Çamaşır Suyu Yoğun Kıvam", receteli: true },
+  { id: "sivi-sabun", ad: "Sıvı El Sabunu", receteli: true },
+  { id: "kopuk-sabun", ad: "Köpük Sabun", receteli: true },
+  { id: "genel-temiz", ad: "Genel Yüzey Temizleyici", receteli: true },
+  { id: "tuz-ruhu", ad: "Tuz Ruhu", receteli: true },
+  { id: "kirec-coz", ad: "Kireç Sökücü", receteli: true },
+  { id: "yag-cozucu", ad: "Yağ Çözücü", receteli: true },
+  { id: "wc-banyo", ad: "WC Banyo-Karo Temizleyici", receteli: true },
+  { id: "cam-silici", ad: "Cam Temizleme Sıvısı", receteli: true },
+  { id: "hali-sampuan", ad: "Halı Yıkama Şampuanı", receteli: false },
+  { id: "bulasik", ad: "Bulaşık Deterjanı Elde", receteli: true },
+  { id: "bm-parlatici", ad: "Bulaşık Makinası Parlatıcı", receteli: false },
+  { id: "bm-deterjan", ad: "Bulaşık Makinası Deterjan", receteli: false },
+  { id: "bm-kirec", ad: "Bulaşık Makinası Kireç Çözücü", receteli: false },
+  { id: "cm-deterjan", ad: "Çamaşır Makinası Deterjanı (Sıvı)", receteli: false },
+];
+
 // ── Ürün boya renkleri (asistan "Boya" adımında gösterilir) ───
 export const URUN_RENK: Record<string, string> = {
   "sivi-sabun": "Yeşil",
