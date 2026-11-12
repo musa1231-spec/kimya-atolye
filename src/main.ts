@@ -55,7 +55,7 @@ import {
 import { rRapor, yazdirRapor } from "./modules/rapor";
 import { rSiparisOneri, yazdirSiparisOneri } from "./modules/siparisoneri";
 import {
-  rAsistan, asistanUrunDegisti, asistanBasla, asSonraki, asGeri, asGoto,
+  rAsistan, asistanUrunDegisti, asAlkolDegisti, asistanBasla, asSonraki, asGeri, asGoto,
   asTimerBaslat, asTimerSifirla, asBitir,
 } from "./modules/asistan";
 import { rTakvim, tvPrev, tvNext, tvBugun, tvGun, takvimYeniUretim } from "./modules/takvim";
@@ -216,7 +216,7 @@ Object.assign(window, {
   rKalite, saveKalite, delKalite, yazdirKalite,
   rParti, saveParti, delParti, etiketParti, partiFromUretim, partiUrunDegisti, partiRafDegisti,
   rRapor, yazdirRapor, rSiparisOneri, yazdirSiparisOneri,
-  asistanUrunDegisti, asistanBasla, asSonraki, asGeri, asGoto, asTimerBaslat, asTimerSifirla, asBitir,
+  asistanUrunDegisti, asAlkolDegisti, asistanBasla, asSonraki, asGeri, asGoto, asTimerBaslat, asTimerSifirla, asBitir,
   tvPrev, tvNext, tvBugun, tvGun, takvimYeniUretim, rKarne, yazdirKarne,
 });
 

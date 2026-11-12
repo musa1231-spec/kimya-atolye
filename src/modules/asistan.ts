@@ -1,6 +1,9 @@
 import { URUNLER, HM_TEHLIKE, URUN_RENK, URUN_ESANS } from "../constants";
 import { prosesUret, HM_ROL, SAF_SU } from "../proses";
 import type { ProsesAdim } from "../proses";
+import { rehberTopla } from "../rehber";
+import { alkolUyarla, alkolSecimHTML, alkolSecimOku, alkolNotHTML, urundeAlkolVar } from "../alkol";
+import type { AlkolSonuc } from "../alkol";
 import { acUretimGunWithLines } from "./uretim";
 import { $, urunSelect, val, numVal, esansAd, setHTML, setText, setVal, showToast } from "../helpers";
 import type { Urun } from "../types";
@@ -11,6 +14,7 @@ let adimlar: Adim[] = [];
 let aktif = 0;
 let hedefKg = 0;
 let urun: Urun | null = null;
+let uyarli: AlkolSonuc | null = null;   // alkol kaynağına göre uyarlanmış miktarlar
 let timerId: number | null = null;
 let kalan = 0;
 let audioCtx: AudioContext | null = null;
@@ -18,8 +22,10 @@ let audioCtx: AudioContext | null = null;
 const miktarYaz = (kg: number): string =>
   kg >= 1 ? `${(+kg.toFixed(2)).toLocaleString("tr-TR")} kg` : `${Math.round(kg * 1000).toLocaleString("tr-TR")} g`;
 
+const gercekAd = (ad: string): string => uyarli?.adlar[ad] || ad;
+
 function miktarAd(ad: string): number {
-  const ing = urun?.ings.find(([a]) => a === ad);
+  const ing = (uyarli?.urun || urun)?.ings.find(([a]) => a === gercekAd(ad));
   return ing ? (ing[1] / 100) * hedefKg : 0;
 }
 
@@ -50,12 +56,26 @@ export function asistanUrunDegisti(): void {
     setVal("as-kg", String(u.batch));
     setText("as-kat", u.kat + (SAF_SU.has(u.id) ? " · 💧 saf su gerekir" : ""));
   }
+  const w = $("as-alkol");
+  if (u && urundeAlkolVar(u)) {
+    if (!w.innerHTML) setHTML("as-alkol", alkolSecimHTML("as", "asAlkolDegisti") + `<div id="as-alk-not"></div>`);
+    w.style.display = "block";
+    asAlkolDegisti();
+  } else { w.style.display = "none"; }
+}
+
+export function asAlkolDegisti(): void {
+  const u = URUNLER.find((x) => x.id === val("as-urun"));
+  if (!u || !urundeAlkolVar(u)) return;
+  setHTML("as-alk-not", alkolNotHTML(alkolUyarla(u, alkolSecimOku("as"))));
 }
 
 export function asistanBasla(): void {
   const u = URUNLER.find((x) => x.id === val("as-urun"));
   const kg = numVal("as-kg");
   if (!u || kg <= 0) { alert("Ürün ve geçerli bir miktar (kg) seç"); return; }
+  uyarli = urundeAlkolVar(u) ? alkolUyarla(u, alkolSecimOku("as")) : null;
+  if (uyarli?.engel) { alert("⛔ " + uyarli.engel); return; }
   urun = u; hedefKg = kg;
   adimlar = adimlarUret(u);
   aktif = 0;
@@ -86,7 +106,7 @@ function goster(): void {
     govde = `<div class="as-malz">${a.ekle.map((ad) => {
       const esansMi = ad === "Esans" || ad === "Limon Esansı";
       const adGoster = ad === "Boya" && renk ? `Boya (${renk})`
-        : (esansMi && stEsans ? `Esans (${stEsans})` : ad);
+        : (esansMi && stEsans ? `Esans (${stEsans})` : gercekAd(ad));
       const rol = ad === "Boya" && renk ? `🎨 ${renk} renk verir — az miktar, tona göre ayarlayın`
         : (esansMi && stEsans ? `🌸 Standart esans: ${stEsans} — koku verir` : HM_ROL[ad]);
       return `
@@ -96,6 +116,8 @@ function goster(): void {
         ${rol ? `<span class="as-malz-rol">${rol}</span>` : ""}
       </div>`;
     }).join("")}</div>`;
+    if (uyarli && a.ekle.some((ad) => uyarli!.adlar[ad])) govde += alkolNotHTML(uyarli);
+    if (uyarli && a.ekle.includes("Su") && uyarli.notlar.some((n) => n.includes("SU azaltıldı"))) govde += `<div class="as-uyari">💧 Su miktarı, alkol kaynağıyla birlikte gelen su kadar azaltılmıştır.</div>`;
     if (a.safSu) govde += `<div class="as-uyari">💧 <b>Saf / deiyonize su kullanın.</b> Musluk suyundaki kireç bulanıklık ve çökelme yapar.</div>`;
     if (sn > 0) govde += timerBlok(a.sureDk || 0);
   } else if (a.tip === "karistir") {
@@ -108,7 +130,8 @@ function goster(): void {
     <div class="as-ad-tip">${ikon(a.tip)}</div>
     <h2 class="as-ad-bas">${a.baslik}</h2>
     ${a.not ? `<p class="as-ad-ac">${a.not}</p>` : ""}
-    ${govde}`);
+    ${govde}
+    ${rehberBlok(a)}`);
 
   setHTML("as-nav", `
     <button class="btn bg" onclick="asGeri()" ${aktif === 0 ? "disabled" : ""}>← Geri</button>
@@ -118,6 +141,26 @@ function goster(): void {
 
   setHTML("as-liste", adimlar.map((s, i) =>
     `<div class="as-li ${i === aktif ? "akt" : ""} ${i < aktif ? "ok" : ""}" onclick="asGoto(${i})">${i < aktif ? "✓" : i + 1}. ${s.baslik}</div>`).join(""));
+}
+
+// ── 📋 Dikkat Edilecekler + 🛠️ Olası Sorunlar ve Çözümleri ──
+function rehberBlok(a: Adim): string {
+  const { dikkat, sorun } = rehberTopla(a, urun?.id);
+  if (!dikkat.length && !sorun.length) return "";
+  return `<div class="as-rehber">
+    ${dikkat.length ? `<details class="as-dikkat" open>
+      <summary>📋 Dikkat Edilecekler <span class="as-say">${dikkat.length}</span></summary>
+      <ul>${dikkat.map((d) => `<li>${d}</li>`).join("")}</ul>
+    </details>` : ""}
+    ${sorun.length ? `<details class="as-sorun">
+      <summary>🛠️ Olası Sorunlar ve Çözümleri <span class="as-say">${sorun.length}</span></summary>
+      ${sorun.map((s) => `<div class="as-sorun-k">
+        <div class="as-sorun-b">❗ ${s.belirti}</div>
+        <div class="as-sorun-n"><b>Neden:</b> ${s.neden}</div>
+        <div class="as-sorun-c"><b>✅ Çözüm:</b> ${s.cozum}</div>
+      </div>`).join("")}
+    </details>` : ""}
+  </div>`;
 }
 
 function timerBlok(dk: number): string {

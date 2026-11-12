@@ -1,6 +1,7 @@
 import { URUNLER } from "../constants";
 import { hmFiyatAd, rawKg } from "../fiyat";
 import { $, val, urunSelect, setHTML, setText } from "../helpers";
+import { alkolUyarla, alkolSecimHTML, alkolSecimOku, alkolNotHTML, urundeAlkolVar, DEZENFEKTAN_AD } from "../alkol";
 
 export function rFormulasyon(): void {
   setHTML("fl-tb", URUNLER.map((u) => `<tr>
@@ -29,17 +30,29 @@ export function rFormDetayHesap(): void {
   const u = URUNLER.find((x) => x.id === id);
   if (!u) return;
   const kazan = parseFloat(val("fd-kazan")) || u.batch;
-  const topMal = rawKg(u);
+  // Alkol kaynağı seçeneği (IPA / etil alkol / eski el dezenfektanı)
+  const aw = $("fd-alkol");
+  let alkNot = "";
+  let ru = u;
+  if (urundeAlkolVar(u)) {
+    if (!aw.innerHTML) setHTML("fd-alkol", alkolSecimHTML("fd", "rFormDetayHesap"));
+    aw.style.display = "block";
+    const s = alkolUyarla(u, alkolSecimOku("fd"));
+    alkNot = alkolNotHTML(s);
+    if (!s.engel) ru = s.urun;
+  } else aw.style.display = "none";
+  const fiyat = (ad: string) => ad.startsWith(DEZENFEKTAN_AD) ? 0 : hmFiyatAd(ad);
+  const topMal = ru === u ? rawKg(u) : ru.ings.reduce((t, [ad, pct]) => t + (fiyat(ad) * pct) / 100, 0);
   setHTML("fd-kazan-info", `Varsayılan: <strong>${u.batch} kg</strong> · ${u.yog} kg/L · ≈ <strong>${(kazan / u.yog).toFixed(1)} L</strong>`);
-  setHTML("fd-icerik", `
+  setHTML("fd-icerik", `${alkNot}
     <div class="card">
       <div class="ch"><span class="ct">${u.ad} — Formülasyon</span><span class="ba bgr">${u.kat} · Kazan: ${kazan} kg · ${u.yog} kg/L</span></div>
       <div class="tw"><table><thead><tr><th>Ham Madde</th><th class="tr">%</th><th class="tr">Kazan kg</th><th class="tr">₺/kg ham mad.</th><th class="tr">Kazan maliyeti ₺</th></tr></thead>
-      <tbody>${u.ings.map(([ad, pct]) => `<tr>
-        <td>${ad}</td><td class="tr mo2">${pct}</td>
+      <tbody>${ru.ings.map(([ad, pct]) => `<tr>
+        <td>${ad}${ad.startsWith(DEZENFEKTAN_AD) ? ` <span class="ba bgr" title="Eldeki stok — alış maliyeti yok">eldeki stok</span>` : ""}</td><td class="tr mo2">${pct}</td>
         <td class="tr mo2">${((kazan * pct) / 100).toFixed(3)}</td>
-        <td class="tr mo2">${hmFiyatAd(ad).toFixed(2)}</td>
-        <td class="tr mo2" style="color:var(--acc)">${((hmFiyatAd(ad) * kazan * pct) / 100).toFixed(2)}</td>
+        <td class="tr mo2">${fiyat(ad).toFixed(2)}</td>
+        <td class="tr mo2" style="color:var(--acc)">${((fiyat(ad) * kazan * pct) / 100).toFixed(2)}</td>
       </tr>`).join("")}
       <tr style="background:rgba(255,255,255,.03);font-weight:800">
         <td colspan="3">TOPLAM</td>

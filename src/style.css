@@ -370,3 +370,22 @@ tr:hover td{background:rgba(0,0,0,.04)}
 .arama-meta{flex:1;min-width:0}
 .arama-ad{font-size:.8rem;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .arama-sub{font-size:.66rem;color:var(--mut);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* Üretim Asistanı — dikkat + sorun/çözüm rehberi */
+.as-rehber{max-width:620px;margin:16px auto 0;text-align:left;display:flex;flex-direction:column;gap:10px}
+.as-rehber details{border-radius:10px;padding:0 13px;border:1px solid}
+.as-rehber summary{cursor:pointer;font-weight:800;font-size:.86rem;padding:11px 0;list-style-position:inside}
+.as-say{display:inline-block;min-width:20px;text-align:center;font-size:.7rem;border-radius:10px;padding:1px 6px;margin-left:4px;background:rgba(0,0,0,.08)}
+.as-dikkat{background:#e8f4fd;border-color:#90caf9;color:#0d3c61}
+.as-dikkat ul{margin:0 0 12px 18px;padding:0;font-size:.82rem;line-height:1.55}
+.as-dikkat li{margin:5px 0}
+.as-sorun{background:#fff8e1;border-color:#ffd54f;color:#5d4200}
+.as-sorun-k{background:#fff;border:1px solid #ffe082;border-radius:8px;padding:9px 11px;margin:0 0 10px;font-size:.8rem;line-height:1.5}
+.as-sorun-b{font-weight:800;color:#b45309;margin-bottom:3px}
+.as-sorun-n{color:#5d4200}
+.as-sorun-c{color:#1b5e20;margin-top:3px}
+/* Alkol kaynağı seçeneği */
+.alk-kutu{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end}
+.alk-kutu .fg{flex:1 1 220px}
+.alk-not{background:#e8f5e9;border:1px solid #a5d6a7;color:#1b5e20;border-radius:9px;padding:10px 13px;font-size:.78rem;line-height:1.5;text-align:left;margin:10px 0}
+.alk-not ul{margin:5px 0 0 18px}
+.alk-engel{background:#ffebee;border:1px solid #ef9a9a;color:#b71c1c;border-radius:9px;padding:10px 13px;font-size:.82rem;font-weight:700;line-height:1.5;text-align:left;margin:10px 0}

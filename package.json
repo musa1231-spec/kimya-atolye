@@ -6,7 +6,7 @@
   "description": "Kimya Üretim Atölyesi Yönetim Programı",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
+    "build": "tsc && node scripts/rehber-kontrol.mjs && vite build",
     "preview": "vite preview"
   },
   "dependencies": {
