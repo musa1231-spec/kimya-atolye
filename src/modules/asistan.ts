@@ -24,10 +24,15 @@ const miktarYaz = (kg: number): string =>
 
 const gercekAd = (ad: string): string => uyarli?.adlar[ad] || ad;
 
-function miktarAd(ad: string): number {
+/** Reçetedeki yüzde (alkol kaynağı değiştiyse uyarlanmış reçeteden). */
+function yuzdeAd(ad: string): number {
   const ing = (uyarli?.urun || urun)?.ings.find(([a]) => a === gercekAd(ad));
-  return ing ? (ing[1] / 100) * hedefKg : 0;
+  return ing ? ing[1] : 0;
 }
+function miktarAd(ad: string): number {
+  return (yuzdeAd(ad) / 100) * hedefKg;
+}
+const yuzdeYaz = (p: number): string => `%${p.toLocaleString("tr-TR", { maximumFractionDigits: 3 })}`;
 
 function sureLabel(dk: number): string {
   if (dk >= 60) { const s = Math.floor(dk / 60), k = dk % 60; return `${s} saat${k ? ` ${k} dk` : ""}`; }
@@ -112,7 +117,7 @@ function goster(): void {
         : (esansMi && stEsans ? `🌸 Standart esans: ${stEsans} — koku verir` : HM_ROL[ad]);
       return `
       <div class="as-malz-r">
-        <span class="as-malz-m">${miktarYaz(miktarAd(ad))}</span>
+        <span class="as-malz-m">${miktarYaz(miktarAd(ad))}<span class="as-malz-y" title="Reçetedeki oran (kütlece)">${yuzdeYaz(yuzdeAd(ad))}</span></span>
         <span class="as-malz-a">${adGoster}${urun ? atlamaRozet(urun.id, ad) : ""}</span>
         ${rol ? `<span class="as-malz-rol">${rol}</span>` : ""}
       </div>`;

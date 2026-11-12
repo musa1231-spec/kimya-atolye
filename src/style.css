@@ -363,6 +363,7 @@ tr:hover td{background:rgba(0,0,0,.04)}
 .as-malz{display:flex;flex-direction:column;gap:7px;margin:10px 0;text-align:left}
 .as-malz-r{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:rgba(33,150,243,.06);border:1px solid var(--bord);border-radius:9px;padding:9px 12px}
 .as-malz-m{font-size:1.15rem;font-weight:900;font-family:'IBM Plex Mono',monospace;color:var(--acc);min-width:90px}
+.as-malz-y{display:block;font-size:.72rem;font-weight:800;color:#0e7490;background:rgba(14,116,144,.1);border-radius:6px;padding:1px 6px;margin-top:3px;width:max-content}
 .as-malz-a{font-weight:800;font-size:.9rem}
 .as-malz-rol{font-size:.7rem;color:var(--mut);flex-basis:100%}
 .as-sure-lbl{font-size:.8rem;color:var(--mut);font-weight:700;margin-top:8px}
