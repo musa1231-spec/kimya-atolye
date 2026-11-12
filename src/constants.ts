@@ -66,13 +66,19 @@ export const URUN_ESANS: Record<string, string> = {
 };
 
 // ── Ham madde fiyatları (₺/kg) ────────────────────────────────
+// Ham madde varsayılan fiyatları (₺/kg, KDV HARİÇ — resmî satış listesi de KDV hariç).
+// Kasım 2026 internet piyasa taraması (12.11.2026): 25–35 kg bidon perakende ilanları,
+// KDV dahil olanlar 1,20'ye bölündü. Fatura girilen ham maddede veritabanındaki
+// SON ALIŞ fiyatı bunun yerine geçer (hm_stok.fiyat > 0). Esans, Limon Esansı,
+// Köpük Kesici, Asit İnhibitörü, Boya, HNO3: güvenilir fiyat bulunamadı/tutarlı → değişmedi.
 export const HM_FIYAT: Record<string, number> = {
-  Su: 0.03, SLES: 115, Betain: 110, "Kokamid DEA": 90, Koruyucu: 120, Esans: 400,
-  "Sitrik Asit": 85, Gliserin: 130, Tuz: 6, IPA: 260, NP10: 200, "Hipoklorit %16": 70,
-  LABSA: 115, "Sıvı Kostik": 40, Kostik: 70, "Fosforik Asit": 175, HCl: 40,
-  HNO3: 75, "Etil Alkol": 250, "Köpük Kesici": 120, "Limon Esansı": 280,
-  "Asit İnhibitörü": 200, Zeytinyağı: 180, "Defne Yağı": 600, Boya: 180,
+  Su: 0.03, SLES: 250, Betain: 150, "Kokamid DEA": 180, Koruyucu: 455, Esans: 400,
+  "Sitrik Asit": 112, Gliserin: 160, Tuz: 20, IPA: 175, NP10: 160, "Hipoklorit %16": 52,
+  LABSA: 160, "Sıvı Kostik": 58, Kostik: 80, "Fosforik Asit": 105, HCl: 70,
+  HNO3: 75, "Etil Alkol": 230, "Köpük Kesici": 120, "Limon Esansı": 280,
+  "Asit İnhibitörü": 200, Zeytinyağı: 230, "Defne Yağı": 1000, Boya: 180,
 };
+export const HM_FIYAT_TARIH = "2026-11-12";
 
 export const HM_LIST: HamMadde[] = Object.keys(HM_FIYAT).map((ad) => ({
   id: ad.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, ""),
@@ -138,9 +144,11 @@ export const ESL_INIT: Record<string, string[]> = {
 export const AMB_KOLI_K: Record<number, number> = { 1: 14, 5: 4, 20: 0 };
 export const SDUR = ["bekliyor", "hazırlanıyor", "hazır", "teslim edildi"] as const;
 
-// Varsayılan ambalaj fiyatları (₺) — Maliyet Analizi başlangıç değerleri ve
-// Fiyat Listesi'ndeki yaklaşık maliyet hesabı için.
-export const AMB_FIYAT = { p5: 55, p20: 160, p1: 18, koli: 28 };
+// Varsayılan ambalaj fiyatları (₺, KDV hariç) — TEK KAYNAK: Maliyet Analizi kutularının
+// başlangıç değerleri ve Fiyat Listesi'ndeki yaklaşık maliyet buradan gelir.
+// Kasım 2026 taraması: 5 L HDPE ≈34–59 ₺, 20 L ≈175 ₺ (100+ adet kademesi), 2'li 5 L koli 22,5 ₺
+// (4'lü için ≈35 ₺ tahmini). 1 L bidon taranmadı.
+export const AMB_FIYAT = { p5: 45, p20: 175, p1: 18, koli: 35 };
 
 // Sevk irsaliyesinde "Gönderen" olarak basılacak atölye/okul bilgisi.
 // Gerekirse buradan güncelleyin (VKN/Vergi Dairesi dahil).

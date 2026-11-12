@@ -1,7 +1,7 @@
-import { URUNLER } from "../constants";
+import { URUNLER, AMB_FIYAT } from "../constants";
 import { store } from "../state";
 import { rawKg, paketMaliyet, karHesap, type NakTip } from "../fiyat";
-import { numVal, val, setHTML } from "../helpers";
+import { numVal, val, setHTML, setVal } from "../helpers";
 
 function karRows(satis: number | null | undefined, maliyet: number): string {
   const k = karHesap(satis, maliyet);
@@ -12,11 +12,18 @@ function karRows(satis: number | null | undefined, maliyet: number): string {
     <div class="frow"><span class="fl">Kâr Marjı</span><span class="fv" style="color:${renk}">%${k.marj.toFixed(1)}</span></div>`;
 }
 
+let ambHazir = false;
 export function rMaliyet(): void {
-  const p5 = numVal("mp5") || 55;
-  const p20 = numVal("mp20") || 160;
-  const p1 = numVal("mp1") || 18;
-  const pk = numVal("mpk") || 28;
+  // Kutuların başlangıç değeri tek kaynaktan (AMB_FIYAT); kullanıcı değiştirirse onun değeri kalır
+  if (!ambHazir) {
+    setVal("mp5", String(AMB_FIYAT.p5)); setVal("mp20", String(AMB_FIYAT.p20));
+    setVal("mp1", String(AMB_FIYAT.p1)); setVal("mpk", String(AMB_FIYAT.koli));
+    ambHazir = true;
+  }
+  const p5 = numVal("mp5") || AMB_FIYAT.p5;
+  const p20 = numVal("mp20") || AMB_FIYAT.p20;
+  const p1 = numVal("mp1") || AMB_FIYAT.p1;
+  const pk = numVal("mpk") || AMB_FIYAT.koli;
   const nakTip = (val("mnak-tip") || "yok") as NakTip;
   const nakTut = numVal("mnak-tut");
   const batch = numVal("mbatch") || 900;

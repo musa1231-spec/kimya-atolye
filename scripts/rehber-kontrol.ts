@@ -1,5 +1,5 @@
 // Tutarlılık testi: her formülasyonun üretim rehberi eksiksiz mi?
-import { URUNLER, FIYAT_LISTESI_DUZEN } from "../src/constants";
+import { URUNLER, FIYAT_LISTESI_DUZEN, HM_FIYAT } from "../src/constants";
 import { prosesUret } from "../src/proses";
 import { HM_REHBER, URUN_REHBER, rehberTopla, ATLAMA_UYARI } from "../src/rehber";
 import { HM_GRUP } from "../src/lib/bilesen";
@@ -52,6 +52,8 @@ for (const u of URUNLER) {
 }
 // Bileşim şeridi: reçetedeki her ham maddenin kimyasal grubu tanımlı olmalı
 for (const u of URUNLER) for (const [ad] of u.ings) if (!HM_GRUP[ad]) hatalar.push(`${u.id}: '${ad}' için HM_GRUP (bileşim rengi) yok`);
+// Maliyet: reçetedeki her ham maddenin (su hariç) varsayılan fiyatı olmalı — yoksa maliyet sessizce düşük çıkar
+for (const u of URUNLER) for (const [ad] of u.ings) if (ad !== "Su" && !(HM_FIYAT[ad] > 0)) hatalar.push(`${u.id}: '${ad}' için HM_FIYAT yok/0 (maliyet eksik hesaplanır)`);
 // Her reçetenin toplamı %100 olmalı
 for (const u of URUNLER) {
   const t = u.ings.reduce((s, [, p]) => s + p, 0);
