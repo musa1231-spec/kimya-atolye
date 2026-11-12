@@ -96,6 +96,7 @@ function go(name: string, el?: HTMLElement): void {
   if (el) {
     el.classList.add("active");
     el.closest(".tb-grp")?.classList.add("has-active");
+    el.closest(".tb-grp")?.classList.remove("kapali");   // gidilen sayfanın kategorisi daralmışsa aç
   }
   tbCloseAll();
   closeSidebar();
@@ -110,9 +111,28 @@ function go(name: string, el?: HTMLElement): void {
 function tbCloseAll(): void {
   document.querySelectorAll(".tb-grp.open").forEach((g) => g.classList.remove("open"));
 }
+// Masaüstünde menü sol sütundur: kategori başlığı daralt/aç (tercih hatırlanır)
+const solSutun = () => window.matchMedia("(min-width:801px)").matches;
+const KAPALI_KEY = "menuKapali";
+function kapaliOku(): string[] {
+  try { return JSON.parse(localStorage.getItem(KAPALI_KEY) || "[]"); } catch { return []; }
+}
+function kapaliUygula(): void {
+  const k = kapaliOku();
+  document.querySelectorAll<HTMLElement>(".tb-grp").forEach((g) => {
+    const ad = [...g.classList].find((c) => c.startsWith("sb-g-")) || "";
+    g.classList.toggle("kapali", k.includes(ad) && !g.classList.contains("has-active"));
+  });
+}
 function tbToggle(head: HTMLElement, ev?: Event): void {
   ev?.stopPropagation();
   const grp = head.closest(".tb-grp");
+  if (grp && solSutun()) {
+    grp.classList.toggle("kapali");
+    const k = [...document.querySelectorAll(".tb-grp.kapali")].map((g) => [...g.classList].find((c) => c.startsWith("sb-g-")) || "");
+    try { localStorage.setItem(KAPALI_KEY, JSON.stringify(k)); } catch { /* sessiz */ }
+    return;
+  }
   const acik = grp?.classList.contains("open");
   tbCloseAll();
   if (!acik) grp?.classList.add("open");
@@ -248,6 +268,7 @@ Object.assign(window, {
   initLoginScreen();
   // Açılışta aktif (Gösterge) sayfasının grubunu işaretle
   document.querySelector(".ni.active")?.closest(".tb-grp")?.classList.add("has-active");
+  kapaliUygula();
   setVal("uf-ay", today().substring(0, 7));
   setInterval(otomatikYedekKontrol, 30 * 60 * 1000);
 
