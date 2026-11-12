@@ -152,6 +152,14 @@ function closeSidebar(): void {
   $("sb-overlay").classList.remove("mob-open");
   tbCloseAll();
 }
+// Gösterge "Bugün ne üretiyoruz?" → Asistanı seçili ürün ve miktarla aç
+function hizliBasla(): void {
+  const id = (document.getElementById("dh-urun") as HTMLSelectElement | null)?.value || "";
+  const kg = parseFloat((document.getElementById("dh-kg") as HTMLInputElement | null)?.value || "");
+  go("asistan");
+  if (id) { setVal("as-urun", id); asistanUrunDegisti(); }
+  if (kg > 0) setVal("as-kg", String(kg));
+}
 function yhTab(id: string, btn: HTMLElement): void {
   document.querySelectorAll<HTMLElement>(".yh-sec").forEach((s) => (s.style.display = "none"));
   document.querySelectorAll(".yh-tb").forEach((b) => b.classList.remove("active"));
@@ -215,7 +223,7 @@ function resetEsansTanimForm(): void { setVal("et-ad", ""); setVal("et-ac", "");
 // GLOBAL HANDLER BAĞLAMA (inline onclick'ler için)
 // ════════════════════════════════════════════════════════════════
 Object.assign(window, {
-  go, openModal, closeModal, toggleSidebar, closeSidebar, fTab, yhTab, tbToggle,
+  go, openModal, closeModal, toggleSidebar, closeSidebar, fTab, yhTab, tbToggle, hizliBasla,
   doLogin, doLogout, eminMisin,
   addUgK, ugRefresh, ugCalc, saveUretimGun, delGun, rUretim, ugFilter, ugToggle,
   rAylik, rFormDetay, rFormDetayHesap, rMaliyet,

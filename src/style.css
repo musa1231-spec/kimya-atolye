@@ -499,3 +499,58 @@ tr:hover td{background:rgba(0,0,0,.04)}
   .tb-ic{color:#fff;background:rgba(255,255,255,.07)}
   .tb-ic:hover{background:rgba(255,255,255,.16)}
 }
+
+/* ── ÖNCELİK SIRASI (12 Kas 2026): Formülasyon & Maliyet üstte, sipariş/sevkiyat ve stok en sonda ── */
+.tb-grp.sb-g-form{order:1}
+.tb-grp.sb-g-genel{order:2}
+.tb-grp.sb-g-kalite{order:3}
+.tb-grp.sb-g-pers{order:4}
+.tb-grp.sb-g-sip{order:5}
+.tb-grp.sb-g-stok{order:6}
+.tb-grp.sb-g-sis{order:7}
+.tb-grp.sb-g-sip,.tb-grp.sb-g-stok,.tb-grp.sb-g-sis{opacity:.86}
+
+/* "Üretime Başla" — sol sütunun en üstünde */
+.tb-cta{display:none}
+@media(min-width:801px){
+  .tb-cta{display:flex;align-items:center;gap:11px;margin:12px 10px 0;padding:11px 13px;border:none;border-radius:14px;cursor:pointer;text-align:left;font-family:inherit;color:#06173d;
+    background:linear-gradient(135deg,#5eead4 0%,#38bdf8 50%,#a78bfa 100%);box-shadow:0 6px 20px rgba(56,189,248,.35),inset 0 1px 0 rgba(255,255,255,.5);transition:transform .15s,box-shadow .15s}
+  .tb-cta:hover{transform:translateY(-1px);box-shadow:0 10px 26px rgba(56,189,248,.5)}
+  .tb-cta-i{font-size:1.5rem;width:40px;height:40px;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.55);border-radius:11px}
+  .tb-cta b{display:block;font-size:.92rem;font-weight:900}
+  .tb-cta small{display:block;font-size:.68rem;font-weight:700;opacity:.75}
+}
+@media(max-width:800px){.tb-cta{display:flex;align-items:center;gap:10px;margin:0;padding:14px 16px;border:none;border-bottom:1px solid var(--bord);background:linear-gradient(90deg,#e0f7fa,#ede9fe);font-family:inherit;text-align:left;cursor:pointer}
+  .tb-cta b{display:block;font-size:.88rem;color:#0b2a66}.tb-cta small{display:block;font-size:.7rem;color:var(--mut)}.tb-cta-i{font-size:1.3rem}}
+
+/* Gösterge: "Bugün ne üretiyoruz?" + öncelikli kartlar */
+.hz{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:12px;margin-bottom:16px}
+.hz-bas{border-radius:16px;padding:18px 20px;color:#fff;position:relative;overflow:hidden;
+  background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='170' viewBox='0 0 160 170'%3E%3Cg fill='none' stroke='%23ffffff' stroke-opacity='.18' stroke-width='4' stroke-linejoin='round'%3E%3Cpath d='M58 8 h44 M66 8 v52 l-44 86 a12 12 0 0 0 10 18 h96 a12 12 0 0 0 10 -18 l-44 -86 v-52'/%3E%3C/g%3E%3Cpath d='M40 112 h80 l20 36 a12 12 0 0 1 -10 18 h-100 a12 12 0 0 1 -10 -18 z' fill='%235eead4' fill-opacity='.22'/%3E%3C/svg%3E") no-repeat right 14px bottom -18px/120px auto,
+  linear-gradient(135deg,#0b2a66,#13429b 55%,#0e7490)}
+.hz-et{font-size:1.15rem;font-weight:900;margin-bottom:10px}
+.hz-form{display:flex;flex-wrap:wrap;gap:8px;position:relative;z-index:1;max-width:520px}
+.hz-form select,.hz-form input{flex:1 1 160px;min-width:0;border:none;border-radius:10px;padding:10px 12px;font-family:inherit;font-size:.85rem;color:var(--txt)}
+.hz-form input{flex:0 1 130px}
+.hz-btn{flex:1 1 100%;border:none;border-radius:10px;padding:11px 14px;font-family:inherit;font-weight:900;font-size:.92rem;cursor:pointer;color:#06173d;background:linear-gradient(135deg,#5eead4,#38bdf8);box-shadow:0 4px 14px rgba(94,234,212,.4)}
+.hz-btn:hover{filter:brightness(1.06)}
+.hz-not{font-size:.72rem;opacity:.8;margin-top:9px}
+.hz-kartlar{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.hz-k{background:var(--card);border:1px solid var(--bord);border-radius:14px;padding:13px 14px;cursor:pointer;display:flex;flex-direction:column;gap:2px;border-top:4px solid var(--k);box-shadow:0 2px 10px rgba(11,42,102,.06);transition:transform .15s,box-shadow .15s}
+.hz-k:hover{transform:translateY(-2px);box-shadow:0 8px 22px rgba(11,42,102,.13)}
+.hz-ki{font-size:1.5rem;width:40px;height:40px;display:flex;align-items:center;justify-content:center;border-radius:11px;background:color-mix(in srgb,var(--k) 16%,transparent);margin-bottom:4px}
+.hz-k b{font-size:.9rem;color:#0b2a66}
+.hz-k small{font-size:.7rem;color:var(--mut)}
+@media(max-width:900px){.hz{grid-template-columns:1fr}}
+
+/* Bileşim şeridi (su hariç) */
+.bb{margin:2px 0 5px}
+.bb-serit{display:flex;height:9px;border-radius:5px;overflow:hidden;background:#e5edfa;gap:1px}
+.bb-p{display:flex;align-items:center;justify-content:center;min-width:3px;color:#fff;font-size:.62rem;font-weight:800;white-space:nowrap;overflow:hidden;text-shadow:0 1px 2px rgba(0,0,0,.35)}
+.bb-alt{font-size:.62rem;color:var(--mut);margin-top:2px}
+.bb-buyuk{margin:4px 0 6px}
+.bb-buyuk .bb-serit{height:24px;border-radius:8px}
+.bb-buyuk .bb-alt{font-size:.72rem}
+.bb-lej{display:flex;flex-wrap:wrap;gap:6px 12px;font-size:.7rem;color:var(--mut);margin:4px 0 10px}
+.bb-lej span{display:inline-flex;align-items:center;gap:5px}
+.bb-lej i{width:11px;height:11px;border-radius:3px;display:inline-block}

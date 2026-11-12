@@ -2,6 +2,7 @@
 import { URUNLER } from "../src/constants";
 import { prosesUret } from "../src/proses";
 import { HM_REHBER, URUN_REHBER, rehberTopla, ATLAMA_UYARI } from "../src/rehber";
+import { HM_GRUP } from "../src/lib/bilesen";
 
 const hatalar: string[] = [];
 // Pek kullanılmayan ham maddeler: reçetesinde geçen her ürünün seviyesi + gerekçesi olmalı,
@@ -38,6 +39,8 @@ for (const u of URUNLER) {
   }
   for (const ad of recAd) if (!eklenen.has(ad)) hatalar.push(`${u.id}: reçetedeki '${ad}' hiçbir adımda eklenmiyor`);
 }
+// Bileşim şeridi: reçetedeki her ham maddenin kimyasal grubu tanımlı olmalı
+for (const u of URUNLER) for (const [ad] of u.ings) if (!HM_GRUP[ad]) hatalar.push(`${u.id}: '${ad}' için HM_GRUP (bileşim rengi) yok`);
 // Her reçetenin toplamı %100 olmalı
 for (const u of URUNLER) {
   const t = u.ings.reduce((s, [, p]) => s + p, 0);

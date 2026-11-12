@@ -28,7 +28,31 @@ function rGrafikler(): void {
   setHTML("d-grafik-urun", donutChart(ilk));
 }
 
+// ── Öncelikli iş: Asistan + Formülasyon & Maliyet (Musa Hocam 12 Kas 2026) ──
+function rHizli(): void {
+  const kart = (sayfa: string, ic: string, bas: string, alt: string, renk: string) =>
+    `<div class="hz-k" style="--k:${renk}" onclick="go('${sayfa}')"><span class="hz-ki">${ic}</span><b>${bas}</b><small>${alt}</small></div>`;
+  setHTML("d-hizli", `<div class="hz">
+    <div class="hz-bas">
+      <div class="hz-et">🧪 Bugün ne üretiyoruz?</div>
+      <div class="hz-form">
+        <select id="dh-urun">${URUNLER.map((u) => `<option value="${u.id}">${u.ad}</option>`).join("")}</select>
+        <input id="dh-kg" type="number" min="1" placeholder="kg (boşsa kazan)">
+        <button class="hz-btn" onclick="hizliBasla()">▶ Asistanla Başla</button>
+      </div>
+      <div class="hz-not">Adım adım rehber · dikkat notları · sorun–çözüm · karıştırma sayacı</div>
+    </div>
+    <div class="hz-kartlar">
+      ${kart("formulasyon", "⚗️", "Formülasyonlar", `${URUNLER.length} reçete · bileşim`, "#22c55e")}
+      ${kart("maliyet", "💰", "Maliyet Analizi", "dolu ambalaj maliyeti", "#f59e0b")}
+      ${kart("fiyat-liste", "🏷️", "Fiyat Listesi", "kâr ve marj", "#a855f7")}
+      ${kart("plan", "🧮", "Üretim Planı", "ihtiyaç ve eksikler", "#38bdf8")}
+    </div>
+  </div>`);
+}
+
 export function rDash(): void {
+  rHizli();
   setText("d-tarih", new Date().toLocaleDateString("tr-TR", { weekday: "long", year: "numeric", month: "long", day: "numeric" }));
   const bek = store.siparisler.filter((s) => ["bekliyor", "hazırlanıyor"].includes(s.durum)).length;
   setText("bb", bek ? String(bek) : "");

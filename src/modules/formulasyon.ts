@@ -3,15 +3,17 @@ import { hmFiyatAd, rawKg } from "../fiyat";
 import { $, val, urunSelect, setHTML, setText } from "../helpers";
 import { alkolUyarla, alkolSecimHTML, alkolSecimOku, alkolNotHTML, urundeAlkolVar, DEZENFEKTAN_AD } from "../alkol";
 import { ATLAMA_UYARI, atlamaRozet, atlamaUyariHTML, atlamaListesi, atlamaOzetHTML } from "../rehber";
+import { bilesimBar, grupLejant } from "../lib/bilesen";
 
 export function rFormulasyon(): void {
   setHTML("fl-tb", URUNLER.map((u) => `<tr>
     <td><strong>${u.ad}</strong></td><td><span class="ba bgr">${u.kat}</span></td>
     <td class="tr mo2">${u.batch}</td><td class="tr mo2">${u.yog} kg/L</td>
-    <td style="font-size:.72rem;color:var(--mut)">${u.ings.map(([ad, pct]) => `${ad} %${pct}${atlamaRozet(u.id, ad)}`).join(", ")}</td>
+    <td style="font-size:.72rem;color:var(--mut);min-width:260px">${bilesimBar(u.ings)}${u.ings.map(([ad, pct]) => `${ad} %${pct}${atlamaRozet(u.id, ad)}`).join(", ")}</td>
   </tr>`).join(""));
   // Pek kullanılmayan ham maddeler: hangi üründe şart? (tablo altına)
-  setHTML("fl-atla", `<div class="tm" style="margin:12px 0 4px">⚠️ İşaretli ham maddeler atölyede çoğu zaman konmuyor. Kullanılmazsa ne olacağını görmek için <b>Bileşen Detayı</b>'nda ürünü seçin.</div>`
+  setHTML("fl-atla", `<div class="tm" style="margin:10px 0 2px">🎨 Şerit, formülün su dışındaki kısmını gösterir:</div>${grupLejant()}`
+    + `<div class="tm" style="margin:12px 0 4px">⚠️ İşaretli ham maddeler atölyede çoğu zaman konmuyor. Kullanılmazsa ne olacağını görmek için <b>Bileşen Detayı</b>'nda ürünü seçin.</div>`
     + Object.keys(ATLAMA_UYARI).map((ad) => atlamaOzetHTML(ad, URUNLER)).join(""));
   setHTML("fd-urun", urunSelect());
 }
@@ -51,6 +53,7 @@ export function rFormDetayHesap(): void {
   setHTML("fd-icerik", `${alkNot}
     <div class="card">
       <div class="ch"><span class="ct">${u.ad} — Formülasyon</span><span class="ba bgr">${u.kat} · Kazan: ${kazan} kg · ${u.yog} kg/L</span></div>
+      ${bilesimBar(ru.ings, true)}${grupLejant(ru.ings)}
       <div class="tw"><table><thead><tr><th>Ham Madde</th><th class="tr">%</th><th class="tr">Kazan kg</th><th class="tr">₺/kg ham mad.</th><th class="tr">Kazan maliyeti ₺</th></tr></thead>
       <tbody>${ru.ings.map(([ad, pct]) => `<tr>
         <td>${ad}${atlamaRozet(u.id, ad)}${ad.startsWith(DEZENFEKTAN_AD) ? ` <span class="ba bgr" title="Eldeki stok — alış maliyeti yok">eldeki stok</span>` : ""}</td><td class="tr mo2">${pct}</td>
