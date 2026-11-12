@@ -8,7 +8,8 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Kimya Atölye">
-<link rel="apple-touch-icon" href="/pwa-icon.svg">
+<link rel="apple-touch-icon" href="/okul-logo.png">
+<link rel="icon" type="image/png" href="/okul-logo.png">
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;700&family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -24,7 +25,11 @@
 <div id="login-screen">
   <div class="login-box">
     <div class="login-logo">
-      <div class="ln" style="font-size:1rem;line-height:1.35">KİMYA ÜRETİM ATÖLYESİ<br>YÖNETİM PROGRAMI</div>
+      <img src="/okul-logo.png" class="login-okul-logo" alt="Şehit Ahmet Benli MTAL logosu">
+      <div class="login-okul">Şehit Ahmet Benli<br>Mesleki ve Teknik Anadolu Lisesi</div>
+      <div class="login-alan">Kimya Teknolojisi Alanı</div>
+      <div class="login-saat"><span data-tarih></span> · <b data-saat></b></div>
+      <div class="ln">Kimya Üretim Atölyesi<br>Yönetim Programı</div>
       <div class="ls">Üretim & Maliyet Takip Sistemi</div>
     </div>
     <div class="login-error" id="login-error">Kullanıcı adı veya şifre hatalı!</div>
@@ -37,7 +42,8 @@
 <!-- ══ MOBİL HEADER ══ -->
 <div id="mob-header">
   <button id="mob-menu-btn" onclick="toggleSidebar()">☰</button>
-  <div id="mob-title">KİMYA ÜRETİM ATÖLYESİ<br>YÖNETİM PROGRAMI</div>
+  <img src="/okul-logo.png" class="mob-logo" alt="">
+  <div id="mob-title">KİMYA ÜRETİM ATÖLYESİ<span class="mob-saat"><span data-tarih-kisa></span> · <span data-saat-kisa></span></span></div>
   <button onclick="openArama()" title="Ara" style="background:transparent;border:none;color:#fff;font-size:1.15rem;cursor:pointer;padding:4px 6px;flex-shrink:0">🔍</button>
   <button id="mob-bell" onclick="openBildirim()" title="Bildirimler" style="background:transparent;border:none;color:#fff;font-size:1.2rem;cursor:pointer;position:relative;padding:4px 6px;flex-shrink:0">🔔<span id="mob-bell-badge" class="bell-badge" style="display:none">0</span></button>
 </div>
@@ -45,8 +51,20 @@
 
 <!-- ══ ANA UYGULAMA ══ -->
 <div id="app">
+<div id="okul-band">
+  <img src="/okul-logo.png" class="ob-logo" alt="Şehit Ahmet Benli MTAL logosu">
+  <div class="ob-yazi">
+    <div class="ob-prog">Kimya Üretim Atölyesi Yönetim Programı</div>
+    <div class="ob-okul">Şehit Ahmet Benli Mesleki ve Teknik Anadolu Lisesi</div>
+    <div class="ob-alan">Kimya Teknolojisi Alanı</div>
+  </div>
+  <div class="ob-saat">
+    <div class="ob-zaman" data-saat></div>
+    <div class="ob-tarih" data-tarih></div>
+  </div>
+</div>
 <header id="topbar">
-  <div class="tb-brand"><span class="tb-logo">🧪</span><span class="tb-bt">KİMYA ÜRETİM<br>ATÖLYESİ</span></div>
+  <div class="tb-brand"><img src="/okul-logo.png" class="tb-logo" alt=""><span class="tb-bt">KİMYA ÜRETİM<br>ATÖLYESİ</span></div>
   <nav class="tb-nav" id="tb-nav">
     <div class="tb-grp sb-g-genel">
       <button class="tb-head" onclick="tbToggle(this,event)">Genel<span class="tb-car">⌄</span></button>

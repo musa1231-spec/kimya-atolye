@@ -9,6 +9,8 @@ import {
 import { HM_LIST } from "./constants";
 
 import { initLoginScreen, doLogin, doLogout } from "./login";
+import { saatBaslat } from "./lib/saat";
+saatBaslat();
 import { rDash } from "./modules/dashboard";
 import {
   prepUretimGun, addUgK, ugRefresh, ugCalc, saveUretimGun, delGun, rUretim,
