@@ -11,6 +11,8 @@ import { HM_LIST } from "./constants";
 import { initLoginScreen, doLogin, doLogout } from "./login";
 import { saatBaslat } from "./lib/saat";
 import { imzaYerlestir } from "./imza";
+import { surumDenetleBaslat } from "./surumDenetle";
+surumDenetleBaslat();
 saatBaslat();
 import { rDash } from "./modules/dashboard";
 import {
