@@ -22,7 +22,12 @@ export function doLogin(): void {
   $("login-screen").style.display = "none";
   $("app").classList.add("show");
   setText("sb-name", ogr.ad);
-  setText("sb-avatar", ogr.ad.split(" ").map((w) => w[0]).join("").substring(0, 2).toUpperCase());
+  const bas = ogr.ad.split(" ").map((w) => w[0]).join("").substring(0, 2).toLocaleUpperCase("tr-TR");
+  setText("sb-avatar", bas);
+  // Okul bandında giriş yapan kullanıcı
+  setText("ob-kul-ad", ogr.ad);
+  setText("ob-kul-a", bas);
+  $("ob-kul").style.display = "";
   audit("GİRİŞ", "Sisteme giriş yapıldı");
   window.scrollTo(0, 0);
   rDash();
