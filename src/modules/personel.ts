@@ -53,8 +53,8 @@ export async function delOgr(id: number): Promise<void> {
 
 // ── ÖĞRENCİ ───────────────────────────────────────────────────
 export function rOgc(): void {
-  setHTML("ogc-tb", store.ogrenciler.map((o) => `<tr>
-    <td class="mo2">${o.no || "—"}</td><td><strong>${o.ad}</strong></td>
+  setHTML("ogc-tb", store.ogrenciler.map((o, i) => `<tr>
+    <td class="tr mo2">${i + 1}</td><td class="mo2">${o.no || "—"}</td><td><strong>${o.ad}</strong></td>
     <td><span class="ba bb">${o.sn || "—"}</span></td>
     <td class="mo2" style="font-size:.67rem">${o.iban || "—"}</td>
     <td class="tr mo2 c3">${o.gun || 0}</td>

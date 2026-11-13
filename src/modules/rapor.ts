@@ -87,7 +87,7 @@ export function rRapor(): void {
 
   const persRow = (ad: string, gun: number) => `<tr><td>${ad}</td><td class="tr">${gun} gün</td></tr>`;
   setHTML("rp-pers", `<div class="g2"><div><div class="ct" style="margin-bottom:6px">👨‍🏫 Öğretmen Katkısı</div><div class="tw"><table><tbody>${d.ogretmenler.map((o) => persRow(ogrAd(o.id), o.gun)).join("") || '<tr><td class="tm">—</td></tr>'}</tbody></table></div></div>`
-    + `<div><div class="ct" style="margin-bottom:6px">🎓 Öğrenci Katkısı (ilk 15)</div><div class="tw"><table><tbody>${d.ogrenciler.slice(0, 15).map((o) => persRow(ogcAd(o.id), o.gun)).join("") || '<tr><td class="tm">—</td></tr>'}</tbody></table></div></div></div>`);
+    + `<div><div class="ct" style="margin-bottom:6px">🎓 Öğrenci Katkısı (ilk 15)</div><div class="tw"><table><tbody>${d.ogrenciler.slice(0, 15).map((o, i) => persRow(`${i + 1}. ${ogcAd(o.id)}`, o.gun)).join("") || '<tr><td class="tm">—</td></tr>'}</tbody></table></div></div></div>`);
 
   setText("rp-baslik", `${yil} Yılı Faaliyet Raporu`);
 }
@@ -116,7 +116,7 @@ export function yazdirRapor(): void {
     </div>
     <h2>Personel Üretim Katkısı</h2>
     <div class="cols"><div><table><thead><tr><th>Öğretmen</th><th class="tr">Gün</th></tr></thead><tbody>${d.ogretmenler.map((o) => `<tr><td>${ogrAd(o.id)}</td><td class="tr">${o.gun}</td></tr>`).join("")}</tbody></table></div>
-    <div><table><thead><tr><th>Öğrenci</th><th class="tr">Gün</th></tr></thead><tbody>${d.ogrenciler.map((o) => `<tr><td>${ogcAd(o.id)}</td><td class="tr">${o.gun}</td></tr>`).join("")}</tbody></table></div></div>
+    <div><table><thead><tr><th class="tr">S.No</th><th>Öğrenci</th><th class="tr">Gün</th></tr></thead><tbody>${d.ogrenciler.map((o, i) => `<tr><td class="tr">${i + 1}</td><td>${ogcAd(o.id)}</td><td class="tr">${o.gun}</td></tr>`).join("")}</tbody></table></div></div>
     <div class="ft">Bu rapor ${fmt(today())} tarihinde otomatik üretilmiştir. Ciro/maliyet değerleri tahminidir.</div>
     <script>window.onload=()=>window.print()</script></body></html>`);
   w.document.close();
