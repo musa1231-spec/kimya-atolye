@@ -557,3 +557,8 @@ tr:hover td{background:rgba(0,0,0,.04)}
 .bb-lej{display:flex;flex-wrap:wrap;gap:6px 12px;font-size:.7rem;color:var(--mut);margin:4px 0 10px}
 .bb-lej span{display:inline-flex;align-items:center;gap:5px}
 .bb-lej i{width:11px;height:11px;border-radius:3px;display:inline-block}
+/* Musa Karabiber imzası (src/imza.ts) */
+.ob-imza{height:58px;width:auto;flex-shrink:0;position:relative;z-index:1;opacity:.95}
+.login-imza{display:block;width:210px;height:auto;margin:16px auto 0}
+@media(max-width:800px){.ob-imza{height:42px}}
+@media(max-width:560px){.ob-imza{display:none}}

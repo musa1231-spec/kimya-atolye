@@ -10,6 +10,7 @@ import { HM_LIST } from "./constants";
 
 import { initLoginScreen, doLogin, doLogout } from "./login";
 import { saatBaslat } from "./lib/saat";
+import { imzaYerlestir } from "./imza";
 saatBaslat();
 import { rDash } from "./modules/dashboard";
 import {
@@ -273,6 +274,7 @@ Object.assign(window, {
     if (e.dataTransfer?.files?.length) { inp.files = e.dataTransfer.files; belgeYukle(inp); }
   });
 
+  imzaYerlestir();
   initLoginScreen();
   // Açılışta aktif (Gösterge) sayfasının grubunu işaretle
   document.querySelector(".ni.active")?.closest(".tb-grp")?.classList.add("has-active");
