@@ -212,7 +212,7 @@ export const KURAL_BOLUMLERI: KuralBolum[] = [
     "Eldivenle yüze ve göze dokunulmaz.",
   ] },
   { id: "tasima", ikon: "💪", baslik: "Taşıma ve Ağır İş", maddeler: [
-    "Taşıma işinde adalet gözetilir: ağır işi hep aynı öğrenciler yapmaz, her üretimde sıra değişir. Bugün taşımayan bir sonraki sefer taşır.",
+    "Taşıma işinde adalet gözetilir: ağır işi hep aynı öğrenciler yapmaz, her kazanda sıra değişir. Bir kazanda taşımayan, sonraki kazanda taşır.",
     "Öğretmen uygun görürse ya da bir öğrenci gönüllü olursa aynı kişiler birden fazla kazanda taşıyabilir.",
     "Yük dizler bükülerek, bel düz tutularak kaldırılır.",
     "Ağır ya da büyük yük iki kişiyle taşınır.",

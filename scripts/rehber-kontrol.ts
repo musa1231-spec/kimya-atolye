@@ -264,7 +264,8 @@ import { GOZLUK_KURAL } from "../src/atolyeDuzen";
 {
   const tz: string[] = [];
   const tasima = KURAL_BOLUMLERI.find((k) => k.id === "tasima")!.maddeler.join("\n");
-  if (!/adalet gözetilir/.test(tasima)) tz.push("Taşıma bölümünde 'adalet gözetilir' yok");
+  if (!/adalet gözetilir/.test(tasima)) tz.push("Taşıma bölümünde adalet gözetilir yok");
+  if (!/her kazanda sıra değişir/.test(tasima) || /her üretimde sıra/.test(tasima)) tz.push("Taşıma: sıra her KAZANDA değişir (Musa Hocam)");
   if (/taşıyıcıları vardır|günün planında kazanın yanında|program, önceki/i.test(tasima)) tz.push("Taşıma kuralında belirlenmiş taşıyıcı/isim ifadesi kalmış");
   const dz = readFileSync("src/modules/duzen.ts", "utf8");
   const pdf = dz.slice(dz.indexOf("function bloklar"), dz.indexOf("// ── PDF üret"));
