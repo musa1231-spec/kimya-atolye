@@ -177,7 +177,7 @@ export const KURAL_BOLUMLERI: KuralBolum[] = [
     `Atölyede ${KAZANLAR.length} kazan var: ${KAZANLAR.map((k) => k.no).join(", ")}. Her biri ${KAZANLAR[0].kapasiteKg} kg alır.`,
     `YÜKSEK kazanlarda (${noListe("yuksek")}) viskoz (kıvamlı) ürünler yapılır: ${adListe(true)}.`,
     `ALÇAK kazanlarda (${noListe("alcak")}) akışkan ürünler yapılır: ${adListe(false)}.`,
-    "Her kazanın üstünde numarası yazılıdır. Bugün hangi kazanda ne yapıldığını ilk sayfadaki tablodan öğren.",
+    "Her kazanın üstünde numarası yazılıdır. Bugün hangi kazanda ne yapıldığını öğretmenin paylaştığı günün planından (Atölye Düzeni belgesindeki kazan tablosundan) öğren.",
     "Kazanın ağzına o gün yapılan ürünün adı kartla asılır.",
     "Yanlış kazana ya da yanlış madde koyarsan SAKLAMA, hemen öğretmene söyle. Saklanan hata 900 kg ürünü çöpe attırır.",
     "Çamaşır suyu (klorlu) ile tuz ruhu, kireç sökücü ve WC temizleyici (asitli) aynı kova, hortum ya da huniyle ellenmez. Karışırsa zehirli gaz çıkar.",
@@ -206,7 +206,7 @@ export const KURAL_BOLUMLERI: KuralBolum[] = [
     "Eldivenle telefona, yüze ve göze dokunulmaz.",
   ] },
   { id: "tasima", ikon: "💪", baslik: "Taşıma ve Ağır İş", maddeler: [
-    "Her kazanın kendi taşıyıcıları vardır ve ilk sayfadaki tabloda yazılıdır. Taşıma o kazanın taşıyıcılarının işidir.",
+    "Her kazanın kendi taşıyıcıları vardır ve günün planında kazanın yanında yazılıdır. Taşıma o kazanın taşıyıcılarının işidir.",
     "Taşıyıcılar adaletle seçilir: program, önceki üretim günlerinde kimin kaç kez ağır iş yaptığını sayar; en az taşıyan öne alınır. Bugün taşımayan bir sonraki sefer taşır.",
     "Öğretmen uygun görürse ya da bir öğrenci gönüllü olursa aynı kişiler birden fazla kazanda taşıyabilir.",
     "Yük dizler bükülerek, bel düz tutularak kaldırılır.",
@@ -243,8 +243,8 @@ export const KURAL_BOLUMLERI: KuralBolum[] = [
     "Hata yaptıysan hemen söyle. Hatasını kendisi söyleyen ceza almaz; saklayan alır.",
   ] },
   { id: "puan", ikon: "🏅", baslik: "Değerlendirme", maddeler: [
-    "Her üretimden sonra öğretmen herkese üç başlıkta puan verir: görevini yaptı mı, dikkatli miydi (hata, dökülme), düzen ve temizlik.",
-    "Puanlar beceri karnesine işlenir.",
+    "Her üretimden sonra öğretmen herkesi üç başlıkta değerlendirir: görevini yaptı mı, dikkatli miydi (hata, dökülme), düzen ve temizlik. Bu değerlendirme uygulama notunda dikkate alınır.",
+    "Katıldığın üretim günleri programdaki Beceri Karnesi'ne işlenir.",
     "Kuralı tekrar tekrar bozan öğrenci bir sonraki üretimde kazan ve dolum görevine alınmaz.",
   ] },
 ];

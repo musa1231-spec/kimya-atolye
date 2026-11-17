@@ -69,6 +69,8 @@ import { rKarne, yazdirKarne } from "./modules/karne";
 
 // Belge yükleme/silme sonrası sayaçları tazelemek için kaynak sayfaların
 // yenileme fonksiyonlarını kaydet (döngüsel importtan kaçınmak için).
+import { rYardim, yhAsistan } from "./modules/yardim";
+
 belgeRefreshKaydet({
   hammadde: rHm,
   urun: rUsStok,
@@ -202,6 +204,7 @@ function openModal(id: string): void {
     case "m-esans-tanim": resetEsansTanimForm(); break;
     case "m-kalite": prepKalite(); break;
     case "m-parti": prepParti(); break;
+    case "m-yardim": rYardim(); break;
   }
   $(id).classList.add("open");
 }
@@ -252,6 +255,7 @@ Object.assign(window, {
   rRapor, yazdirRapor, rSiparisOneri, yazdirSiparisOneri,
   asistanUrunDegisti, asAlkolDegisti, asistanBasla, asSonraki, asGeri, asGoto, asTimerBaslat, asTimerSifirla, asBitir,
   asKazanDegisti, asOnay, dzKaydet, dzPdfIndir, dzPdfPaylas, dzMesajPaylas, dzKurallarPaylas, dzTarihDegisti, dzAdilDagit, dzSayacGoster,
+  yhAsistan,
   tvPrev, tvNext, tvBugun, tvGun, takvimYeniUretim, rKarne, yazdirKarne,
 });
 

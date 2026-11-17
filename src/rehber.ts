@@ -625,3 +625,12 @@ export function rehberTopla(adim: ProsesAdim, urunId?: string): { dikkat: string
   }
   return { dikkat, sorun };
 }
+
+// ── Üretim Rehberi (📚) sekmeleri: ürün kategorisi → sekme kimliği ──
+// Sıvı ürün kartları modules/yardim.ts ile bu eşlemeye göre üretilir; "Katı Sabun" index.html'de elle durur.
+export const YARDIM_SEKME: Record<string, string> = {
+  "Kişisel Bakım": "yh-kisibak",
+  "Ev Temizliği": "yh-evtem",
+  "Endüstriyel": "yh-endustri",
+};
+export const KATI_SABUN_KAT = "Katı Sabun";

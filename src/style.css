@@ -583,3 +583,12 @@ tr:hover td{background:rgba(0,0,0,.04)}
 .dz-chip b{color:var(--acc)}
 .dz-chip em{font-style:normal;font-weight:800;color:#2e7d32}
 .dz-chip.bugun{border-color:#2e7d32;background:#edf7ee}
+/* ── Üretim Rehberi (üretilen kartlar) ── */
+.yh-bas{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--mut);margin-bottom:5px}
+.yh-tablo{font-size:.75rem;width:100%}
+.yh-tablo td{padding:2px 5px}
+.yh-hedef{font-size:.7rem;color:var(--mut);margin-top:6px;line-height:1.5}
+.yh-adim{font-size:.74rem;line-height:1.6;padding-left:17px;margin:0}
+.yh-adim li{margin-bottom:3px}
+.yh-kural{background:#fff1f1;border:1px solid #ef9a9a;border-radius:7px;padding:6px 9px;font-size:.7rem;margin-top:8px;color:#7f1010;line-height:1.5}
+.yh-tehlike{background:rgba(245,127,23,.08);border-radius:7px;padding:6px 9px;font-size:.7rem;margin-top:6px;line-height:1.5}

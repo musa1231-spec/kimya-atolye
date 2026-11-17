@@ -168,3 +168,31 @@ import { adilTasiyiciDagit, agirIsSayaci, adListesi, adNorm, TASIYICI_SAYISI } f
   if (ah.length) { console.error("❌ Ağır iş adaleti hatası:\n  " + ah.join("\n  ")); process.exit(1); }
   console.log("✅ Ağır iş adaleti: sayaç, normalizasyon, adil dağıtım ve elle seçim korunuyor");
 }
+// ── 📚 Üretim Rehberi bütünlüğü: sıvı ürün kartları elle yazılmaz, katı sabun yüzdeleri URUNLER ile aynı ──
+import { readFileSync } from "node:fs";
+import { YARDIM_SEKME, KATI_SABUN_KAT } from "../src/rehber";
+{
+  const yh: string[] = [];
+  const html = readFileSync("index.html", "utf8");
+  for (const u of URUNLER) if (u.kat !== KATI_SABUN_KAT && !YARDIM_SEKME[u.kat]) yh.push(`'${u.id}' kategorisi (${u.kat}) Rehber'de hiçbir sekmeye düşmüyor`);
+  for (const sec of Object.values(YARDIM_SEKME)) {
+    const a = html.indexOf(`<div id="${sec}"`), b = html.indexOf(`</div><!-- /${sec} -->`);
+    if (a < 0 || b < 0) { yh.push(`${sec} sekmesi index.html'de yok`); continue; }
+    if (/<table|<li|%\d/.test(html.slice(a, b))) yh.push(`${sec}: elle yazılmış reçete/adım var — kartlar yardim.ts ile üretilmeli`);
+  }
+  // Katı sabun: YÖNTEM n kartındaki % satırları → URUNLER
+  const yontem: Record<number, string> = { 1: "kastilya-soguk", 2: "kastilya-sicak", 3: "halep-20", 4: "halep-30", 5: "halep-40" };
+  for (const [n, id] of Object.entries(yontem)) {
+    const a = html.indexOf(`YÖNTEM ${n} —`), b = html.indexOf("<!-- YÖNTEM", a + 10) > 0 ? html.indexOf("<!-- YÖNTEM", a + 10) : html.indexOf("<!-- KARŞILAŞTIRMA", a);
+    const parca = html.slice(a, b);
+    const yuz = [...parca.matchAll(/<td[^>]*>%(\d+(?:\.\d+)?)<\/td>/g)].map((m) => +m[1]).sort((x, y) => x - y);
+    const gercek = URUNLER.find((u) => u.id === id)!.ings.map(([, p]) => p).sort((x, y) => x - y);
+    if (yuz.join() !== gercek.join()) yh.push(`Katı sabun YÖNTEM ${n} (${id}): Rehber ${yuz.join("/")} ≠ reçete ${gercek.join("/")}`);
+  }
+  // Kurallar her ortamda (PDF + WhatsApp) doğru okunmalı; program yapmadığı şeyi vaat etmemeli
+  const kuralMetin = [...KURAL_BOLUMLERI.flatMap((k) => k.maddeler), ...ROLLER.flatMap((r) => r.gorevler)].join("\n");
+  if (/ilk sayfa/i.test(kuralMetin)) yh.push("kurallarda 'ilk sayfa' geçiyor (WhatsApp metninde sayfa yok)");
+  if (/puanlar beceri karnesine/i.test(kuralMetin)) yh.push("kurallar Beceri Karnesi'nde olmayan puanlamayı vaat ediyor");
+  if (yh.length) { console.error("❌ Üretim Rehberi / kural bütünlüğü:\n  " + yh.join("\n  ")); process.exit(1); }
+  console.log("✅ Üretim Rehberi: sıvı kartlar tek kaynaktan, katı sabun yüzdeleri reçeteyle aynı, kural metni tutarlı");
+}
