@@ -6,7 +6,7 @@ import {
 import type {
   Ogretmen, Ogrenci, Musteri, UretimGun, Siparis, Sevkiyat, Esans,
   BidonHareket, KoliHareket, EsansHareket, AuditKayit, SiparisDurum,
-  Belge, BelgeTur, AlisFatura, Irsaliye, KaliteKontrol, Parti,
+  Belge, BelgeTur, AlisFatura, Irsaliye, KaliteKontrol, Parti, AtolyePlan,
 } from "./types";
 
 const BUCKET = "belgeler";
@@ -31,12 +31,17 @@ const mapIrsaliye = (r: any): Irsaliye => ({ id: r.id, tarih: r.tarih, saat: r.s
 const mapKalite = (r: any): KaliteKontrol => ({ id: r.id, tarih: r.tarih, urunId: r.urun_id || "", partiNo: r.parti_no || "", uretimId: r.uretim_id ?? null, ph: r.ph === null ? null : Number(r.ph), yogunluk: r.yogunluk === null ? null : Number(r.yogunluk), gorunum: r.gorunum || "", koku: r.koku || "", viskozite: r.viskozite || "", sonuc: r.sonuc || "uygun", olcen: r.olcen || "", notu: r.notu || "" });
 const mapParti = (r: any): Parti => ({ id: r.id, partiNo: r.parti_no, urunId: r.urun_id || "", tarih: r.tarih, uretimId: r.uretim_id ?? null, kg: Number(r.kg) || 0, ambLt: Number(r.amb_lt) || 0, rafOmruAy: Number(r.raf_omru_ay) || 0, skt: r.skt || "", ogrenciler: r.ogrenciler || [], ogretmenler: r.ogretmenler || [], notu: r.notu || "" });
 
+const mapAtolyePlan = (r: any): AtolyePlan => ({ tarih: r.tarih, ogretmen: r.ogretmen || "", kazan: Array.isArray(r.kazan) ? r.kazan : [], roller: r.roller && typeof r.roller === "object" ? r.roller : {}, guncelleyen: r.guncelleyen || "", guncelleme: r.updated_at || "" });
+
+/** atolye_planlari tablosu veritabanında var mı? (yoksa Atölye Düzeni planı cihazda tutulur) */
+export const planTablo = { var: false };
+
 // ════════════════════════════════════════════════════════════════
 // TÜM VERİYİ YÜKLE
 // ════════════════════════════════════════════════════════════════
 export async function loadAll(): Promise<void> {
   const [
-    ogr, ogc, mus, ure, sip, sev, ust, hst, gst, bh, kh, es, eh, esl, den, bel, sat, alis, irs, kal, par,
+    ogr, ogc, mus, ure, sip, sev, ust, hst, gst, bh, kh, es, eh, esl, den, bel, sat, alis, irs, kal, par, apl,
   ] = await Promise.all([
     sb.from("ogretmenler").select("*").order("id"),
     sb.from("ogrenciler").select("*").order("id"),
@@ -59,6 +64,7 @@ export async function loadAll(): Promise<void> {
     sb.from("irsaliyeler").select("*").order("id", { ascending: false }),
     sb.from("kalite_kontrol").select("*").order("tarih", { ascending: false }),
     sb.from("partiler").select("*").order("tarih", { ascending: false }),
+    sb.from("atolye_planlari").select("*").order("tarih", { ascending: false }).limit(400),
   ]);
 
   store.ogretmenler = (ogr.data || []).map(mapOgretmen);
@@ -77,6 +83,8 @@ export async function loadAll(): Promise<void> {
   store.irsaliyeler = (irs.data || []).map(mapIrsaliye);
   store.kaliteKayitlari = (kal.data || []).map(mapKalite);
   store.partiler = (par.data || []).map(mapParti);
+  planTablo.var = !apl.error;
+  store.atolyePlanlari = (apl.data || []).map(mapAtolyePlan);
   store.satisFiyat = {};
   (sat.data || []).forEach((r: any) => (store.satisFiyat[r.urun_id] = { f5: r.f5 ?? null, f20: r.f20 ?? null, f1: r.f1 ?? null }));
 
@@ -245,6 +253,20 @@ export const insertParti = async (p: Omit<Parti, "id">): Promise<Parti> =>
     ogrenciler: p.ogrenciler, ogretmenler: p.ogretmenler, notu: p.notu,
   }));
 export const deleteParti = (id: number) => del("partiler", id);
+// ── Atölye Düzeni planı (tarih başına bir satır) ──────────────
+export async function upsertAtolyePlan(p: AtolyePlan, kim: string): Promise<AtolyePlan> {
+  const { data, error } = await sb.from("atolye_planlari")
+    .upsert({ tarih: p.tarih, ogretmen: p.ogretmen, kazan: p.kazan, roller: p.roller, guncelleyen: kim, updated_at: new Date().toISOString() })
+    .select().single();
+  if (error) throw error;
+  return mapAtolyePlan(data);
+}
+/** Belirli bir günün planını veritabanından taze okur (başka cihazdaki değişiklikler için). */
+export async function getAtolyePlan(tarih: string): Promise<AtolyePlan | null> {
+  const { data, error } = await sb.from("atolye_planlari").select("*").eq("tarih", tarih).maybeSingle();
+  if (error) throw error;
+  return data ? mapAtolyePlan(data) : null;
+}
 export const updateGenelStok = async (patch: { b1?: number; b5?: number; b20?: number; koli?: number }) => {
   const { error } = await sb.from("genel_stok").upsert({ id: 1, ...patch });
   if (error) throw error;
@@ -381,5 +403,14 @@ export async function restoreAll(snap: Store): Promise<void> {
   if (snap.irsaliyeler?.length) await sb.from("irsaliyeler").insert(snap.irsaliyeler.map((i) => ({ tarih: i.tarih, saat: i.saat, musteri_id: musMap.get(i.musteriId) ?? null, plaka: i.plaka, surucu: i.surucu, tasiyan: i.tasiyan, alici_vergi: i.aliciVergi, notu: i.not, kalemler: i.kalemler, kim: i.kim })));
   // Kalite/Parti: üretim_id eski PK'ye dayandığı ve toplu insert'te yeni ID yakalanmadığı için null'lanır; öğrenci/öğretmen ID'leri remap edilir.
   if (snap.kaliteKayitlari?.length) await sb.from("kalite_kontrol").insert(snap.kaliteKayitlari.map((k) => ({ tarih: k.tarih, urun_id: k.urunId, parti_no: k.partiNo, uretim_id: null, ph: k.ph, yogunluk: k.yogunluk, gorunum: k.gorunum, koku: k.koku, viskozite: k.viskozite, sonuc: k.sonuc, olcen: k.olcen, notu: k.notu })));
+  // Atölye Düzeni planları (tablo henüz yoksa yedeğin geri kalanını bozmasın)
+  if (planTablo.var) {
+    const w = await sb.from("atolye_planlari").delete().gte("tarih", "1900-01-01");
+    if (w.error) throw w.error;
+    if (snap.atolyePlanlari?.length) {
+      const r = await sb.from("atolye_planlari").insert(snap.atolyePlanlari.map((p) => ({ tarih: p.tarih, ogretmen: p.ogretmen, kazan: p.kazan, roller: p.roller, guncelleyen: p.guncelleyen || "" })));
+      if (r.error) throw r.error;
+    }
+  }
   if (snap.partiler?.length) await sb.from("partiler").insert(snap.partiler.map((p) => ({ parti_no: p.partiNo, urun_id: p.urunId, tarih: p.tarih, uretim_id: null, kg: p.kg, amb_lt: p.ambLt, raf_omru_ay: p.rafOmruAy, skt: p.skt || null, ogrenciler: (p.ogrenciler || []).map((id) => ogcMap.get(id)).filter((x) => x != null), ogretmenler: (p.ogretmenler || []).map((id) => ogrMap.get(id)).filter((x) => x != null), notu: p.notu })));
 }

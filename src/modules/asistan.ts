@@ -7,7 +7,7 @@ import type { AlkolSonuc } from "../alkol";
 import { acUretimGunWithLines } from "./uretim";
 import { $, urunSelect, val, numVal, esansAd, setHTML, setText, setVal, showToast } from "../helpers";
 import { KAZANLAR, asistanKazanEngel, kazanUyum, urunKazanTipi, SAF_SU_DINAMO_UYARI } from "../atolyeDuzen";
-import { bugunKazanPlani } from "./duzen";
+import { bugunKazanPlani, bugunKazanPlaniTaze } from "./duzen";
 import { session } from "../state";
 import type { Urun } from "../types";
 
@@ -112,7 +112,7 @@ export function asAlkolDegisti(): void {
   setHTML("as-alk-not", alkolNotHTML(alkolUyarla(u, alkolSecimOku("as"))));
 }
 
-export function asistanBasla(): void {
+export async function asistanBasla(): Promise<void> {
   const u = URUNLER.find((x) => x.id === val("as-urun"));
   const kg = numVal("as-kg");
   if (!u || kg <= 0) { alert("Ürün ve geçerli bir miktar (kg) seç"); return; }
@@ -121,7 +121,8 @@ export function asistanBasla(): void {
   // Katı sabunlar kazanda yapılmaz → kazan sorulmaz
   const kazanli = urunKazanTipi(u.id) !== null;
   if (kazanli) {
-    const engel = asistanKazanEngel(val("as-kazan"), u.id, kg, bugunKazanPlani());
+    // Başka cihazda (öğretmen bilgisayarı) girilen günün planını taze oku
+    const engel = asistanKazanEngel(val("as-kazan"), u.id, kg, await bugunKazanPlaniTaze());
     if (engel) { alert("⛔ " + engel); return; }
   }
   kazanNo = kazanli ? val("as-kazan") : "";

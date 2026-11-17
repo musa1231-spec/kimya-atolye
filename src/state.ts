@@ -26,6 +26,7 @@ export const store: Store = {
   irsaliyeler: [],
   kaliteKayitlari: [],
   partiler: [],
+  atolyePlanlari: [],
 };
 
 // Giriş yapan kullanıcı (Current User)

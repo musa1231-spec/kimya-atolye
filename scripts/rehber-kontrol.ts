@@ -142,3 +142,29 @@ import { kurallarMetni } from "../src/atolyeDuzen";
   if (process.env.KURAL_METNI_YAZ) (await import("node:fs")).writeFileSync(process.env.KURAL_METNI_YAZ, t, "utf8");
   console.log(`✅ WhatsApp kurallar metni: ${t.length} karakter, bütün bölümler var`);
 }
+// ⚖️ Ağır iş adaleti: en az taşıyan öne alınır, aynı gün yük yayılır, elle yazılana dokunulmaz, İ/i aynı kişi sayılır
+import { adilTasiyiciDagit, agirIsSayaci, adListesi, adNorm, TASIYICI_SAYISI } from "../src/atolyeDuzen";
+{
+  const ah: string[] = [];
+  const gecmis = [
+    { tarih: "2026-11-10", roller: { "tasima-K3": "Ali, Veli", koli: "Ayşe" } },
+    { tarih: "2026-11-12", roller: { "tasima-K1": "ali , Can", "tasima-K4": "Veli" } },
+    { tarih: "2026-11-20", roller: { "tasima-K1": "Deniz" } },   // gelecekteki gün sayılmamalı
+  ];
+  const say = agirIsSayaci(gecmis, "2026-11-17");
+  if (say.get(adNorm("Ali")) !== 2 || say.get(adNorm("Veli")) !== 2 || say.get(adNorm("Ayşe")) !== 1 || say.get(adNorm("Can")) !== 1 || say.has(adNorm("Deniz"))) ah.push("sayaç yanlış: " + JSON.stringify([...say]));
+  if (adNorm("İREM  Şahin") !== adNorm("irem şahin")) ah.push("İ/i normalizasyonu");
+  if (adListesi("Ali, ali ; Veli,,").join("|") !== "Ali|Veli") ah.push("adListesi tekrar/boş ayıklamıyor");
+  const gelen = ["Ali", "Veli", "Ayşe", "Can", "Ece", "Fatih"];
+  const d = adilTasiyiciDagit(gelen, ["K3", "K4"], say);
+  // Ece ve Fatih hiç taşımadı → K3'e; sonra Ayşe ve Can (1'er) → K4
+  if (d.K3.slice().sort().join() !== "Ece,Fatih" || d.K4.slice().sort().join() !== "Ayşe,Can") ah.push("adil dağıtım: " + JSON.stringify(d));
+  if (Object.values(d).some((l) => l.length !== TASIYICI_SAYISI)) ah.push("kazan başı taşıyıcı sayısı");
+  // Elle yazılan kazan korunur ve sayılır; aynı kişiler birden çok kazanda olabilir
+  const d2 = adilTasiyiciDagit(gelen, ["K1", "K3"], say, { K1: ["Ece", "Fatih"] });
+  if (d2.K1.join() !== "Ece,Fatih" || d2.K3.includes("Ece") || d2.K3.includes("Fatih")) ah.push("elle yazılan kazan: " + JSON.stringify(d2));
+  const d3 = adilTasiyiciDagit(["Ali"], ["K1", "K2"], new Map());
+  if (d3.K1.join() !== "Ali" || d3.K2.join() !== "Ali") ah.push("tek öğrenci iki kazanda taşıyabilmeli");
+  if (ah.length) { console.error("❌ Ağır iş adaleti hatası:\n  " + ah.join("\n  ")); process.exit(1); }
+  console.log("✅ Ağır iş adaleti: sayaç, normalizasyon, adil dağıtım ve elle seçim korunuyor");
+}

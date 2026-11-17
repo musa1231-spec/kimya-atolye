@@ -7,47 +7,121 @@ import { URUNLER, ATOLYE_BILGI } from "../constants";
 import {
   KAZANLAR, ROLLER, ALTIN_KURAL, KURAL_BOLUMLERI, URUN_AILE, AILE_AD, kazanPlaniDenetle,
   KAZAN_TIP_AD, kazanUrunleri, urunKazanTipi, kurallarMetni,
+  TASIMA_ANAHTAR, GELENLER_ANAHTAR, TASIYICI_SAYISI, adListesi, adNorm, agirIsYapanlar, agirIsSayaci, adilTasiyiciDagit,
 } from "../atolyeDuzen";
 import type { KazanPlanSatir } from "../atolyeDuzen";
 import { store, session } from "../state";
 import { $, today, fmt, setHTML, showToast } from "../helpers";
+import { planTablo, upsertAtolyePlan, getAtolyePlan } from "../db";
+import type { AtolyePlan } from "../types";
 import { whatsappPaylas } from "../lib/paylas";
 import { audit } from "../audit";
 
-// ── Plan (bu cihazda saklanır; PDF ile öğrencilere gider) ─────────
-export interface DuzenPlan {
-  tarih: string;
-  ogretmen: string;
-  kazan: KazanPlanSatir[];
-  roller: Record<string, string>;   // rol id → "Ali, Veli"
-}
+// ── Plan: veritabanında (atolye_planlari, tarih başına bir satır) → bütün cihazlar ortak görür.
+// Tablo yoksa (henüz açılmadıysa) bu cihazda saklanır; tablo açılınca cihazdaki plan otomatik taşınır.
+export type DuzenPlan = AtolyePlan;
 const PLAN_KEY = "atolyeDuzenPlan";
 const ONCEKI_KEY = "atolyeDuzenOnceki";
 
-function bosPlan(): DuzenPlan {
-  return { tarih: today(), ogretmen: session.CU?.ad || "", kazan: KAZANLAR.map((k) => ({ no: k.no, urunId: "", kg: k.kapasiteKg })), roller: {} };
+const kazanTamamla = (kz: KazanPlanSatir[] | undefined): KazanPlanSatir[] =>
+  KAZANLAR.map((k) => (kz || []).find((x) => x.no === k.no) || { no: k.no, urunId: "", kg: k.kapasiteKg });
+function bosPlan(tarih = today()): DuzenPlan {
+  return { tarih, ogretmen: session.CU?.ad || "", kazan: kazanTamamla([]), roller: {} };
 }
-function oku(key: string): DuzenPlan | null {
+function yerelOku(key: string): DuzenPlan | null {
   try {
     const p = JSON.parse(localStorage.getItem(key) || "null") as DuzenPlan | null;
     if (!p || !Array.isArray(p.kazan)) return null;
-    // Kazan listesi değiştiyse eksik kazanları tamamla
-    p.kazan = KAZANLAR.map((k) => p.kazan.find((x) => x.no === k.no) || { no: k.no, urunId: "", kg: k.kapasiteKg });
-    p.roller = p.roller || {};
-    return p;
+    return { ...p, kazan: kazanTamamla(p.kazan), roller: p.roller || {} };
   } catch { return null; }
 }
-function yaz(key: string, p: DuzenPlan): void {
+function yerelYaz(key: string, p: DuzenPlan): void {
   try { localStorage.setItem(key, JSON.stringify(p)); } catch { /* sessiz */ }
 }
-const planDolu = (p: DuzenPlan) => p.kazan.some((k) => k.urunId) || Object.values(p.roller).some((v) => v.trim());
+function yerelSil(key: string): void {
+  try { localStorage.removeItem(key); } catch { /* sessiz */ }
+}
+const planDolu = (p: DuzenPlan) => p.kazan.some((k) => k.urunId) || Object.values(p.roller).some((v) => (v || "").trim());
+const kopya = (p: DuzenPlan): DuzenPlan => ({ ...p, kazan: p.kazan.map((k) => ({ ...k })), roller: { ...p.roller } });
+
+/** Veritabanındaki (önbellekteki) plan. */
+function kayitli(tarih: string): DuzenPlan | null {
+  const p = store.atolyePlanlari.find((x) => x.tarih === tarih);
+  return p ? { ...kopya(p), kazan: kazanTamamla(p.kazan) } : null;
+}
+function onbellegeYaz(p: DuzenPlan): void {
+  const i = store.atolyePlanlari.findIndex((x) => x.tarih === p.tarih);
+  if (i >= 0) store.atolyePlanlari[i] = kopya(p); else store.atolyePlanlari.push(kopya(p));
+  store.atolyePlanlari.sort((a, b) => b.tarih.localeCompare(a.tarih));
+}
+function planiBul(tarih: string): DuzenPlan {
+  const db = kayitli(tarih);
+  if (db) return db;
+  const yerel = yerelOku(PLAN_KEY);
+  if (yerel && yerel.tarih === tarih) return yerel;
+  return bosPlan(tarih);
+}
+/** "Geçen sefer" — bu tarihten önceki en son dolu plan (görevleri değiştirmek için). */
+function oncekiPlan(tarih: string): DuzenPlan | null {
+  if (planTablo.var) return store.atolyePlanlari.find((p) => p.tarih < tarih && planDolu(p)) || null;
+  const o = yerelOku(ONCEKI_KEY);
+  return o && o.tarih < tarih ? o : null;
+}
 
 let plan: DuzenPlan = bosPlan();
+let gosterilenTarih = "";
 
-/** Asistan için: bugünün planı (bu cihazda girilmişse). */
+/** Asistan için: bugünün planı (önbellekten, eşzamanlı). */
 export function bugunKazanPlani(): KazanPlanSatir[] | null {
-  const p = oku(PLAN_KEY);
-  return p && p.tarih === today() ? p.kazan : null;
+  const p = kayitli(today()) || (() => { const y = yerelOku(PLAN_KEY); return y && y.tarih === today() ? y : null; })();
+  return p && p.kazan.some((k) => k.urunId) ? p.kazan : null;
+}
+/** Asistan başlarken: başka cihazda yapılan değişiklikleri görmek için planı veritabanından taze oku. */
+export async function bugunKazanPlaniTaze(): Promise<KazanPlanSatir[] | null> {
+  if (planTablo.var) {
+    try {
+      const p = await getAtolyePlan(today());
+      if (p) onbellegeYaz(p);
+      else store.atolyePlanlari = store.atolyePlanlari.filter((x) => x.tarih !== today());
+    } catch { /* bağlantı yoksa önbellekteki plan kullanılır */ }
+  }
+  return bugunKazanPlani();
+}
+
+// ── Kaydetme (yazarken her tuşta değil, kısa gecikmeyle) ──────────
+let kayitZaman: number | null = null;
+let kayitSuruyor: Promise<void> | null = null;
+function durumYaz(html: string): void { setHTML("dz-durum", html); }
+const durumOrtak = () => `<span style="color:#2e7d32">✓ Kaydedildi — bütün cihazlar bu planı görür</span>`;
+const durumYerel = () => `<span style="color:#a15c00">⚠️ Ortak plan tablosu henüz açılmadı: plan yalnızca BU cihazda saklanıyor</span>`;
+
+async function dbKaydet(p: DuzenPlan): Promise<void> {
+  if (!planTablo.var) return;
+  durumYaz(`<span class="tm">Kaydediliyor…</span>`);
+  try {
+    const k = await upsertAtolyePlan(p, session.CU?.ad || "");
+    onbellegeYaz(k);
+    durumYaz(durumOrtak());
+  } catch (e) {
+    console.error(e);
+    yerelYaz(PLAN_KEY, p);   // veri kaybolmasın
+    durumYaz(`<span style="color:#b71c1c">⛔ Veritabanına kaydedilemedi (${esc((e as Error).message || "bağlantı")}). Plan bu cihazda tutuldu; sayfayı yenileyip tekrar deneyin.</span>`);
+  }
+}
+/** Bekleyen kaydı hemen yap (PDF/mesaj öncesi, tarih değişmeden önce). */
+async function bekleyeniYaz(): Promise<void> {
+  if (kayitZaman) { clearTimeout(kayitZaman); kayitZaman = null; kayitSuruyor = dbKaydet(kopya(plan)); }
+  if (kayitSuruyor) await kayitSuruyor;
+}
+
+/** Tablo açıldıysa cihazda kalmış planı veritabanına taşı (bir kez). */
+async function yereliTasi(): Promise<void> {
+  if (!planTablo.var) return;
+  const y = yerelOku(PLAN_KEY);
+  if (!y || !planDolu(y)) { yerelSil(PLAN_KEY); return; }
+  if (kayitli(y.tarih)) { yerelSil(PLAN_KEY); return; }   // veritabanındaki geçerli
+  try { onbellegeYaz(await upsertAtolyePlan(y, session.CU?.ad || "")); yerelSil(PLAN_KEY); yerelSil(ONCEKI_KEY); showToast("Bu cihazdaki plan ortak tabloya taşındı"); }
+  catch { /* sonra tekrar denenir */ }
 }
 
 const esc = (s: string) => s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" } as Record<string, string>)[c]);
@@ -55,19 +129,21 @@ const urunAdi = (id: string) => URUNLER.find((u) => u.id === id)?.ad || "";
 
 // ── Sayfa ─────────────────────────────────────────────────────────
 export function rDuzen(): void {
-  plan = oku(PLAN_KEY) || bosPlan();
+  if (!gosterilenTarih) gosterilenTarih = today();
+  plan = planiBul(gosterilenTarih);
   if (!plan.ogretmen && session.CU) plan.ogretmen = session.CU.ad;
-  const onceki = oku(ONCEKI_KEY);
+  const onceki = oncekiPlan(plan.tarih);
   const ogrAdlari = store.ogrenciler.map((o) => o.ad).sort((a, b) => a.localeCompare(b, "tr"));
 
   setHTML("dz-form", `
     <div class="dz-ust">
-      <div class="fg"><label>Üretim tarihi</label><input type="date" id="dz-tarih" value="${plan.tarih}" onchange="dzKaydet()"></div>
+      <div class="fg"><label>Üretim tarihi</label><input type="date" id="dz-tarih" value="${plan.tarih}" onchange="dzTarihDegisti()"></div>
       <div class="fg"><label>Sorumlu öğretmen</label><input type="text" id="dz-ogretmen" value="${esc(plan.ogretmen)}" list="dz-ogr-list" oninput="dzKaydet()" autocomplete="off">
         <datalist id="dz-ogr-list">${store.ogretmenler.map((o) => `<option value="${esc(o.ad)}">`).join("")}</datalist></div>
     </div>
+    <div id="dz-durum" class="dz-durum">${planTablo.var ? (kayitli(plan.tarih) ? durumOrtak() : `<span class="tm">Bu gün için henüz plan yok — girdiğiniz anda ortak kaydedilir.</span>`) : durumYerel()}</div>
     <div class="ch" style="margin-top:6px"><span class="ct">🛢️ Bugün hangi kazanda ne yapılıyor?</span></div>
-    <div class="tw"><table class="dz-kazan"><thead><tr><th>Kazan</th><th>Ürün</th><th class="tr">Miktar (kg)</th><th>Tür</th></tr></thead><tbody>
+    <div class="tw"><table class="dz-kazan"><thead><tr><th>Kazan</th><th>Ürün</th><th class="tr">Miktar (kg)</th><th>🏋️ Taşıyıcılar</th><th>Tür</th></tr></thead><tbody>
     ${plan.kazan.map((k, i) => {
       const kz = KAZANLAR.find((x) => x.no === k.no)!;
       const kap = kz.kapasiteKg;
@@ -80,10 +156,19 @@ export function rDuzen(): void {
           <optgroup label="${KAZAN_TIP_AD[kz.tip]}">${uygun.map(opt).join("")}</optgroup>
           <optgroup label="Diğer (uygun değil)">${diger.map(opt).join("")}</optgroup></select></td>
         <td class="tr"><input type="number" id="dz-k-kg-${i}" value="${k.kg || ""}" min="1" max="${kap}" oninput="dzKaydet()" style="margin:0;width:90px;text-align:right"></td>
+        <td><input type="text" id="dz-k-t-${i}" value="${esc(plan.roller[TASIMA_ANAHTAR(k.no)] || "")}" list="dz-ogc-list" oninput="dzKaydet()" placeholder="Taşıyıcılar" autocomplete="off" style="margin:0;min-width:150px"></td>
         <td class="tm">${k.urunId ? AILE_AD[URUN_AILE[k.urunId]] || "" : ""}</td></tr>`;
     }).join("")}
     </tbody></table></div>
     <div id="dz-denetim"></div>
+    <div class="dz-adalet">
+      <div class="ch" style="margin:0 0 6px"><span class="ct">⚖️ Ağır iş adaleti — kazan taşıyıcıları</span></div>
+      <div class="fg" style="margin-bottom:6px"><label>Bugün gelen öğrenciler (virgülle)</label>
+        <input type="text" id="dz-gelenler" value="${esc(plan.roller[GELENLER_ANAHTAR] || "")}" list="dz-ogc-list" oninput="dzKaydet();dzSayacGoster()" placeholder="Örn. Ali Yılmaz, Veli Kaya, …" autocomplete="off"></div>
+      <div class="bgrp" style="margin-bottom:6px"><button class="btn bp" onclick="dzAdilDagit()">⚖️ Taşıyıcıları adil dağıt</button>
+        <span class="tm">Her kullanılan kazana ${TASIYICI_SAYISI} kişi; önceki günlerde en az ağır iş yapan öne alınır. Elle yazılan kazana dokunulmaz. Öğretmen ya da gönüllü isterse aynı kişiyi birden çok kazana yazabilir.</span></div>
+      <div id="dz-sayac"></div>
+    </div>
     <div class="ch" style="margin-top:12px"><span class="ct">👥 Bugünün görev dağılımı</span><span class="tm">Adları virgülle yazın. Her üretimde görevleri değiştirin.</span></div>
     <datalist id="dz-ogc-list">${ogrAdlari.map((a) => `<option value="${esc(a)}">`).join("")}</datalist>
     <div class="dz-roller">
@@ -94,14 +179,23 @@ export function rDuzen(): void {
     </div>`).join("")}
     </div>`);
   dzDenetimGoster();
+  dzSayacGoster();
   setHTML("dz-onizleme", `<div class="pdfd">${pdfStil()}${bloklar().join("")}</div>`);
+  // Cihazda kalmış eski plan varsa ortak tabloya taşı, sonra ekranı tazele
+  if (planTablo.var && yerelOku(PLAN_KEY)) void yereliTasi().then(() => { if (gosterilenTarih === plan.tarih) rDuzenSessiz(); });
+}
+function rDuzenSessiz(): void { if ($("pg-duzen")?.classList.contains("active")) rDuzen(); }
+
+/** Tarih değişince o günün planı açılır (yoksa boş plan). */
+export async function dzTarihDegisti(): Promise<void> {
+  const yeni = (document.getElementById("dz-tarih") as HTMLInputElement | null)?.value || today();
+  await bekleyeniYaz();
+  if (!planTablo.var && planDolu(plan) && yeni > plan.tarih) yerelYaz(ONCEKI_KEY, plan);   // tablo yokken "geçen sefer"
+  gosterilenTarih = yeni;
+  rDuzen();
 }
 
 function formOku(): void {
-  const tarih = (document.getElementById("dz-tarih") as HTMLInputElement | null)?.value || today();
-  // Tarih değişince eski plan "geçen sefer" olur (dönüşümlü görev için)
-  if (tarih !== plan.tarih && planDolu(plan)) yaz(ONCEKI_KEY, plan);
-  plan.tarih = tarih;
   plan.ogretmen = (document.getElementById("dz-ogretmen") as HTMLInputElement | null)?.value || "";
   plan.kazan = plan.kazan.map((k, i) => ({
     no: k.no,
@@ -109,13 +203,67 @@ function formOku(): void {
     kg: parseFloat((document.getElementById(`dz-k-kg-${i}`) as HTMLInputElement | null)?.value || "") || 0,
   }));
   for (const r of ROLLER) plan.roller[r.id] = (document.getElementById(`dz-r-${r.id}`) as HTMLInputElement | null)?.value || "";
+  plan.kazan.forEach((k, i) => { plan.roller[TASIMA_ANAHTAR(k.no)] = (document.getElementById(`dz-k-t-${i}`) as HTMLInputElement | null)?.value || ""; });
+  plan.roller[GELENLER_ANAHTAR] = (document.getElementById("dz-gelenler") as HTMLInputElement | null)?.value || "";
+}
+
+// ── ⚖️ Ağır iş adaleti ────────────────────────────────────────────
+/** Geçmiş günlerin ağır iş sayacı (ortak tablo yoksa yalnızca bu cihazdaki geçen sefer). */
+function gecmisSayac(): Map<string, number> {
+  const kaynak = planTablo.var ? store.atolyePlanlari : [oncekiPlan(plan.tarih)].filter(Boolean) as DuzenPlan[];
+  return agirIsSayaci(kaynak, plan.tarih);
+}
+export function dzSayacGoster(): void {
+  const gelen = adListesi((document.getElementById("dz-gelenler") as HTMLInputElement | null)?.value ?? plan.roller[GELENLER_ANAHTAR]);
+  if (!gelen.length) { setHTML("dz-sayac", `<div class="tm">Gelen öğrencileri yazınca, her birinin önceki günlerde kaç kez ağır iş yaptığı burada görünür.</div>`); return; }
+  const say = gecmisSayac();
+  const bugun = new Map<string, number>();
+  for (const ad of agirIsYapanlar({ tarih: plan.tarih, roller: plan.roller })) bugun.set(adNorm(ad), (bugun.get(adNorm(ad)) || 0) + 1);
+  const sirali = [...gelen].sort((a, b) => (say.get(adNorm(a)) || 0) - (say.get(adNorm(b)) || 0) || a.localeCompare(b, "tr"));
+  setHTML("dz-sayac", `<div class="tm" style="margin-bottom:4px">Önceki günlerde ağır iş sayısı${planTablo.var ? "" : " (ortak tablo yok: yalnızca bu cihazdaki geçen sefer sayılıyor)"} · <b>+bugün</b></div>
+    <div class="dz-chips">${sirali.map((ad) => {
+      const g = say.get(adNorm(ad)) || 0, b = bugun.get(adNorm(ad)) || 0;
+      return `<span class="dz-chip ${b ? "bugun" : ""}">${esc(ad)} <b>${g}</b>${b ? ` <em>+${b}</em>` : ""}</span>`;
+    }).join("")}</div>`);
+}
+
+const karistir = (a: string[]) => { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+
+export function dzAdilDagit(): void {
+  formOku();
+  const gelen = adListesi(plan.roller[GELENLER_ANAHTAR]);
+  if (!gelen.length) { alert("Önce «Bugün gelen öğrenciler» kutusuna o gün atölyeye gelen öğrencileri yazın."); return; }
+  const aktif = plan.kazan.filter((k) => k.urunId).map((k) => k.no);
+  if (!aktif.length) { alert("Önce hangi kazanda ne yapılacağını seçin. Taşıyıcılar yalnızca kullanılan kazanlara dağıtılır."); return; }
+  let sabit: Record<string, string[]> = {};
+  for (const no of aktif) { const l = adListesi(plan.roller[TASIMA_ANAHTAR(no)]); if (l.length) sabit[no] = l; }
+  if (Object.keys(sabit).length === aktif.length) {
+    if (!confirm("Bütün kazanların taşıyıcıları zaten yazılı.\n\nHepsini silip yeniden adil dağıtayım mı?")) return;
+    sabit = {};
+  }
+  const sonuc = adilTasiyiciDagit(gelen, aktif, gecmisSayac(), sabit, karistir);
+  plan.kazan.forEach((k, i) => {
+    const el = document.getElementById(`dz-k-t-${i}`) as HTMLInputElement | null;
+    if (el) el.value = k.urunId ? (sonuc[k.no] || []).join(", ") : "";
+  });
+  dzKaydet();
+  dzSayacGoster();
+  showToast("Taşıyıcılar dağıtıldı — istediğiniz adı elle değiştirebilirsiniz");
 }
 
 let onizlemeZaman: number | null = null;
 export function dzKaydet(): void {
   formOku();
-  yaz(PLAN_KEY, plan);
+  if (planTablo.var) {
+    onbellegeYaz(plan);
+    durumYaz(`<span class="tm">Kaydediliyor…</span>`);
+    if (kayitZaman) clearTimeout(kayitZaman);
+    kayitZaman = window.setTimeout(() => { kayitZaman = null; kayitSuruyor = dbKaydet(kopya(plan)); }, 700);
+  } else {
+    yerelYaz(PLAN_KEY, plan);
+  }
   dzDenetimGoster();
+  dzSayacGoster();
   // Tür sütununu ve önizlemeyi tazele (yazarken takılmasın diye kısa gecikmeyle)
   plan.kazan.forEach((k, i) => {
     const td = (document.getElementById(`dz-k-u-${i}`)?.closest("tr")?.lastElementChild) as HTMLElement | null;
@@ -198,13 +346,13 @@ function bloklar(): string[] {
       <div class="uy">Üretim günü hangi kazanda hangi ürünün yapılacağını öğretmen ayrıca bildirir.</div></div>`);
   } else
   b.push(`<div class="b"><h2>🛢️ Bugün Hangi Kazanda Ne Yapılıyor?</h2>
-    <table><thead><tr><th>Kazan</th><th>Ürün</th><th>Miktar</th><th>Dikkat</th></tr></thead><tbody>
+    <table><thead><tr><th>Kazan</th><th>Ürün</th><th>Miktar</th><th>🏋️ Taşıyıcılar</th><th>Dikkat</th></tr></thead><tbody>
     ${plan.kazan.map((k) => {
       const kz = KAZANLAR.find((x) => x.no === k.no)!;
       const tip = `<div style="font-size:9.5px;font-weight:700;color:#5a6f99">${kz.tip === "yuksek" ? "YÜKSEK" : "ALÇAK"}</div>`;
       return k.urunId
-        ? `<tr><td class="kno">${k.no}${tip}</td><td><b>${esc(urunAdi(k.urunId))}</b></td><td>${k.kg ? `${k.kg} kg` : "—"}</td><td>${AILE_AD[URUN_AILE[k.urunId]] || ""}</td></tr>`
-        : `<tr><td class="kno">${k.no}${tip}</td><td class="bos">Bugün kullanılmıyor (kapasite ${kz.kapasiteKg} kg)</td><td></td><td></td></tr>`;
+        ? `<tr><td class="kno">${k.no}${tip}</td><td><b>${esc(urunAdi(k.urunId))}</b></td><td>${k.kg ? `${k.kg} kg` : "—"}</td><td>${esc(adListesi(plan.roller[TASIMA_ANAHTAR(k.no)]).join(", ")) || "&nbsp;"}</td><td>${AILE_AD[URUN_AILE[k.urunId]] || ""}</td></tr>`
+        : `<tr><td class="kno">${k.no}${tip}</td><td class="bos">Bugün kullanılmıyor (kapasite ${kz.kapasiteKg} kg)</td><td></td><td></td><td></td></tr>`;
     }).join("")}
     </tbody></table>
     ${d.uyarilar.map((u) => `<div class="uy">⚠️ ${esc(u)}</div>`).join("")}</div>`);
@@ -291,7 +439,7 @@ function engelVarMi(): boolean {
 
 async function uretVeYap(isim: string, is: (b: Blob) => Promise<void>): Promise<void> {
   if (engelVarMi()) return;
-  yaz(PLAN_KEY, plan);
+  await bekleyeniYaz();
   showToast("PDF hazırlanıyor…");
   try {
     const blob = await pdfUret();
@@ -331,10 +479,13 @@ export function dzPdfPaylas(): void {
 }
 
 /** PDF'in yanında gruba atılacak kısa metin (günün kazan planı + görevler). */
-export function dzMesajPaylas(): void {
+export async function dzMesajPaylas(): Promise<void> {
   if (engelVarMi()) return;
-  yaz(PLAN_KEY, plan);
-  const kaz = plan.kazan.map((k) => `${k.no}: ${k.urunId ? `${urunAdi(k.urunId)}${k.kg ? ` (${k.kg} kg)` : ""}` : "boş"}`).join("\n");
+  await bekleyeniYaz();
+  const kaz = plan.kazan.map((k) => {
+    const t = adListesi(plan.roller[TASIMA_ANAHTAR(k.no)]).join(", ");
+    return `${k.no}: ${k.urunId ? `${urunAdi(k.urunId)}${k.kg ? ` (${k.kg} kg)` : ""}${t ? ` · 🏋️ ${t}` : ""}` : "boş"}`;
+  }).join("\n");
   const rol = ROLLER.filter((r) => (plan.roller[r.id] || "").trim()).map((r) => `${r.ikon} ${r.ad}: ${plan.roller[r.id]}`).join("\n");
   const metin = `🧪 ATÖLYE ÜRETİM GÜNÜ — ${fmt(plan.tarih)}\n${plan.ogretmen ? `Sorumlu öğretmen: ${plan.ogretmen}\n` : ""}\n🛢️ KAZANLAR\n${kaz}\n${rol ? `\n👥 GÖREVLER\n${rol}\n` : ""}\n⛔ ${ALTIN_KURAL.baslik}\n\nKurallar PDF'te. Herkes okusun.`;
   whatsappPaylas(metin);

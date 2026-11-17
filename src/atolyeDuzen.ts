@@ -206,7 +206,9 @@ export const KURAL_BOLUMLERI: KuralBolum[] = [
     "Eldivenle telefona, yüze ve göze dokunulmaz.",
   ] },
   { id: "tasima", ikon: "💪", baslik: "Taşıma ve Ağır İş", maddeler: [
-    "Taşıma görevi o gün kime yazılıysa onundur. Görev listesi her üretimde değişir; bugün taşımayan bir sonraki sefer taşır.",
+    "Her kazanın kendi taşıyıcıları vardır ve ilk sayfadaki tabloda yazılıdır. Taşıma o kazanın taşıyıcılarının işidir.",
+    "Taşıyıcılar adaletle seçilir: program, önceki üretim günlerinde kimin kaç kez ağır iş yaptığını sayar; en az taşıyan öne alınır. Bugün taşımayan bir sonraki sefer taşır.",
+    "Öğretmen uygun görürse ya da bir öğrenci gönüllü olursa aynı kişiler birden fazla kazanda taşıyabilir.",
     "Yük dizler bükülerek, bel düz tutularak kaldırılır.",
     "Ağır ya da büyük yük iki kişiyle taşınır.",
     "İşini bitiren boş beklemez, öğretmene başka iş olup olmadığını sorar.",
@@ -259,4 +261,68 @@ export function kurallarMetni(): string {
   }
   s.push(`✍️ Herkes okusun, anlamadığı yeri öğretmenine sorsun.`);
   return s.join("\n\n");
+}
+
+// ════════════════════════════════════════════════════════════════
+// ⚖️ AĞIR İŞ ADALETİ — kazan başına taşıyıcılar
+// Her üretim gününe farklı öğrenci grubu gelir. Geçmiş planlarda kimin kaç kez
+// ağır iş (kazan taşıyıcısı ya da Koli ve Taşıma görevi) yaptığı sayılır;
+// öneri en az yapanlardan başlar. Öğretmen/gönüllü isterse aynı kişiyi yine yazabilir.
+// Planda saklama: roller["tasima-K1"] = "Ali, Veli" · roller["gelenler"] = "…"
+// ════════════════════════════════════════════════════════════════
+export const TASIMA_ANAHTAR = (kazanNo: string) => `tasima-${kazanNo}`;
+export const GELENLER_ANAHTAR = "gelenler";
+export const TASIYICI_SAYISI = 2;
+/** Ağır iş sayılan roller (taşıyıcı anahtarlarına ek olarak). */
+export const AGIR_ROLLER = ["koli"];
+
+/** Ad karşılaştırması: Türkçe küçük harf + boşluk sadeleştirme (İ/i kayması mükerrer saymasın). */
+export const adNorm = (s: string) => s.toLocaleLowerCase("tr-TR").replace(/\s+/g, " ").trim();
+/** "Ali, Veli ; Ayşe" → ["Ali","Veli","Ayşe"] (tekrarsız, ilk yazılış korunur) */
+export function adListesi(s: string | undefined): string[] {
+  const goruldu = new Set<string>(), out: string[] = [];
+  for (const p of (s || "").split(/[,;\n]+/)) {
+    const ad = p.replace(/\s+/g, " ").trim();
+    if (ad && !goruldu.has(adNorm(ad))) { goruldu.add(adNorm(ad)); out.push(ad); }
+  }
+  return out;
+}
+
+interface PlanBenzeri { tarih: string; roller: Record<string, string> }
+/** Bir plandaki ağır iş yapanlar (bir kişi aynı gün iki kazanda taşıdıysa 2 sayılır). */
+export function agirIsYapanlar(p: PlanBenzeri): string[] {
+  const out: string[] = [];
+  for (const [k, v] of Object.entries(p.roller || {}))
+    if (k.startsWith("tasima-") || AGIR_ROLLER.includes(k)) out.push(...adListesi(v));
+  return out;
+}
+/** tarih'ten ÖNCEKİ planlarda kişi başı ağır iş sayısı (anahtar: adNorm). */
+export function agirIsSayaci(planlar: PlanBenzeri[], tarih: string): Map<string, number> {
+  const m = new Map<string, number>();
+  for (const p of planlar) if (p.tarih < tarih) for (const ad of agirIsYapanlar(p)) m.set(adNorm(ad), (m.get(adNorm(ad)) || 0) + 1);
+  return m;
+}
+
+/**
+ * Bugün gelen öğrencileri kazanlara adil dağıtır: her kazan için en az ağır iş yapmış
+ * TASIYICI_SAYISI kişi seçilir; seçilenin sayısı artar, böylece aynı gün de yük yayılır.
+ * Eşitlikte `karistir` sırası kullanılır (testte sabit, ekranda rastgele).
+ * Sabit (öğretmenin elle yazdığı/kilitlediği) kazanlara dokunulmaz ama sayılırlar.
+ */
+export function adilTasiyiciDagit(
+  gelenler: string[], kazanNolar: string[], sayac: Map<string, number>,
+  sabit: Record<string, string[]> = {}, karistir: (a: string[]) => string[] = (a) => a,
+): Record<string, string[]> {
+  const say = new Map(sayac);
+  const art = (ad: string) => say.set(adNorm(ad), (say.get(adNorm(ad)) || 0) + 1);
+  Object.values(sabit).forEach((l) => l.forEach(art));
+  const sonuc: Record<string, string[]> = {};
+  const n = Math.min(TASIYICI_SAYISI, gelenler.length);
+  for (const no of kazanNolar) {
+    if (sabit[no]?.length) { sonuc[no] = sabit[no]; continue; }
+    const sira = karistir([...gelenler]).sort((a, b) => (say.get(adNorm(a)) || 0) - (say.get(adNorm(b)) || 0));
+    sonuc[no] = sira.slice(0, n);
+    sonuc[no].forEach(art);
+  }
+  return sonuc;
 }

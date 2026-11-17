@@ -576,3 +576,10 @@ tr:hover td{background:rgba(0,0,0,.04)}
 .as-onay.ok{border-style:solid;border-color:#2e7d32;background:#edf7ee;color:#1b5e20}
 .as-onay small{font-size:.7rem;opacity:.85}
 @media (max-width:600px){.dz-kagit{padding:10px}.pdfd .ikili{grid-template-columns:1fr}}
+.dz-durum{font-size:.74rem;font-weight:700;margin:-4px 0 6px}
+.dz-adalet{margin-top:12px;padding:10px 12px;border:1px solid var(--bord);border-radius:10px;background:rgba(21,101,192,.04)}
+.dz-chips{display:flex;flex-wrap:wrap;gap:5px}
+.dz-chip{font-size:.72rem;padding:3px 9px;border-radius:12px;background:var(--surf);border:1px solid var(--bord)}
+.dz-chip b{color:var(--acc)}
+.dz-chip em{font-style:normal;font-weight:800;color:#2e7d32}
+.dz-chip.bugun{border-color:#2e7d32;background:#edf7ee}

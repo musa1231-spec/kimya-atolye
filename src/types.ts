@@ -268,4 +268,15 @@ export interface Store {
   irsaliyeler: Irsaliye[];
   kaliteKayitlari: KaliteKontrol[];
   partiler: Parti[];
+  atolyePlanlari: AtolyePlan[];
+}
+
+/** Atölye Düzeni: bir üretim gününün kazan planı + görev dağılımı (tarih başına bir kayıt). */
+export interface AtolyePlan {
+  tarih: string;
+  ogretmen: string;
+  kazan: { no: string; urunId: string; kg: number }[];
+  roller: Record<string, string>;
+  guncelleyen?: string;
+  guncelleme?: string;
 }
