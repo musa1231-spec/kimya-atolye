@@ -101,3 +101,44 @@ for (const id of ["kolonya", "dezenfektan"]) if (!alkolUyarla(URUNLER.find((x) =
 if (!alkolUyarla(URUNLER.find((x) => x.id === "cam-silici")!, { tur: "dezenfektan" }).engel) ah.push("derece girilmeden ENGEL bekleniyordu");
 if (ah.length) { console.error("❌ Alkol uyarlama hatası:\n  " + ah.join("\n  ")); process.exit(1); }
 console.log("✅ Alkol uyarlaması: saf alkol korunuyor, toplam %100, engeller çalışıyor");
+
+// ── Atölye Düzeni: kazan / ürün ailesi / roller / altın kural ──
+import { KAZANLAR, URUN_AILE, ROLLER, ALTIN_KURAL, KURAL_BOLUMLERI, kazanPlaniDenetle, asistanKazanEngel, urunKazanTipi, VISKOZ_URUN, KAZAN_DISI_URUN, SAF_SU_DINAMO_UYARI } from "../src/atolyeDuzen";
+{
+  const dh: string[] = [];
+  for (const u of URUNLER) if (!URUN_AILE[u.id]) dh.push(`URUN_AILE: '${u.id}' ailesi tanımsız`);
+  for (const id of [...Object.keys(URUN_AILE), ...VISKOZ_URUN, ...KAZAN_DISI_URUN]) if (!URUNLER.some((u) => u.id === id)) dh.push(`'${id}' URUNLER'de yok`);
+  if (KAZANLAR.length !== 4 || KAZANLAR.some((k) => k.kapasiteKg !== 900)) dh.push("4 kazan × 900 kg bekleniyordu");
+  if (KAZANLAR.filter((k) => k.tip === "yuksek").map((k) => k.no).join() !== "K3,K4") dh.push("yüksek kazanlar K3 ve K4 olmalı (Musa Hocam, 17 Kas)");
+  if (!KURAL_BOLUMLERI.some((k) => k.id === "cikis" && k.maddeler.length >= 10)) dh.push("çıkış kontrol listesi eksik");
+  if (new Set(KAZANLAR.map((k) => k.no)).size !== KAZANLAR.length) dh.push("kazan numarası tekrarlıyor");
+  if (new Set(ROLLER.map((r) => r.id)).size !== ROLLER.length) dh.push("rol kimliği tekrarlıyor");
+  if (!/HABERSİZ/.test(ALTIN_KURAL.baslik)) dh.push("altın kural başlığı değişmiş");
+  const ss = KURAL_BOLUMLERI.find((k) => k.id === "safsu");
+  if (!ss || !ss.maddeler.some((m) => /DİNAMO YANAR/.test(m)) || !/YANAR/.test(SAF_SU_DINAMO_UYARI)) dh.push("saf su dinamo kuralı eksik");
+  const yk = KAZANLAR.find((k) => k.tip === "yuksek")!.no, ak = KAZANLAR.find((k) => k.tip === "alcak")!.no;
+  // Bilerek hatalı planlar: engel çıkmalı
+  if (!kazanPlaniDenetle([{ no: yk, urunId: "sivi-sabun", kg: 950 }]).engeller.length) dh.push("950 kg için ENGEL bekleniyordu");
+  if (!kazanPlaniDenetle([{ no: ak, urunId: "sivi-sabun", kg: 900 }]).engeller.length) dh.push("viskoz ürün alçak kazanda ENGEL bekleniyordu");
+  if (!kazanPlaniDenetle([{ no: ak, urunId: "halep-20", kg: 2 }]).engeller.length) dh.push("katı sabun kazanda ENGEL bekleniyordu");
+  if (kazanPlaniDenetle([{ no: yk, urunId: "bulasik", kg: 900 }, { no: ak, urunId: "cam-silici", kg: 900 }]).engeller.length) dh.push("doğru plan engellendi");
+  if (!kazanPlaniDenetle([{ no: yk, urunId: "cam-silici", kg: 900 }]).uyarilar.length) dh.push("akışkan ürün yüksek kazanda UYARI bekleniyordu");
+  if (!kazanPlaniDenetle([{ no: ak, urunId: "camasir-suyu", kg: 900 }, { no: KAZANLAR[3].no, urunId: "tuz-ruhu", kg: 30 }]).uyarilar.some((u) => /KLOR/.test(u))) dh.push("klor+asit uyarısı bekleniyordu");
+  if (!asistanKazanEngel("", "sivi-sabun", 900, null)) dh.push("kazan seçilmeden ENGEL bekleniyordu");
+  if (!asistanKazanEngel(yk, "kolonya", 100, [{ no: yk, urunId: "sivi-sabun", kg: 900 }])) dh.push("plandaki farklı ürün için ENGEL bekleniyordu");
+  if (asistanKazanEngel(yk, "sivi-sabun", 900, [{ no: yk, urunId: "sivi-sabun", kg: 900 }])) dh.push("plana uygun üretim engellendi");
+  if (urunKazanTipi("sivi-sabun") !== "yuksek" || urunKazanTipi("camasir-suyu") !== "alcak") dh.push("viskozite sınıfı yanlış");
+  if (dh.length) { console.error("❌ Atölye Düzeni hatası:\n  " + dh.join("\n  ")); process.exit(1); }
+  console.log(`✅ Atölye Düzeni: ${KAZANLAR.length} kazan, ${ROLLER.length} rol, ${KURAL_BOLUMLERI.length} kural bölümü; engeller çalışıyor`);
+}
+// WhatsApp metni bütün bölümleri içermeli (PDF ile aynı kaynak)
+import { kurallarMetni } from "../src/atolyeDuzen";
+{
+  const t = kurallarMetni(), eksik: string[] = [];
+  for (const k of KURAL_BOLUMLERI) if (!t.includes(k.baslik.toLocaleUpperCase("tr-TR"))) eksik.push(k.baslik);
+  for (const r of ROLLER) if (!t.includes(r.ad)) eksik.push(r.ad);
+  if (!t.includes(ALTIN_KURAL.baslik)) eksik.push("altın kural");
+  if (eksik.length) { console.error("❌ WhatsApp kurallar metninde eksik: " + eksik.join(", ")); process.exit(1); }
+  if (process.env.KURAL_METNI_YAZ) (await import("node:fs")).writeFileSync(process.env.KURAL_METNI_YAZ, t, "utf8");
+  console.log(`✅ WhatsApp kurallar metni: ${t.length} karakter, bütün bölümler var`);
+}

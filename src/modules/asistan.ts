@@ -6,6 +6,9 @@ import { alkolUyarla, alkolSecimHTML, alkolSecimOku, alkolNotHTML, urundeAlkolVa
 import type { AlkolSonuc } from "../alkol";
 import { acUretimGunWithLines } from "./uretim";
 import { $, urunSelect, val, numVal, esansAd, setHTML, setText, setVal, showToast } from "../helpers";
+import { KAZANLAR, asistanKazanEngel, kazanUyum, urunKazanTipi, SAF_SU_DINAMO_UYARI } from "../atolyeDuzen";
+import { bugunKazanPlani } from "./duzen";
+import { session } from "../state";
 import type { Urun } from "../types";
 
 type Adim = ProsesAdim & { kkd?: string[]; uyarilar?: string[] };
@@ -18,6 +21,16 @@ let uyarli: AlkolSonuc | null = null;   // alkol kaynağına göre uyarlanmış 
 let timerId: number | null = null;
 let kalan = 0;
 let audioCtx: AudioContext | null = null;
+let kazanNo = "";
+const onaylar = new Set<number>();   // öğretmenin onayladığı "ekle" adımları
+
+/** Bu adım kazana madde ekliyor mu? (öğretmen onayı zorunlu) */
+const ekleAdimi = (i: number) => adimlar[i]?.tip === "ekle" && !!adimlar[i]?.ekle?.length;
+/** i'ye kadar (hariç) onaylanmamış ilk ekleme adımı; yoksa -1. */
+function onaysizIlk(i: number): number {
+  for (let j = 0; j < i; j++) if (ekleAdimi(j) && !onaylar.has(j)) return j;
+  return -1;
+}
 
 const miktarYaz = (kg: number): string =>
   kg >= 1 ? `${(+kg.toFixed(2)).toLocaleString("tr-TR")} kg` : `${Math.round(kg * 1000).toLocaleString("tr-TR")} g`;
@@ -55,11 +68,34 @@ export function rAsistan(): void {
   $("as-run").style.display = "none";
 }
 
+// ── Kazan seçimi (günün planında bu ürün varsa o kazan önerilir) ──
+function kazanSecenekleri(urunId: string): void {
+  const plan = bugunKazanPlani();
+  const planda = plan?.find((p) => p.urunId === urunId)?.no || "";
+  const onceki = val("as-kazan");
+  setHTML("as-kazan", `<option value="">— Kazan seç —</option>` + KAZANLAR.map((k) => {
+    const p = plan?.find((x) => x.no === k.no && x.urunId);
+    const etiket = `${k.no} · ${k.tip === "yuksek" ? "yüksek" : "alçak"} · ${k.kapasiteKg} kg${p ? ` · bugün: ${URUNLER.find((u) => u.id === p.urunId)?.ad || ""}` : ""}`;
+    return `<option value="${k.no}">${etiket}</option>`;
+  }).join(""));
+  setVal("as-kazan", planda || (KAZANLAR.some((k) => k.no === onceki) ? onceki : ""));
+  asKazanDegisti();
+}
+
+export function asKazanDegisti(): void {
+  const urunId = val("as-urun"), no = val("as-kazan");
+  if (urunKazanTipi(urunId) === null) { setHTML("as-kazan-not", `<div class="tm" style="margin-top:4px">Bu ürün kazanda yapılmaz (küçük parti, tencere) — kazan seçmeye gerek yok.</div>`); return; }
+  if (!no) { setHTML("as-kazan-not", `<div class="tm" style="margin-top:4px">Hangi kazanda çalışıldığı bilinmeden üretime başlanmaz.</div>`); return; }
+  const uy = kazanUyum(no, urunId);
+  setHTML("as-kazan-not", uy.engel ? `<div class="as-uyari dz-engel">⛔ ${uy.engel}</div>` : uy.uyari ? `<div class="as-uyari">⚠️ ${uy.uyari}</div>` : "");
+}
+
 export function asistanUrunDegisti(): void {
   const u = URUNLER.find((x) => x.id === val("as-urun"));
   if (u) {
     setVal("as-kg", String(u.batch));
     setText("as-kat", u.kat + (SAF_SU.has(u.id) ? " · 💧 saf su gerekir" : ""));
+    kazanSecenekleri(u.id);
   }
   setHTML("as-atla", u ? atlamaListesi(u.id, u.ings.map(([a]) => a)).map((x) => atlamaUyariHTML(u.id, x.ad, true)).join("") : "");
   const w = $("as-alkol");
@@ -82,12 +118,20 @@ export function asistanBasla(): void {
   if (!u || kg <= 0) { alert("Ürün ve geçerli bir miktar (kg) seç"); return; }
   uyarli = urundeAlkolVar(u) ? alkolUyarla(u, alkolSecimOku("as")) : null;
   if (uyarli?.engel) { alert("⛔ " + uyarli.engel); return; }
+  // Katı sabunlar kazanda yapılmaz → kazan sorulmaz
+  const kazanli = urunKazanTipi(u.id) !== null;
+  if (kazanli) {
+    const engel = asistanKazanEngel(val("as-kazan"), u.id, kg, bugunKazanPlani());
+    if (engel) { alert("⛔ " + engel); return; }
+  }
+  kazanNo = kazanli ? val("as-kazan") : "";
   urun = u; hedefKg = kg;
   adimlar = adimlarUret(u);
   aktif = 0;
+  onaylar.clear();
   $("as-setup").style.display = "none";
   $("as-run").style.display = "block";
-  setText("as-run-baslik", `${u.ad} · ${miktarYaz(kg)}`);
+  setText("as-run-baslik", `${u.ad} · ${miktarYaz(kg)}${kazanNo ? ` · Kazan ${kazanNo}` : ""}`);
   goster();
 }
 
@@ -126,6 +170,9 @@ function goster(): void {
     if (uyarli && a.ekle.some((ad) => uyarli!.adlar[ad])) govde += alkolNotHTML(uyarli);
     if (uyarli && a.ekle.includes("Su") && uyarli.notlar.some((n) => n.includes("SU azaltıldı"))) govde += `<div class="as-uyari">💧 Su miktarı, alkol kaynağıyla birlikte gelen su kadar azaltılmıştır.</div>`;
     if (a.safSu) govde += `<div class="as-uyari">💧 <b>Saf / deiyonize su kullanın.</b> Musluk suyundaki kireç bulanıklık ve çökelme yapar.</div>`;
+    if (a.safSu) govde += `<div class="as-uyari dz-engel">⚡ <b>Saf su dinamosu:</b> ${SAF_SU_DINAMO_UYARI}</div>`;
+    govde += `<label class="as-onay ${onaylar.has(aktif) ? "ok" : ""}"><input type="checkbox" id="as-onay" ${onaylar.has(aktif) ? "checked" : ""} onchange="asOnay(this.checked)">
+      <span>👨‍🏫 <b>Öğretmen kontrol etti ve onayladı</b><br><small>Madde · miktar · kazan${kazanNo ? ` (${kazanNo})` : ""} doğru. Öğretmen onaylamadan kazana HİÇBİR ŞEY eklenmez.</small></span></label>`;
     if (sn > 0) govde += timerBlok(a.sureDk || 0);
   } else if (a.tip === "karistir") {
     govde = sn > 0 ? timerBlok(a.sureDk || 0) : "";
@@ -144,7 +191,7 @@ function goster(): void {
     <button class="btn bg" onclick="asGeri()" ${aktif === 0 ? "disabled" : ""}>← Geri</button>
     ${a.tip === "bitir"
       ? `<button class="btn bp" onclick="asBitir()">✓ Üretimi Kaydet</button>`
-      : `<button class="btn bp" onclick="asSonraki()">Tamam, Sonraki →</button>`}`);
+      : `<button class="btn bp" id="as-sonraki" onclick="asSonraki()" ${ekleAdimi(aktif) && !onaylar.has(aktif) ? "disabled title='Önce öğretmen onayı'" : ""}>Tamam, Sonraki →</button>`}`);
 
   setHTML("as-liste", adimlar.map((s, i) =>
     `<div class="as-li ${i === aktif ? "akt" : ""} ${i < aktif ? "ok" : ""}" onclick="asGoto(${i})">${i < aktif ? "✓" : i + 1}. ${s.baslik}</div>`).join(""));
@@ -179,9 +226,22 @@ function timerBlok(dk: number): string {
     </div>`;
 }
 
-export function asSonraki(): void { if (aktif < adimlar.length - 1) { aktif++; goster(); } }
+// Engel: onaylanmamış ekleme adımının ötesine geçilemez (düğme gizli + fonksiyon reddeder)
+function gecebilir(hedef: number): boolean {
+  const j = onaysizIlk(hedef);
+  if (j < 0) return true;
+  alert(`⛔ «${adimlar[j].baslik}» adımı öğretmen tarafından onaylanmadı.\n\nÖğretmen onaylamadan kazana hiçbir hammadde eklenmez ve sonraki adıma geçilmez.`);
+  return false;
+}
+export function asSonraki(): void { if (aktif < adimlar.length - 1 && gecebilir(aktif + 1)) { aktif++; goster(); } }
 export function asGeri(): void { if (aktif > 0) { aktif--; goster(); } }
-export function asGoto(i: number): void { aktif = i; goster(); }
+export function asGoto(i: number): void { if (i <= aktif || gecebilir(i)) { aktif = i; goster(); } }
+export function asOnay(acik: boolean): void {
+  if (acik) onaylar.add(aktif); else onaylar.delete(aktif);
+  document.querySelector(".as-onay")?.classList.toggle("ok", acik);
+  const b = document.getElementById("as-sonraki") as HTMLButtonElement | null;
+  if (b) b.disabled = !acik;
+}
 
 // ── Karıştırma zamanlayıcı ────────────────────────────────────
 function fmtSure(s: number): string {
@@ -241,7 +301,9 @@ function bip(): void {
 // ── Bitir → mevcut üretim-kaydet ekranını ön-dolu aç ──────────
 export function asBitir(): void {
   durdurTimer();
+  if (onaysizIlk(adimlar.length) >= 0) { gecebilir(adimlar.length); return; }
   if (urun) acUretimGunWithLines([{ urunId: urun.id, kg: hedefKg, ambLt: 5, esansId: URUN_ESANS[urun.id] || "" }]);
+  if (urun && kazanNo) setVal("ug-not", `Kazan: ${kazanNo} · Hammadde eklemeleri öğretmen onaylı${session.CU ? ` (${session.CU.ad})` : ""}`);
   showToast("Üretim kaydına aktarıldı — öğretmen/öğrenci seçip kaydet");
   rAsistan();
 }

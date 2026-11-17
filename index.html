@@ -74,6 +74,7 @@
         <div class="ni active" onclick="go('dashboard',this)"><span class="ic">📊</span>Gösterge</div>
         <div class="ni" onclick="go('uretim',this)"><span class="ic">🏭</span>Üretim Günleri</div>
         <div class="ni" onclick="go('asistan',this)"><span class="ic">🧑‍🔬</span>Üretim Asistanı</div>
+        <div class="ni" onclick="go('duzen',this)"><span class="ic">📋</span>Atölye Düzeni</div>
         <div class="ni" onclick="go('takvim',this)"><span class="ic">📅</span>Üretim Takvimi</div>
         <div class="ni" onclick="go('aylik',this)"><span class="ic">📈</span>Aylık Rapor</div>
         <div class="ni" onclick="go('rapor',this)"><span class="ic">📑</span>Yıllık Rapor</div>
@@ -220,6 +221,23 @@
   <div id="kr-list"></div>
 </div>
 
+<!-- ATÖLYE DÜZENİ (öğrenci kuralları + günün kazan planı + görevler → PDF) -->
+<div id="pg-duzen" class="pg">
+  <div class="ph"><div><div class="pt">📋 Atölye ve Üretim Düzeni</div><div class="ps">Günün kazan planı, görev dağılımı ve kurallar — PDF olarak öğrenci WhatsApp grubuna</div></div>
+    <div class="bgrp">
+      <button class="btn bp" onclick="dzPdfPaylas()">📲 PDF'i WhatsApp'a Gönder</button>
+      <button class="btn bs" onclick="dzPdfIndir()">⬇️ PDF İndir</button>
+      <button class="btn bg" onclick="dzKurallarPaylas()">📜 Kurallar Metni (WhatsApp)</button>
+      <button class="btn bg" onclick="dzMesajPaylas()">💬 Günün Planı (mesaj)</button>
+    </div>
+  </div>
+  <div class="card"><div id="dz-form"></div></div>
+  <div class="card">
+    <div class="ch"><span class="ct">👁️ PDF Önizleme</span><span class="tm">Öğrencilere giden belge bu</span></div>
+    <div id="dz-onizleme" class="dz-kagit"></div>
+  </div>
+</div>
+
 <!-- ÜRETİM ASİSTANI -->
 <div id="pg-asistan" class="pg">
   <div class="ph"><div><div class="pt">🧑‍🔬 Atölye Üretim Asistanı</div><div class="ps">Adım adım rehberli üretim — öğrenci tabletiyle kullanın</div></div></div>
@@ -228,6 +246,7 @@
     <div class="ch"><span class="ct">Üretime Başla</span></div>
     <div class="fg"><label>Ürün</label><select id="as-urun" onchange="asistanUrunDegisti()"></select></div>
     <div class="fg"><label>Hedef Miktar (kg)</label><input type="number" id="as-kg" min="1" value="900"></div>
+    <div class="fg"><label>Kazan</label><select id="as-kazan" onchange="asKazanDegisti()"></select><div id="as-kazan-not"></div></div>
     <div id="as-alkol" style="display:none;margin-bottom:12px"></div>
     <div id="as-atla"></div>
     <div class="tm" style="margin-bottom:14px">Kategori: <b id="as-kat">—</b> · Reçete bu miktara otomatik ölçeklenecek.</div>

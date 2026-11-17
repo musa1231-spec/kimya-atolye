@@ -61,8 +61,9 @@ import { rRapor, yazdirRapor } from "./modules/rapor";
 import { rSiparisOneri, yazdirSiparisOneri } from "./modules/siparisoneri";
 import {
   rAsistan, asistanUrunDegisti, asAlkolDegisti, asistanBasla, asSonraki, asGeri, asGoto,
-  asTimerBaslat, asTimerSifirla, asBitir,
+  asTimerBaslat, asTimerSifirla, asBitir, asKazanDegisti, asOnay,
 } from "./modules/asistan";
+import { rDuzen, dzKaydet, dzPdfIndir, dzPdfPaylas, dzMesajPaylas, dzKurallarPaylas } from "./modules/duzen";
 import { rTakvim, tvPrev, tvNext, tvBugun, tvGun, takvimYeniUretim } from "./modules/takvim";
 import { rKarne, yazdirKarne } from "./modules/karne";
 
@@ -85,7 +86,7 @@ const RENDER: Record<string, () => void> = {
   "hm-stok": rHm, "esans-stok": rEsans, ogretmenler: rOgr, ogrenciler: rOgc,
   audit: rAudit, yedek: rYedek, "fiyat-liste": rFiyatListe, plan: rPlan, irsaliye: rIrsaliye,
   kalite: rKalite, parti: rParti, rapor: rRapor, "siparis-oneri": rSiparisOneri,
-  asistan: rAsistan, takvim: rTakvim, karne: rKarne,
+  asistan: rAsistan, takvim: rTakvim, karne: rKarne, duzen: rDuzen,
 };
 
 function go(name: string, el?: HTMLElement): void {
@@ -250,6 +251,7 @@ Object.assign(window, {
   rParti, saveParti, delParti, etiketParti, partiFromUretim, partiUrunDegisti, partiRafDegisti,
   rRapor, yazdirRapor, rSiparisOneri, yazdirSiparisOneri,
   asistanUrunDegisti, asAlkolDegisti, asistanBasla, asSonraki, asGeri, asGoto, asTimerBaslat, asTimerSifirla, asBitir,
+  asKazanDegisti, asOnay, dzKaydet, dzPdfIndir, dzPdfPaylas, dzMesajPaylas, dzKurallarPaylas,
   tvPrev, tvNext, tvBugun, tvGun, takvimYeniUretim, rKarne, yazdirKarne,
 });
 
