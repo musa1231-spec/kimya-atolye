@@ -222,11 +222,14 @@ import { maddeAyir, SAF_SU_DINAMO_UYARI as DINAMO_UYARI } from "../src/atolyeDuz
   console.log("✅ Saf su hortumu/sifonlama kuralı: Kurallar, Çıkış listesi, Asistan/Rehber uyarısı, WhatsApp");
 }
 // ── Musa Hocam düzeltmeleri (17 Kas): kazan no kolonda · ürün kartı asılmıyor · klor–asit "eklenmez" ──
-import { KLOR_ASIT_KURAL } from "../src/atolyeDuzen";
+import { KLOR_ASIT_KURAL, KATI_SABUN_KAZAN_KURAL } from "../src/atolyeDuzen";
 {
   const dz: string[] = [];
   const hepsi = [...KURAL_BOLUMLERI.flatMap((k) => k.maddeler), kurallarMetni()].join("\n");
   if (/ellenmez/i.test(hepsi) || /ellenmez/i.test(readFileSync("src/modules/yardim.ts", "utf8"))) dz.push("'ellenmez' geçiyor (doğrusu: eklenmez)");
+  // Katı / defne yağlı sabun 900 kg kazanda yapılmaz: kural metninde + bütün katı sabunlar kazan dışı
+  if (!KURAL_BOLUMLERI.find((k) => k.id === "kazan")!.maddeler.includes("!" + KATI_SABUN_KAZAN_KURAL) || !/defne/i.test(KATI_SABUN_KAZAN_KURAL)) dz.push("katı/defne sabun kazan kuralı öğrenci kurallarında yok");
+  for (const u of URUNLER) if ((u.kat === "Katı Sabun" || u.ings.some(([a]) => a === "Defne Yağı")) && urunKazanTipi(u.id) !== null) dz.push(`${u.ad} kazanda yapılabiliyor görünüyor`);
   if (!/eklenmez/.test(KLOR_ASIT_KURAL) || !KURAL_BOLUMLERI.find((k) => k.id === "kazan")!.maddeler.includes(KLOR_ASIT_KURAL)) dz.push("klor–asit kuralı tek metinden gelmiyor");
   if (/kartla asılır|ağzına o gün/i.test(hepsi)) dz.push("kazana ürün kartı asma maddesi geri gelmiş (atölyede yapılmıyor)");
   if (!/arkasındaki kolona/.test(hepsi)) dz.push("kazan numarasının kolonda olduğu yazmıyor");

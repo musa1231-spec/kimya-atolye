@@ -6,7 +6,7 @@ import { alkolUyarla, alkolSecimHTML, alkolSecimOku, alkolNotHTML, urundeAlkolVa
 import type { AlkolSonuc } from "../alkol";
 import { acUretimGunWithLines } from "./uretim";
 import { $, urunSelect, val, numVal, esansAd, setHTML, setText, setVal, showToast } from "../helpers";
-import { KAZANLAR, asistanKazanEngel, kazanUyum, urunKazanTipi, SAF_SU_DINAMO_UYARI, GOZLUK_KURAL } from "../atolyeDuzen";
+import { KAZANLAR, asistanKazanEngel, kazanUyum, urunKazanTipi, SAF_SU_DINAMO_UYARI, GOZLUK_KURAL, KATI_SABUN_KAZAN_KURAL } from "../atolyeDuzen";
 import { bugunKazanPlani, bugunKazanPlaniTaze } from "./duzen";
 import { session } from "../state";
 import type { Urun } from "../types";
@@ -84,7 +84,7 @@ function kazanSecenekleri(urunId: string): void {
 
 export function asKazanDegisti(): void {
   const urunId = val("as-urun"), no = val("as-kazan");
-  if (urunKazanTipi(urunId) === null) { setHTML("as-kazan-not", `<div class="tm" style="margin-top:4px">Bu ürün kazanda yapılmaz (küçük parti, tencere) — kazan seçmeye gerek yok.</div>`); return; }
+  if (urunKazanTipi(urunId) === null) { setHTML("as-kazan-not", `<div class="tm" style="margin-top:4px">${KATI_SABUN_KAZAN_KURAL} Kazan seçmeye gerek yok.</div>`); return; }
   if (!no) { setHTML("as-kazan-not", `<div class="tm" style="margin-top:4px">Hangi kazanda çalışıldığı bilinmeden üretime başlanmaz.</div>`); return; }
   const uy = kazanUyum(no, urunId);
   setHTML("as-kazan-not", uy.engel ? `<div class="as-uyari dz-engel">⛔ ${uy.engel}</div>` : uy.uyari ? `<div class="as-uyari">⚠️ ${uy.uyari}</div>` : "");

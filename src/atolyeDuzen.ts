@@ -28,6 +28,8 @@ export const urunKazanTipi = (urunId: string): KazanTip | null =>
   KAZAN_DISI_URUN.has(urunId) ? null : VISKOZ_URUN.has(urunId) ? "yuksek" : "alcak";
 /** Kazan planında seçilebilecek ürünler. */
 export const kazanUrunleri = () => URUNLER.filter((u) => !KAZAN_DISI_URUN.has(u.id));
+/** Öğrenci kuralı + Rehber + Asistan aynı cümleyi kullanır. */
+export const KATI_SABUN_KAZAN_KURAL = "Katı sabunlar (kastilya ve defne yağlı Halep sabunları) 900 kg'lık kazanlarda YAPILMAZ; küçük partiyle tencerede yapılır.";
 
 /** Ürün–kazan tipi uyumu: engel (viskoz ürün alçak kazanda / kazan dışı ürün) ya da uyarı. */
 export function kazanUyum(kazanNo: string, urunId: string): { engel: string; uyari: string } {
@@ -35,7 +37,7 @@ export function kazanUyum(kazanNo: string, urunId: string): { engel: string; uya
   const u = URUNLER.find((x) => x.id === urunId);
   if (!k || !u) return { engel: "", uyari: "" };
   const t = urunKazanTipi(urunId);
-  if (t === null) return { engel: `${u.ad} kazanda yapılmaz (küçük partiyle tencerede yapılır).`, uyari: "" };
+  if (t === null) return { engel: `${u.ad}: ${KATI_SABUN_KAZAN_KURAL}`, uyari: "" };
   if (t === "yuksek" && k.tip === "alcak") {
     const yk = KAZANLAR.filter((x) => x.tip === "yuksek").map((x) => x.no).join(" / ");
     return { engel: `${u.ad} viskoz (kıvamlı) bir ürün; YÜKSEK kazanda yapılır (${yk}). ${k.no} alçak kazan.`, uyari: "" };
@@ -144,6 +146,7 @@ export const KURAL_BOLUMLERI: KuralBolum[] = [
     `Atölyede ${KAZANLAR.length} kazan var: ${KAZANLAR.map((k) => k.no).join(", ")}. Her biri ${KAZANLAR[0].kapasiteKg} kg alır.`,
     `YÜKSEK kazanlarda (${noListe("yuksek")}) viskoz (kıvamlı) ürünler yapılır: ${adListe(true)}.`,
     `ALÇAK kazanlarda (${noListe("alcak")}) akışkan ürünler yapılır: ${adListe(false)}.`,
+    "!" + KATI_SABUN_KAZAN_KURAL,
     "Her kazanın numarası, kazanın arkasındaki kolona yazılıdır. Bugün hangi kazanda ne yapıldığını öğretmenin paylaştığı günün planından (Atölye Düzeni belgesindeki kazan tablosundan) öğren.",
     "Yanlış kazana ya da yanlış madde koyarsan SAKLAMA, hemen öğretmene söyle. Saklanan hata 900 kg ürünü çöpe attırır.",
     KLOR_ASIT_KURAL,
