@@ -7,7 +7,7 @@ import { URUNLER, ATOLYE_BILGI } from "../constants";
 import {
   KAZANLAR, ROLLER, ALTIN_KURAL, KURAL_BOLUMLERI, URUN_AILE, AILE_AD, kazanPlaniDenetle,
   KAZAN_TIP_AD, kazanUrunleri, urunKazanTipi, kurallarMetni,
-  maddeAyir, TASIMA_ANAHTAR, GELENLER_ANAHTAR, TASIYICI_SAYISI, adListesi, adNorm, agirIsYapanlar, agirIsSayaci, adilTasiyiciDagit,
+  maddeAyir, IMZA_ZUMRE, TASIMA_ANAHTAR, GELENLER_ANAHTAR, TASIYICI_SAYISI, adListesi, adNorm, agirIsYapanlar, agirIsSayaci, adilTasiyiciDagit,
 } from "../atolyeDuzen";
 import type { KazanPlanSatir } from "../atolyeDuzen";
 import { store, session } from "../state";
@@ -377,7 +377,7 @@ function bloklar(): string[] {
     // Son kural kutusu imza satırıyla aynı blokta: imza tek başına yeni sayfaya düşmesin
     const imza = i === KURAL_BOLUMLERI.length - 1
       ? `<div style="font-weight:700;margin:10px 0 18px">Bu kuralları okudum, anladım ve uyacağım.</div>
-         <div class="imza"><div>Sorumlu Öğretmen<br>${esc(plan.ogretmen) || "&nbsp;"}</div><div>Atölye Şefi</div></div>` : "";
+         <div class="imza"><div>${IMZA_ZUMRE}</div><div>Atölye Şefi</div></div>` : "";
     b.push(`<div class="b">${i === 0 ? `<h2>📏 Kurallar</h2>` : ""}${kutu}${imza}</div>`);
   });
 

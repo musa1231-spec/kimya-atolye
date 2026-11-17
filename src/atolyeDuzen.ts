@@ -272,7 +272,9 @@ export function kurallarMetni(): string {
       return onemli ? `${isaret} ‼️ *${metin}*` : `${isaret} ${metin}`;
     }).join("\n")}`);
   }
-  s.push(`✍️ Herkes okusun, anlamadığı yeri öğretmenine sorsun.`);
+  s.push(`✍️ Herkes okusun, anlamadığı yeri öğretmenine sorsun.
+
+${IMZA_ZUMRE}`);
   return s.join("\n\n");
 }
 
@@ -339,3 +341,6 @@ export function adilTasiyiciDagit(
   }
   return sonuc;
 }
+
+/** Kurallar belgesinin imza yeri: tek öğretmen adı değil, zümre (Musa Hocam, 17 Kas). */
+export const IMZA_ZUMRE = "Kimya Zümre Öğretmenleri";

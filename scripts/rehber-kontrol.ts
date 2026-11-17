@@ -299,3 +299,14 @@ import { GOZLUK_KURAL } from "../src/atolyeDuzen";
   if (so.length) { console.error("❌ Soyunma odası kuralı:\n  " + so.join("\n  ")); process.exit(1); }
   console.log("✅ Soyunma odası: iş kıyafeti bırakılmaz, çizmeler iç odaya (Kurallar + Çıkış listesi)");
 }
+// ── İmza: "Kimya Zümre Öğretmenleri" (tek öğretmen adı değil) — PDF + WhatsApp ──
+import { IMZA_ZUMRE } from "../src/atolyeDuzen";
+{
+  const dzK = readFileSync("src/modules/duzen.ts", "utf8");
+  const im: string[] = [];
+  if (IMZA_ZUMRE !== "Kimya Zümre Öğretmenleri") im.push("imza metni değişmiş");
+  if (!/class="imza"><div>\$\{IMZA_ZUMRE\}<\/div>/.test(dzK) || /Sorumlu Öğretmen<br>/.test(dzK)) im.push("PDF imzasında öğretmen adı var / zümre yok");
+  if (!kurallarMetni().trim().endsWith(IMZA_ZUMRE)) im.push("WhatsApp metni zümre imzasıyla bitmiyor");
+  if (im.length) { console.error("❌ İmza:\n  " + im.join("\n  ")); process.exit(1); }
+  console.log("✅ İmza: Kimya Zümre Öğretmenleri (PDF + WhatsApp)");
+}
