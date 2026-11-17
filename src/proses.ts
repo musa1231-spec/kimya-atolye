@@ -271,7 +271,7 @@ function kaynatmaProses(urun: Urun): ProsesAdim[] {
       "Yağı tülbent ya da eski temiz bir bezden süzün; içinde parça kalmasın.",
       "Süzülmüş yağı TARTIN: Asistan'a bu miktarı \"yağ miktarına göre\" girin; su, kostik ve tuz buna göre hesaplanır.",
     ],
-    dikkat: ["Bozulmuş yağ kostikle çok hızlı tepkir: kostik çözeltisi yağa yine YAVAŞÇA eklenir.", "Yağ çok koyu ve kokuluysa bile bu yöntemle iyi sabun çıkar; renk ve kokunun çoğu alt suyla atılır."] };
+    dikkat: ["Bozulmuş yağ kostikle çok hızlı tepkir: kostik çözeltisi yağa yine YAVAŞÇA eklenir.", "Tortu, su ve rengin bir kısmı alt suyla gider; ama acı/ekşi kokan, iyice bozulmuş yağdan güzel kokulu tuvalet sabunu beklenmez — böyle sabun temizlik/çamaşır sabunu olarak değerlendirilir."] };
   const kaynat: ProsesAdim = { tip: "karistir", baslik: "Tüpte kaynat (sabunlaşma)", sureDk: 120,
     not: "Karışım tüpte EN KISIK ateşte, hafifçe fokurdayarak kaynatılır. Bu yöntemde su boldur; sabun koyu hamur değil, sulu bir lapa hâlindedir.",
     liste: [

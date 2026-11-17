@@ -276,6 +276,9 @@ const SOGUK_SABUN_SORUN: Sorun[] = [
   { belirti: "Sabun ufalanıyor, çatlıyor", neden: "Fazla kostik ya da kalıpta aşırı ısınma", cozum: "Tartımları kontrol edin; kalıbı sıcak yerde bırakmayın." },
 ];
 
+/** Resmî ölçüt: Hatay Defne Sabunu coğrafi işareti (TÜRKPATENT tescil no 219, 16.10.2017, Samandağ Kaymakamlığı). */
+const HATAY_OLCUT = "📜 Resmî ölçüt (Hatay Defne Sabunu, TÜRKPATENT tescil 219): serbest alkali en çok %0,2 · klorür (NaCl) en çok %2,4 · nem en çok %29; defne yağında laurik asit en az %12,5, zeytinyağı asitliği en çok %0,7.";
+
 const HALEP_HAZIRLIK: Rehber = {
   dikkat: [
     "Defne yağı pahalıdır ve kokusu ısıyla uçar; yağ kızdırılmaz, kabartmalarda ateş en kısıkta tutulur.",
@@ -493,12 +496,12 @@ export const URUN_REHBER: Record<string, UrunRehber> = {
       ],
     },
   },
-  "halep-20": { hazirlik: HALEP_HAZIRLIK, kontrol: { dikkat: ["🎯 Kür sonunda pH 9–10; kesit yeşilimsi, dış yüzey zamanla sarı-kahverengine döner (normaldir)."], sorun: SOGUK_SABUN_SORUN } },
-  "halep-30": { hazirlik: HALEP_HAZIRLIK, kontrol: { dikkat: ["🎯 Kür sonunda pH 9–10; kesit yeşilimsi, dış yüzey zamanla sarı-kahverengine döner (normaldir)."], sorun: SOGUK_SABUN_SORUN } },
-  "halep-40": { hazirlik: HALEP_HAZIRLIK, kontrol: { dikkat: ["🎯 Kür sonunda pH 9–10; kesit yeşilimsi, dış yüzey zamanla sarı-kahverengine döner (normaldir)."], sorun: SOGUK_SABUN_SORUN } },
+  "halep-20": { hazirlik: HALEP_HAZIRLIK, kontrol: { dikkat: ["🎯 Kür sonunda pH 9–10; kesit yeşilimsi, dış yüzey zamanla sarı-kahverengine döner (normaldir).", HATAY_OLCUT], sorun: SOGUK_SABUN_SORUN } },
+  "halep-30": { hazirlik: HALEP_HAZIRLIK, kontrol: { dikkat: ["🎯 Kür sonunda pH 9–10; kesit yeşilimsi, dış yüzey zamanla sarı-kahverengine döner (normaldir).", HATAY_OLCUT], sorun: SOGUK_SABUN_SORUN } },
+  "halep-40": { hazirlik: HALEP_HAZIRLIK, kontrol: { dikkat: ["🎯 Kür sonunda pH 9–10; kesit yeşilimsi, dış yüzey zamanla sarı-kahverengine döner (normaldir).", HATAY_OLCUT], sorun: SOGUK_SABUN_SORUN } },
   "zy-kaynatma": {
     hazirlik: { dikkat: [
-      "🎯 Hedef: bidon dibindeki siyahlaşmış/kalitesiz zeytinyağından temiz, sert, açık renkli, kokusuz sabun.",
+      "🎯 Hedef: bidon dibindeki siyahlaşmış/kalitesiz zeytinyağından sert ve kullanılabilir sabun. Girgis (2003, Grasas y Aceites): çok asitli, koyu, kokulu zeytinyağından yapılan sabunda kötü koku kayboldu, özellikleri standart sabunla aynıydı ama rengi koyu yeşil kaldı. Çok bozuk (acı/ekşi) yağdan çıkan sabun temizlik/çamaşır sabunu olarak değerlendirilir.",
       "Neden bu yöntem? Dip yağında tortu, su ve bozulmuş yağ (serbest yağ asidi) vardır; soğuk ya da sıcak proseste bunların hepsi sabunun içinde kalır. Kaynatıp tuzla ayırınca kir, renk, koku ve fazla kostik ALT SUYLA atılır.",
       "Kostik bilerek ≈%5 FAZLA konur: bozulmuş yağ da dahil bütün yağ sabunlaşsın. Fazlası tuzlamada alt suyla gider; sabunda kalmaz.",
       "Yöntem uzundur: 1. gün yağ temizlenir, 2. gün kaynatma + tuzlama, 3. gün alt su ayrılır ve son kaynatmayla kalıba alınır.",

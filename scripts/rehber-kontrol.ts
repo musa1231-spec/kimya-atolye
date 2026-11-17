@@ -466,3 +466,20 @@ import { otomatikKap } from "../src/katiSabun";
   if (!/addEventListener\('load',[^\n]*acilisDenetle/.test(sd) || !/sessionStorage/.test(sd) || !/controllerchange/.test(sd)) { console.error("❌ Sürüm denetimi açılışta çalışmıyor (eski sürüm ekranda kalır)"); process.exit(1); }
   console.log("✅ Sürüm denetimi: açılışta + öne gelince + 30 dk; açılışta yeni sürüm varsa bir kez kendiliğinden yenilenir");
 }
+// ── 17 Kas formülasyon doğrulaması: SAP değerleri kaynaklı, Rehber karma SAP hesapla aynı, resmî Hatay ölçütü Halep'te ──
+import { karmaSap, SAP_NAOH } from "../src/katiSabun";
+{
+  const fd: string[] = [];
+  if (Math.abs(SAP_NAOH["Zeytinyağı"] - 0.1353) > 1e-6 || Math.abs(SAP_NAOH["Defne Yağı"] - 0.1426) > 1e-6) fd.push("SAP değerleri doğrulanan değerlerden farklı");
+  const html = readFileSync("index.html", "utf8");
+  const kart: Record<string, string> = { "halep-20": "YÖNTEM 3", "halep-30": "YÖNTEM 4", "halep-40": "YÖNTEM 5" };
+  for (const [id, y] of Object.entries(kart)) {
+    const a = html.indexOf(y + " —"), b = html.indexOf("<!-- YÖNTEM", a + 10);
+    const m = html.slice(a, b).match(/Karma SAP: ≈(0\.\d{4})/);
+    const g = karmaSap(URUNLER.find((u) => u.id === id)!).toFixed(4);
+    if (!m || m[1] !== g) fd.push(`${y} karma SAP ${m?.[1]} ≠ hesap ${g}`);
+  }
+  for (const id of ["halep-20", "halep-30", "halep-40"]) if (!JSON.stringify(URUN_REHBER[id]).includes("TÜRKPATENT tescil 219")) fd.push(`${id}: resmî Hatay ölçütü yok`);
+  if (fd.length) { console.error("❌ Formülasyon doğrulaması:\n  " + fd.join("\n  ")); process.exit(1); }
+  console.log("✅ Formülasyon doğrulaması: SAP kaynaklı, Rehber karma SAP = hesap, Halep'te resmî Hatay ölçütü");
+}

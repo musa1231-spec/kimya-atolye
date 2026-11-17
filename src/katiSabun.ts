@@ -20,8 +20,17 @@ export const KALIP_SABUN_G = 125;
 /** Kesimde bloğun her kenarından traşlanan pay (cm): kenarlar eğri ve kâğıt izlidir. */
 export const KENAR_PAYI_CM = 0.5;
 
-/** Sabunlaşma değerleri (g NaOH / g yağ). Zeytinyağı KOH 190 mg/g, defne yağı KOH 198 mg/g → ×40/56,1. */
-export const SAP_NAOH: Record<string, number> = { "Zeytinyağı": 0.1354, "Defne Yağı": 0.1412 };
+/**
+ * Sabunlaşma değerleri (g NaOH / g yağ). Doğrulama 17 Kas 2026:
+ *  · Zeytinyağı 0,1353 (KOH 190 mg/g; Certified Lye tablosu 0,1353; hesaplayıcılarda 0,133–0,136).
+ *  · Defne (meyve) yağı 0,1426 (KOH 200 mg/g; analiz sertifikası 190–210, ort. 200; tedarikçi tablosu 198–206).
+ */
+export const SAP_NAOH: Record<string, number> = { "Zeytinyağı": 0.1353, "Defne Yağı": 0.1426 };
+/** Reçetenin karma SAP'ı (yağ ağırlıklı ortalama, g NaOH / g yağ) — Rehber kartlarında gösterilir. */
+export function karmaSap(u: Urun): number {
+  const yag = u.ings.filter(([a]) => a in SAP_NAOH);
+  return yag.reduce((t, [a, p]) => t + SAP_NAOH[a] * p, 0) / yag.reduce((t, [, p]) => t + p, 0);
+}
 
 /**
  * Atölye yöntemi (Musa Hocam 17 Kas): su + kostik tek seferde çözülür, ısınan yağa yavaşça eklenir,
