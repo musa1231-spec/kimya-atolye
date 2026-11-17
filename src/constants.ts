@@ -20,6 +20,7 @@ export const URUNLER: Urun[] = [
   { id: "halep-20", ad: "Halep Sabunu Klasik (%20 Defne)", kat: "Katı Sabun", yog: 1.07, batch: 2, ings: [["Zeytinyağı", 53.0], ["Defne Yağı", 13.0], ["Su", 25.5], ["Kostik", 8.5]] },
   { id: "halep-30", ad: "Halep Sabunu Standart (%30 Defne)", kat: "Katı Sabun", yog: 1.07, batch: 2, ings: [["Zeytinyağı", 46.0], ["Defne Yağı", 20.0], ["Su", 25.5], ["Kostik", 8.5]] },
   { id: "halep-40", ad: "Halep Sabunu Premium (%40 Defne)", kat: "Katı Sabun", yog: 1.07, batch: 2, ings: [["Zeytinyağı", 40.0], ["Defne Yağı", 26.5], ["Su", 25.0], ["Kostik", 8.5]] },
+  { id: "zy-kaynatma", ad: "Zeytinyağı Sabunu — Kaynatma ve Tuzlama (dip yağına uygun)", kat: "Katı Sabun", yog: 1.07, batch: 2, ings: [["Zeytinyağı", 48.0], ["Su", 38.5], ["Kostik", 6.8], ["Tuz", 6.7]] },
 ];
 
 // ── Resmî fiyat listesinin satır düzeni ───────────────────────

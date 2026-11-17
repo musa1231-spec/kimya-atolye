@@ -23,7 +23,7 @@ export const KAZAN_TIP_AD: Record<KazanTip, string> = { yuksek: "Yüksek kazan �
 // Viskoz (kıvamlı) ürünler YÜKSEK kazanda; akışkan ürünler ALÇAK kazanda.
 // Katı sabunlar kazanda yapılmaz (2 kg'lık tencere işi).
 export const VISKOZ_URUN = new Set(["sivi-sabun", "bulasik", "kivamli-camasir"]);
-export const KAZAN_DISI_URUN = new Set(["kastilya-soguk", "kastilya-sicak", "halep-20", "halep-30", "halep-40"]);
+export const KAZAN_DISI_URUN = new Set(URUNLER.filter((u) => u.kat === "Katı Sabun").map((u) => u.id));
 export const urunKazanTipi = (urunId: string): KazanTip | null =>
   KAZAN_DISI_URUN.has(urunId) ? null : VISKOZ_URUN.has(urunId) ? "yuksek" : "alcak";
 /** Kazan planında seçilebilecek ürünler. */
@@ -59,7 +59,7 @@ export const URUN_AILE: Record<string, Aile> = {
   dezenfektan: "alkol", kolonya: "alkol",
   "yag-cozucu": "kostik",
   "kastilya-soguk": "kostik", "kastilya-sicak": "kostik",
-  "halep-20": "kostik", "halep-30": "kostik", "halep-40": "kostik",
+  "halep-20": "kostik", "halep-30": "kostik", "halep-40": "kostik", "zy-kaynatma": "kostik",
   "sivi-sabun": "deterjan", "kopuk-sabun": "deterjan", "genel-temiz": "deterjan",
   "cam-silici": "deterjan", bulasik: "deterjan",
 };

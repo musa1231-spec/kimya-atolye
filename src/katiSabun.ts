@@ -36,12 +36,21 @@ export const KABARTMA_SAYISI = 2;
 /** Halep sabununun ideal olgunlaşma süresi (Rehber'deki tabloyla aynı). Kullanıma hazır olması için en az kurHafta yeter. */
 export const HALEP_OLGUNLASMA: Record<string, string> = { "halep-20": "3–6 ay", "halep-30": "6–9 ay", "halep-40": "9–12 ay" };
 
-/** Yağ miktarına göre katılacak su ve kostik (reçete oranlarıyla). */
-export function yagaGoreSuKostik(u: Urun, yagKg: number): { su: number; kostik: number } {
+/** Yağ miktarına göre katılacak su, kostik (ve kaynatmada tuz) — reçete oranlarıyla. Hepsi TEK PARTİDİR. */
+export function yagaGoreSuKostik(u: Urun, yagKg: number): { su: number; kostik: number; tuz: number } {
   const yagP = u.ings.filter(([a]) => a in SAP_NAOH).reduce((t, [, p]) => t + p, 0);
   const p = (ad: string) => u.ings.find(([a]) => a === ad)?.[1] || 0;
-  return { su: (yagKg * p("Su")) / yagP, kostik: (yagKg * p("Kostik")) / yagP };
+  return { su: (yagKg * p("Su")) / yagP, kostik: (yagKg * p("Kostik")) / yagP, tuz: (yagKg * p("Tuz")) / yagP };
 }
+
+// ── Kaynatma ve tuzlama (tam kaynatma) — dip yağı / kalitesiz yağ için ──
+// Kostik bilerek ≈%5 FAZLA konur (bütün yağ sabunlaşsın); fazlası, kir, renk ve koku tuzlamada ALT SUYLA atılır.
+export const KAYNATMA_URUN = new Set(["zy-kaynatma"]);
+export const kaynatmaMi = (u: Urun) => KAYNATMA_URUN.has(u.id);
+/** Kaynatmada kalıba giren sabun ≈ yağ × 1,5 (alt su atıldığı için reçete toplamından azdır). */
+export const KAYNATMA_VERIM = 1.5;
+/** Kalıba girecek sabun miktarı (kg). */
+export const kalibaGirenKg = (u: Urun, hedefKg: number) => kaynatmaMi(u) ? hedefKg * yagOrani(u) * KAYNATMA_VERIM : hedefKg;
 
 export const KATI_EKIPMAN: string[] = [
   `🍲 ${KAP_VARSAYILAN_KG} kg'lık PASLANMAZ ÇELİK ya da emaye kap (tüp üzerinde). ALÜMİNYUM, galvaniz, teflonlu kap KULLANILMAZ: kostik aşındırır, hidrojen gazı çıkar.`,
@@ -55,19 +64,21 @@ export const KATI_EKIPMAN: string[] = [
 ];
 
 /** Öğrenci kuralı (Atölye Düzeni) + Rehber + Asistan aynı cümleyi kullanır. */
-export const KATI_SABUN_KAZAN_KURAL = `Katı sabunlar (kastilya ve defne yağlı Halep sabunları) 900 kg'lık kazanlarda YAPILMAZ; tüp ocağı üzerinde ${KAP_VARSAYILAN_KG} kg'lık kaplarda, küçük partilerle yapılır.`;
+export const KATI_SABUN_KAZAN_KURAL = `Katı sabunlar (kastilya, defne yağlı Halep ve kaynatma zeytinyağı sabunları) 900 kg'lık kazanlarda YAPILMAZ; tüp ocağı üzerinde ${KAP_VARSAYILAN_KG} kg'lık kaplarda, küçük partilerle yapılır.`;
 
 /** Atölye uygulaması (Musa Hocam 17 Kas): su ve kostik ayrı tartılır, tartılan kostiğin TAMAMI suya TEK SEFERDE eklenir; parça parça eklenmez. */
 export const KOSTIK_COZME = "Tartılmış kostiğin TAMAMI, tartılmış SUYUN İÇİNE TEK SEFERDE eklenir (parça parça eklenmez) ve hemen karıştırılarak çözülür. Kostik daima suya eklenir; asla suyu kostiğin üstüne dökmeyin!";
 
-const yuvarla =(x: number, adim = 0.01) => Math.round(x / adim) * adim;
+const yuvarla = (x: number, adim = 0.01) => Math.round(x / adim) * adim;
 
-export interface KapPlani { kapKg: number; enFazlaKg: number; kapSayisi: number; kapBasiKg: number }
-/** Hedef miktar kaç kapta yapılır? Her kap en fazla kapKg × doluluk alır; partiler eşit bölünür. */
+export interface KapPlani { kapKg: number; enFazlaKg: number; sigar: boolean }
+/**
+ * Musa Hocam (17 Kas): üretim TEK PARTİDİR — bütün kostik bütün suya tek seferde, çözelti bütün yağa.
+ * Program partiye BÖLMEZ; miktar seçili kaba sığmıyorsa üretim başlamaz, uygun kap önerilir.
+ */
 export function kapPlani(hedefKg: number, kapKg: number, sicak: boolean): KapPlani {
   const enFazlaKg = kapKg * (sicak ? KAP_DOLULUK.sicak : KAP_DOLULUK.soguk);
-  const kapSayisi = Math.max(1, Math.ceil(hedefKg / enFazlaKg - 1e-9));
-  return { kapKg, enFazlaKg, kapSayisi, kapBasiKg: hedefKg / kapSayisi };
+  return { kapKg, enFazlaKg, sigar: hedefKg <= enFazlaKg + 1e-9 };
 }
 
 /** Kap önerisinde kullanılan olağan kap büyüklükleri (kg). */
@@ -75,11 +86,11 @@ export const KAP_BOYLARI = [5, 8, 10, 15, 20, 25, 30, 40, 50];
 
 /** Reçetedeki yağların toplam oranı (0–1). */
 export const yagOrani = (u: Urun) => u.ings.filter(([a]) => a in SAP_NAOH).reduce((t, [, p]) => t + p, 0) / 100;
-/** Yağ miktarından toplam ürün miktarı (yağ + kostik çözeltisi). */
+/** Yağ miktarından reçete toplamı (yağ + su + kostik [+ tuz]). */
 export const yagdanUrunKg = (u: Urun, yagKg: number) => yagKg / yagOrani(u);
 
 export interface KapOnerisi { gerekliKg: number; onerilenKg: number | null }
-/** Bu miktarı TEK SEFERDE alacak en küçük kap; listede yoksa null (birkaç partiye bölünür). */
+/** Bu miktarı TEK SEFERDE alacak en küçük kap; listede yoksa null (miktar azaltılmalı). */
 export function kapOnerisi(hedefKg: number, sicak: boolean): KapOnerisi {
   const gerekliKg = hedefKg / (sicak ? KAP_DOLULUK.sicak : KAP_DOLULUK.soguk);
   return { gerekliKg, onerilenKg: KAP_BOYLARI.find((k) => k >= gerekliKg - 1e-9) ?? null };
@@ -112,12 +123,13 @@ export function superyag(u: Urun): number {
   return gerekli ? (1 - kostik / gerekli) * 100 : 0;
 }
 
-/** Kalıpta bekleme (saat): sıcak 24; soğuk zeytinyağı 48; defne oranı yüksekse 72. */
+/** Kalıpta bekleme (saat): sıcak 24; soğuk ve kaynatma (sulu) 48. */
 export function kalipBekleme(u: Urun): number {
-  return sicakMi(u) ? 24 : 48;
+  return kaynatmaMi(u) ? 48 : sicakMi(u) ? 24 : 48;
 }
 /** En az kür süresi (hafta) — kullanıma hazır olması için. Defneli sabun pişirilse de uzun kür ister. */
 export function kurHafta(u: Urun): string {
   if (u.ings.some(([a]) => a === "Defne Yağı")) return "6–8";
+  if (kaynatmaMi(u)) return "3–4";
   return sicakMi(u) ? "2–3" : "4–6";
 }

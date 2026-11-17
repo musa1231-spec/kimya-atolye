@@ -496,6 +496,25 @@ export const URUN_REHBER: Record<string, UrunRehber> = {
   "halep-20": { hazirlik: HALEP_HAZIRLIK, kontrol: { dikkat: ["🎯 Kür sonunda pH 9–10; kesit yeşilimsi, dış yüzey zamanla sarı-kahverengine döner (normaldir)."], sorun: SOGUK_SABUN_SORUN } },
   "halep-30": { hazirlik: HALEP_HAZIRLIK, kontrol: { dikkat: ["🎯 Kür sonunda pH 9–10; kesit yeşilimsi, dış yüzey zamanla sarı-kahverengine döner (normaldir)."], sorun: SOGUK_SABUN_SORUN } },
   "halep-40": { hazirlik: HALEP_HAZIRLIK, kontrol: { dikkat: ["🎯 Kür sonunda pH 9–10; kesit yeşilimsi, dış yüzey zamanla sarı-kahverengine döner (normaldir)."], sorun: SOGUK_SABUN_SORUN } },
+  "zy-kaynatma": {
+    hazirlik: { dikkat: [
+      "🎯 Hedef: bidon dibindeki siyahlaşmış/kalitesiz zeytinyağından temiz, sert, açık renkli, kokusuz sabun.",
+      "Neden bu yöntem? Dip yağında tortu, su ve bozulmuş yağ (serbest yağ asidi) vardır; soğuk ya da sıcak proseste bunların hepsi sabunun içinde kalır. Kaynatıp tuzla ayırınca kir, renk, koku ve fazla kostik ALT SUYLA atılır.",
+      "Kostik bilerek ≈%5 FAZLA konur: bozulmuş yağ da dahil bütün yağ sabunlaşsın. Fazlası tuzlamada alt suyla gider; sabunda kalmaz.",
+      "Yöntem uzundur: 1. gün yağ temizlenir, 2. gün kaynatma + tuzlama, 3. gün alt su ayrılır ve son kaynatmayla kalıba alınır.",
+      "Kepçe ve tülbent/temiz bez gerekir (yağı tortudan ayırmak ve süzmek için).",
+    ] },
+    kontrol: {
+      dikkat: ["🎯 Kür sonunda pH 9–10; fenolftalein soluk pembe; sabun kesitinde yağ damlası ya da beyaz kostik lekesi yok."],
+      sorun: [
+        { belirti: "Tuz eklenince sabun ayrışmıyor", neden: "Sabunlaşma bitmedi ya da tuz az", cozum: "Kaynatmaya devam edin, sabunlaşma testini (sıcak suda yağ damlası) tekrarlayın; sonra tuzu serpmeye devam edin." },
+        { belirti: "Sabun hâlâ koyu renkli ve kokulu", neden: "Dip yağı çok kirli; tek yıkama yetmedi", cozum: "Yıkama adımını (eritme + az tuzla ayırma + alt suyu atma) bir kez daha yapın." },
+        { belirti: "Sabun yumuşak, kalıpta sertleşmiyor", neden: "Son kaynatmada fazla su kaldı", cozum: "Kalıpta 1–2 gün daha bekletin; sonraki partide son kaynatmada daha az su kullanın." },
+        { belirti: "Fenolftalein koyu pembe, sabun eli yakıyor", neden: "Alt su iyi ayrılmadı, fazla kostik sabunda kaldı", cozum: "Sabunu az suyla eritip bir kez daha yıkayın; kür süresini uzatın, ölçmeden kullanmayın." },
+        ...SOGUK_SABUN_SORUN.slice(3),
+      ],
+    },
+  },
 };
 
 // ════════════════════════════════════════════════════════════════
@@ -611,7 +630,7 @@ export function rehberTopla(adim: ProsesAdim, urunId?: string): { dikkat: string
   const kaynaklar: Rehber[] = [
     urunKismi,
     { dikkat: adim.dikkat, sorun: adim.sorun },
-    ...(adim.ekle || []).map((ad) => HM_REHBER[ad] || {}),
+    ...(adim.hmRehberAtla ? [] : (adim.ekle || []).map((ad) => HM_REHBER[ad] || {})),
     TIP_REHBER[adim.tip] || {},
   ];
   const dikkat: string[] = [];

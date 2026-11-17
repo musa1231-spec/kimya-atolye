@@ -179,7 +179,7 @@ import { YARDIM_SEKME, KATI_SABUN_KAT } from "../src/rehber";
     if (/<table|<li|%\d/.test(html.slice(a, b))) yh.push(`${sec}: elle yazılmış reçete/adım var — kartlar yardim.ts ile üretilmeli`);
   }
   // Katı sabun: YÖNTEM n kartındaki % satırları → URUNLER
-  const yontem: Record<number, string> = { 1: "kastilya-soguk", 2: "kastilya-sicak", 3: "halep-20", 4: "halep-30", 5: "halep-40" };
+  const yontem: Record<number, string> = { 1: "kastilya-soguk", 2: "kastilya-sicak", 3: "halep-20", 4: "halep-30", 5: "halep-40", 6: "zy-kaynatma" };
   for (const [n, id] of Object.entries(yontem)) {
     const a = html.indexOf(`YÖNTEM ${n} —`), b = html.indexOf("<!-- YÖNTEM", a + 10) > 0 ? html.indexOf("<!-- YÖNTEM", a + 10) : html.indexOf("<!-- KARŞILAŞTIRMA", a);
     const parca = html.slice(a, b);
@@ -339,15 +339,17 @@ console.log("✅ Soyunma odası: 'sahibi bellidir' ifadesi yok");
   console.log("✅ Değerlendirme: 2 madde, 'bir daha üretim faaliyetine alınmaz'");
 }
 // ── Musa Hocam (17 Kas): katı sabun tüpte 8 kg'lık kapta; tahta karıştırıcı/kalıp/düzleştirici + mala; kesim ayrıntılı; kap önerisi ──
-import { KAP_VARSAYILAN_KG, kapPlani, kalipPlani, kapOnerisi, superyag, yagdanUrunKg, yagOrani, KATI_EKIPMAN } from "../src/katiSabun";
+import { kaynatmaMi, KAP_VARSAYILAN_KG, kapPlani, kalipPlani, kapOnerisi, superyag, yagdanUrunKg, yagOrani, KATI_EKIPMAN } from "../src/katiSabun";
 {
   const ks: string[] = [];
   if (KAP_VARSAYILAN_KG !== 8 || !KATI_SABUN_KAZAN_KURAL.includes("8 kg'lık kap") || !/tüp/.test(KATI_SABUN_KAZAN_KURAL)) ks.push("kural metni 8 kg'lık kap/tüp demiyor");
   if (!/ALÜMİNYUM/.test(KATI_EKIPMAN.join(" "))) ks.push("alüminyum kap yasağı ekipmanda yok");
   // Kap planı: soğuk 20 kg, 8 kg kap (en fazla 6 kg) → 4 parti × 5 kg; sıcak en fazla 4 kg
-  const kp = kapPlani(20, 8, false);
-  if (kp.kapSayisi !== 4 || Math.abs(kp.kapBasiKg - 5) > 1e-9) ks.push(`kap planı 20 kg/8 kg → ${kp.kapSayisi}×${kp.kapBasiKg}`);
-  if (kapPlani(6, 8, false).kapSayisi !== 1 || kapPlani(6, 8, true).kapSayisi !== 2) ks.push("doluluk sınırı (soğuk %75 / sıcak %50) çalışmıyor");
+  // Musa Hocam: üretim TEK PARTİ — bölme yok; sığmazsa engel (sigar=false)
+  if (kapPlani(20, 8, false).sigar || "kapSayisi" in kapPlani(20, 8, false)) ks.push("kap planı partiye bölüyor ya da sığmayanı kabul ediyor");
+  if (!kapPlani(6, 8, false).sigar || kapPlani(6, 8, true).sigar) ks.push("doluluk sınırı (soğuk %75 / sıcak %50) çalışmıyor");
+  const asSrc = readFileSync("src/modules/asistan.ts", "utf8");
+  if (/kapSayisi|kap başına|parti ×/i.test(asSrc)) ks.push("Asistan'da parti bölme / 'kap başına' izi kaldı");
   // Kap önerisi: 6+2 = 8 kg soğuk → en az 10,67 kg → 15 kg'lık kap; 6 kg → 8 kg'lık kap
   if (kapOnerisi(8, false).onerilenKg !== 15 || kapOnerisi(6, false).onerilenKg !== 8 || kapOnerisi(500, false).onerilenKg !== null) ks.push("kap önerisi yanlış");
   // Yağ miktarından ürün: kastilya-soğuk 6 kg yağ → 6/0,665 kg ürün
@@ -359,7 +361,8 @@ import { KAP_VARSAYILAN_KG, kapPlani, kalipPlani, kapOnerisi, superyag, yagdanUr
   if (kalipPlani(30, 1.07, 30, 40).kalinlikCm > 7) ks.push("kalın döküm ikinci kalıba bölünmüyor");
   for (const u of URUNLER.filter((x) => x.kat === "Katı Sabun")) {
     const sy = superyag(u);
-    if (sy < 3 || sy > 10) ks.push(`${u.ad}: süperyağ %${sy.toFixed(1)} (3–10 dışında)`);
+    // Kaynatma: kostik bilerek %3–8 fazla (tuzlamada alt suyla atılır); diğerleri %3–10 süperyağ
+    if (kaynatmaMi(u) ? (sy > -3 || sy < -8) : (sy < 3 || sy > 10)) ks.push(`${u.ad}: süperyağ %${sy.toFixed(1)} sınır dışında`);
     const p = prosesUret(u), metin = JSON.stringify(p);
     for (const k of ["tahta karıştırıcı", "tahta kalıp", "düzleştirici", "mala", "tüp", "kesin", "Kürlemeye"]) if (!metin.toLocaleLowerCase("tr-TR").includes(k.toLocaleLowerCase("tr-TR"))) ks.push(`${u.ad}: proseste '${k}' yok`);
     if (/blender|mikser|spatula|kazan[ıa] (ekle|dök)/i.test(metin)) ks.push(`${u.ad}: proseste atölyede olmayan araç/kazan ifadesi`);
@@ -405,7 +408,7 @@ import { sicakMi, KABARTMA_SAYISI, HALEP_OLGUNLASMA, yagaGoreSuKostik } from "..
   // Yağa göre su/kostik: Halep %30, 6 kg yağ → su 6×25,5/66, kostik 6×8,5/66; yağ+su+kostik = ürün
   const sk = yagaGoreSuKostik(u("halep-30"), 6);
   if (Math.abs(sk.su - 6 * 25.5 / 66) > 1e-9 || Math.abs(sk.kostik - 6 * 8.5 / 66) > 1e-9) sp.push(`yağa göre su/kostik yanlış: ${JSON.stringify(sk)}`);
-  for (const x of URUNLER.filter((y) => y.kat === "Katı Sabun")) { const s = yagaGoreSuKostik(x, 5); if (Math.abs(5 + s.su + s.kostik - yagdanUrunKg(x, 5)) > 1e-9) sp.push(`${x.id}: yağ+su+kostik ≠ ürün`); }
+  for (const x of URUNLER.filter((y) => y.kat === "Katı Sabun")) { const s = yagaGoreSuKostik(x, 5); if (Math.abs(5 + s.su + s.kostik + s.tuz - yagdanUrunKg(x, 5)) > 1e-9) sp.push(`${x.id}: yağ+su+kostik+tuz ≠ ürün`); }
   const html = readFileSync("index.html", "utf8");
   if (/YÖNTEM [345] — Halep[^<]*Soğuk Proses/.test(html)) sp.push("Rehber'de Halep hâlâ soğuk proses");
   if (!/YÖNTEM 2[\s\S]{0,4000}<b>2 kez<\/b>/.test(html)) sp.push("Rehber Yöntem 2'de 2 kez kabartma yok");
@@ -413,4 +416,33 @@ import { sicakMi, KABARTMA_SAYISI, HALEP_OLGUNLASMA, yagaGoreSuKostik } from "..
     if (!html.includes(`<td class="tc">%${pct}</td><td>${sure}</td>`)) sp.push(`${id}: olgunlaşma süresi Rehber tablosuyla aynı değil`); }
   if (sp.length) { console.error("❌ Sıcak proses / yağa göre su-kostik:\n  " + sp.join("\n  ")); process.exit(1); }
   console.log("✅ Atölye yöntemi sıcak proses (2 kez kabartma), yağa göre su + kostik, Rehber ile aynı");
+}
+// ── Musa Hocam (17 Kas): başka katı sabun yöntemleri (yalnız zeytinyağı) + dip yağı için kaynatma ve tuzlama ──
+import { kurHafta as kurH, kaynatmaMi as kaynatmaMi2, kalibaGirenKg } from "../src/katiSabun";
+{
+  const yk: string[] = [];
+  const z = URUNLER.find((u) => u.id === "zy-kaynatma");
+  if (!z || !kaynatmaMi2(z)) yk.push("kaynatma ve tuzlama ürünü yok");
+  else {
+    if (z.ings.some(([a]) => a !== "Zeytinyağı" && a !== "Su" && a !== "Kostik" && a !== "Tuz")) yk.push("kaynatma reçetesinde zeytinyağı dışında yağ/madde var");
+    const m = JSON.stringify(prosesUret(z));
+    for (const k of ["Dip yağını hazırla", "Tüpte kaynat", "Tuzla ayır", "alt suyu", "Yıkama", "Son kaynatma", "Kalıptan çıkar ve kes"]) if (!m.includes(k)) yk.push(`kaynatma adımlarında '${k}' yok`);
+    const tz = prosesUret(z).find((a) => a.ekle?.includes("Tuz"))!;
+    if (!tz.hmRehberAtla || rehberTopla(tz, z.id).dikkat.some((d) => /TUZ EĞRİSİ|kazana/.test(d))) yk.push("tuzlama adımında sıvı ürünün tuz (kıvam) rehberi görünüyor");
+    if (Math.abs(kalibaGirenKg(z, 10) - 10 * 0.48 * 1.5) > 1e-9) yk.push("kaynatmada kalıba giren sabun hesabı yanlış");
+    if (!/dip yağ/i.test(JSON.stringify(URUN_REHBER["zy-kaynatma"]))) yk.push("kaynatma rehberinde dip yağı açıklaması yok");
+  }
+  if (URUNLER.filter((u) => u.kat === "Katı Sabun").some((u) => u.ings.some(([a, p]) => /yağı$/i.test(a) && a !== "Defne Yağı" && a !== "Zeytinyağı" && p > 0))) yk.push("katı sabunda zeytinyağı dışı yağ");
+  const html = readFileSync("index.html", "utf8");
+  if (!html.includes("YÖNTEM 6 — Zeytinyağı Sabunu · Kaynatma ve Tuzlama") || !html.includes("YÖNTEM 7 — Yeniden Eritme")) yk.push("Rehber'de Yöntem 6/7 kartı yok");
+  const tablo: Record<string, string> = { "Kastilya Soğuk": "kastilya-soguk", "Kastilya Sıcak": "kastilya-sicak", "Kaynatma ve Tuzlama": "zy-kaynatma" };
+  for (const [ad, id] of Object.entries(tablo)) if (!html.includes(`<tr><td><b>${ad}</b></td><td class="tc">—</td><td>${kurH(URUNLER.find((u) => u.id === id)!)} hafta</td>`)) yk.push(`karşılaştırma tablosunda '${ad}' kür süresi Asistan'la aynı değil`);
+  if (yk.length) { console.error("❌ Katı sabun yöntemleri:\n  " + yk.join("\n  ")); process.exit(1); }
+  console.log("✅ Katı sabun yöntemleri: soğuk, sıcak (2 kabartma), kaynatma ve tuzlama (dip yağı), yeniden eritme — Asistan + Rehber aynı");
+}
+{
+  const z = prosesUret(URUNLER.find((u) => u.id === "zy-kaynatma")!).map((a) => a.baslik);
+  const i = (b: string) => z.findIndex((x) => x.startsWith(b));
+  if (!(i("Dip yağını") < i("Kostik çözeltisi — Su") && i("Dip yağını") < i("Yağları ") && i("Tüpte kaynat") < i("Tuzla ayır") && i("Tuzla ayır") < i("Dinlendir ve alt suyu") && i("Son kaynatma") < i("Kalıba dök"))) { console.error("❌ Kaynatma adım sırası yanlış: " + z.join(" | ")); process.exit(1); }
+  console.log("✅ Kaynatma adım sırası: dip yağı → çözelti → kaynat → tuzla → alt su → son kaynatma → kalıp");
 }

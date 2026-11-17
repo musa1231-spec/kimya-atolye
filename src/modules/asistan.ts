@@ -9,7 +9,7 @@ import { $, urunSelect, val, numVal, esansAd, setHTML, setText, setVal, showToas
 import { KAZANLAR, asistanKazanEngel, kazanUyum, urunKazanTipi, SAF_SU_DINAMO_UYARI, GOZLUK_KURAL, KATI_SABUN_KAZAN_KURAL } from "../atolyeDuzen";
 import { bugunKazanPlani, bugunKazanPlaniTaze } from "./duzen";
 import {
-  KAP_VARSAYILAN_KG, KAP_DOLULUK, KALIP_VARSAYILAN, KENAR_PAYI_CM, sicakMi, kapPlani, kalipPlani, kapOnerisi, yagOrani, yagdanUrunKg, yagaGoreSuKostik,
+  KAP_VARSAYILAN_KG, KAP_DOLULUK, KALIP_VARSAYILAN, KENAR_PAYI_CM, sicakMi, kapPlani, kalipPlani, kapOnerisi, yagOrani, yagdanUrunKg, yagaGoreSuKostik, kaynatmaMi, kalibaGirenKg,
 } from "../katiSabun";
 import type { KapPlani, KalipPlani } from "../katiSabun";
 import { session } from "../state";
@@ -134,7 +134,7 @@ export function asAlkolDegisti(): void {
 // ── 🧼 Katı sabun: kap önerisi, kap/kalıp planı ────────────────
 const sayi = (x: number, b = 1) => (+x.toFixed(b)).toLocaleString("tr-TR");
 
-/** Ekrandaki girişlerden katı sabun planını hesapla (geçersizse hata metni). */
+/** Ekrandaki girişlerden katı sabun planını hesapla (geçersizse hata metni). Üretim TEK PARTİDİR. */
 function katiHesap(u: Urun): { hedefKg: number; kap: KapPlani; kalip: KalipPlani } | string {
   if (val("as-kati-mod") === "yag") {
     const yag = numVal("as-yag");
@@ -144,22 +144,21 @@ function katiHesap(u: Urun): { hedefKg: number; kap: KapPlani; kalip: KalipPlani
   if (!(hedefKg > 0)) return "Miktarı girin.";
   if (!(kapKg > 0)) return "Kullanılacak kabın büyüklüğünü (kg) girin.";
   if (!(en >= 5 && boy >= 5)) return "Tahta kalıbın iç ölçüsünü (en × boy, cm) girin.";
-  const kap = kapPlani(hedefKg, kapKg, sicakMi(u));
-  return { hedefKg, kap, kalip: kalipPlani(kap.kapBasiKg, u.yog, en, boy) };
+  return { hedefKg, kap: kapPlani(hedefKg, kapKg, sicakMi(u)), kalip: kalipPlani(kalibaGirenKg(u, hedefKg), u.yog, en, boy) };
 }
 
-/** Yağ miktarına göre katılacak su ve kostik: toplam, kap başına ve 1 kg yağ başına. */
-function suKostikTablo(u: Urun, yagKg: number, kapSayisi: number): string {
-  const top = yagaGoreSuKostik(u, yagKg), bir = yagaGoreSuKostik(u, 1);
-  const sat = (ad: string, yag: number, sk: { su: number; kostik: number }) =>
-    `<tr><td style="padding:2px 6px">${ad}</td><td style="text-align:right;padding:2px 6px">${miktarYaz(yag)}</td><td style="text-align:right;padding:2px 6px"><b>${miktarYaz(sk.su)}</b></td><td style="text-align:right;padding:2px 6px"><b>${miktarYaz(sk.kostik)}</b></td></tr>`;
+/** Yağ miktarına göre katılacak su ve kostik (kaynatmada tuz): toplam ve 1 kg yağ için. Bölme YOK. */
+function suKostikTablo(u: Urun, yagKg: number): string {
+  const top = yagaGoreSuKostik(u, yagKg), bir = yagaGoreSuKostik(u, 1), tuzlu = top.tuz > 0;
+  const td = (x: string, b = false) => `<td style="text-align:right;padding:2px 6px">${b ? `<b>${x}</b>` : x}</td>`;
+  const sat = (ad: string, yag: number, sk: { su: number; kostik: number; tuz: number }) =>
+    `<tr><td style="padding:2px 6px">${ad}</td>${td(miktarYaz(yag))}${td(miktarYaz(sk.su), true)}${td(miktarYaz(sk.kostik), true)}${tuzlu ? td(miktarYaz(sk.tuz), true) : ""}</tr>`;
   return `<table style="width:100%;margin:6px 0;font-size:.78rem;border-collapse:collapse">
-    <tr style="border-bottom:1px solid #ffcc80"><th style="text-align:left;padding:2px 6px">Yağa göre</th><th style="text-align:right;padding:2px 6px">Yağ</th><th style="text-align:right;padding:2px 6px">💧 Su</th><th style="text-align:right;padding:2px 6px">⚠️ Kostik</th></tr>
-    ${sat("Toplam", yagKg, top)}
-    ${kapSayisi > 1 ? sat(`Kap başına (${kapSayisi} parti)`, yagKg / kapSayisi, yagaGoreSuKostik(u, yagKg / kapSayisi)) : ""}
+    <tr style="border-bottom:1px solid #ffcc80"><th style="text-align:left;padding:2px 6px">Yağa göre</th><th style="text-align:right;padding:2px 6px">Yağ</th><th style="text-align:right;padding:2px 6px">💧 Su</th><th style="text-align:right;padding:2px 6px">⚠️ Kostik</th>${tuzlu ? `<th style="text-align:right;padding:2px 6px">🧂 Tuz</th>` : ""}</tr>
+    ${sat("Bu üretim", yagKg, top)}
     ${sat("1 kg yağ için", 1, bir)}
   </table>
-  <small>Su ve kostik ayrı tartılır, kostiğin tamamı suya tek seferde eklenip çözülür; çözelti ısınmış yağa yavaşça eklenir.</small><br>`;
+  <small>Hepsi TEK SEFERDE: bütün su ve bütün kostik ayrı tartılır, kostiğin tamamı suya tek seferde eklenip çözülür; çözelti bütün yağa yavaşça eklenir.${tuzlu ? " Tuz, kaynatmadan sonra ayrışma görülene dek serpilir (yazan miktar üst sınırdır)." : ""}</small><br>`;
 }
 
 function kapOneriHTML(u: Urun, hedefKg: number, kap: KapPlani): string {
@@ -167,24 +166,25 @@ function kapOneriHTML(u: Urun, hedefKg: number, kap: KapPlani): string {
   const on = kapOnerisi(hedefKg, sicak);
   const yag = hedefKg * yagOrani(u);
   const dol = Math.round((sicak ? KAP_DOLULUK.sicak : KAP_DOLULUK.soguk) * 100);
-  const oneri = on.onerilenKg
-    ? `👉 Tek seferde yapmak için <b>${on.onerilenKg} kg'lık kap</b> önerilir${on.onerilenKg !== kap.kapKg ? ` <button class="btn bg" style="padding:2px 10px;font-size:.78rem" onclick="asKapUygula(${on.onerilenKg})">Bu kabı kullan</button>` : " ✓"}`
-    : `👉 Bu miktar tek kaba sığmaz; birkaç partiye bölünür.`;
+  const dugme = (kg: number) => ` <button class="btn bg" style="padding:2px 10px;font-size:.78rem" onclick="asKapUygula(${kg})">${kg} kg'lık kabı kullan</button>`;
+  const durum = kap.sigar
+    ? `✅ Seçili ${sayi(kap.kapKg)} kg'lık kap yeterli (en fazla ${sayi(kap.enFazlaKg, 2)} kg alır).${on.onerilenKg && on.onerilenKg < kap.kapKg ? ` Daha küçük ${on.onerilenKg} kg'lık kap da yeter.` : ""}`
+    : `<span style="color:#C62828"><b>⛔ Bu miktar ${sayi(kap.kapKg)} kg'lık kaba sığmaz</b> (en fazla ${sayi(kap.enFazlaKg, 2)} kg alır, taşar).</span> ${on.onerilenKg ? `En az ${on.onerilenKg} kg'lık kap gerekir:${dugme(on.onerilenKg)}` : "Miktarı azaltın."}`;
   return `<div class="as-uyari" style="margin-top:6px">
-    <b>🍲 Kap önerisi</b><br>
-    ${sayi(hedefKg, 2)} kg sabun = <b>${sayi(yag, 2)} kg yağ</b> + ${sayi(hedefKg - yag, 2)} kg kostik çözeltisi (su + kostik).<br>
-    ${suKostikTablo(u, yag, kap.kapSayisi)}
-    Kap en fazla %${dol} doldurulur${sicak ? " (sıcak proseste pişerken kabarır)" : ""} → en az <b>${sayi(on.gerekliKg)} kg'lık kap</b> gerekir.<br>
-    ${oneri}<br>
-    Seçili kap (${sayi(kap.kapKg)} kg) ile: <b>${kap.kapSayisi} parti × ${sayi(kap.kapBasiKg, 2)} kg</b> (her parti ≈${sayi(kap.kapBasiKg * yagOrani(u), 2)} kg yağ).
+    <b>🍲 Malzeme ve kap</b><br>
+    ${sayi(hedefKg, 2)} kg reçete = <b>${sayi(yag, 2)} kg yağ</b> + ${sayi(hedefKg - yag, 2)} kg ${kaynatmaMi(u) ? "su, kostik ve tuz" : "kostik çözeltisi (su + kostik)"}.<br>
+    ${suKostikTablo(u, yag)}
+    Kap en fazla %${dol} doldurulur${sicak ? " (kabarırken/kaynarken yükselir)" : ""} → bu miktar için en az <b>${sayi(on.gerekliKg)} kg'lık kap</b> gerekir.<br>
+    ${durum}
   </div>`;
 }
 
-function kalipHTML(k: KalipPlani, kapSayisi: number): string {
+function kalipHTML(u: Urun, k: KalipPlani, hedefKg: number): string {
   return `<div class="as-uyari" style="margin-top:6px">
-    <b>🪵 Tahta kalıp (bir kap için)</b><br>
-    Kalıp ${k.en} × ${k.boy} cm · bir kabın sabunu <b>${k.kalipSayisi} kalıba</b> dökülür, kalınlık ≈<b>${sayi(k.kalinlikCm)} cm</b>.<br>
-    Kesim: <b>${sayi(k.kesimCm)} × ${sayi(k.kesimCm)} cm</b> → kalıp başına ${k.kalipBasiAdet} adet, bir kaptan ≈<b>${k.toplamAdet} kalıp sabun</b> (taze ≈${k.kalipSabunG} g)${kapSayisi > 1 ? `; ${kapSayisi} kaptan toplam ≈<b>${k.toplamAdet * kapSayisi}</b>` : ""}.
+    <b>🪵 Tahta kalıp</b><br>
+    ${kaynatmaMi(u) ? `Alt su atıldıktan sonra kalıba ≈<b>${sayi(kalibaGirenKg(u, hedefKg), 2)} kg</b> sabun girer.<br>` : ""}
+    Kalıp ${k.en} × ${k.boy} cm · sabun <b>${k.kalipSayisi} kalıba</b> dökülür, kalınlık ≈<b>${sayi(k.kalinlikCm)} cm</b>.<br>
+    Kesim: <b>${sayi(k.kesimCm)} × ${sayi(k.kesimCm)} cm</b> → kalıp başına ${k.kalipBasiAdet} adet, toplam ≈<b>${k.toplamAdet} kalıp sabun</b> (taze ≈${k.kalipSabunG} g).
   </div>`;
 }
 
@@ -196,7 +196,7 @@ export function asKatiDegisti(): void {
   ($("as-kg") as HTMLInputElement).readOnly = yagModu;
   if (yagModu && !numVal("as-yag")) setVal("as-yag", String(+(numVal("as-kg") * yagOrani(u)).toFixed(2)));
   const h = katiHesap(u);
-  setHTML("as-kati-ozet", typeof h === "string" ? `<div class="tm">${h}</div>` : kapOneriHTML(u, h.hedefKg, h.kap) + kalipHTML(h.kalip, h.kap.kapSayisi));
+  setHTML("as-kati-ozet", typeof h === "string" ? `<div class="tm">${h}</div>` : kapOneriHTML(u, h.hedefKg, h.kap) + kalipHTML(u, h.kalip, h.hedefKg));
 }
 export function asKapUygula(kg: number): void { setVal("as-kap", String(kg)); asKatiDegisti(); }
 
@@ -204,7 +204,7 @@ export function asKapUygula(kg: number): void { setVal("as-kap", String(kg)); as
 function kesimHTML(k: KalipPlani): string {
   const cizgi = (n: number) => Array.from({ length: n + 1 }, (_, i) => sayi(KENAR_PAYI_CM + i * k.kesimCm)).join(" · ");
   return `<div class="as-uyari" style="margin-top:6px">
-    <b>📐 Bu partinin kesim ölçüleri</b><br>
+    <b>📐 Bu üretimin kesim ölçüleri</b><br>
     Blok ≈${k.en} × ${k.boy} × ${sayi(k.kalinlikCm)} cm · her kenardan ${sayi(KENAR_PAYI_CM)} cm traş.<br>
     Uzun kenarda (${k.boy} cm) işaretler: <b>${cizgi(k.seritBasiAdet)}</b> cm<br>
     Kısa kenarda (${k.en} cm) işaretler: <b>${cizgi(k.seritSayisi)}</b> cm<br>
@@ -229,6 +229,14 @@ export async function asistanBasla(): Promise<void> {
   if (!kazanli) {
     const h = katiHesap(u);
     if (typeof h === "string") { alert("⛔ " + h); return; }
+    // Engel: tek parti seçili kaba sığmıyorsa üretim başlamaz (taşma = yanık)
+    if (!h.kap.sigar) {
+      const on = kapOnerisi(h.hedefKg, sicakMi(u));
+      alert(`⛔ Bu miktar ${h.kap.kapKg} kg'lık kaba sığmaz (en fazla ${miktarYaz(h.kap.enFazlaKg)} alır).
+
+${on.onerilenKg ? `En az ${on.onerilenKg} kg'lık kap seçin` : "Miktarı azaltın"}; üretim tek partide yapılır, bölünmez.`);
+      return;
+    }
     katiPlan = { kap: h.kap, kalip: h.kalip };
   }
   kazanNo = kazanli ? val("as-kazan") : "";
@@ -238,7 +246,7 @@ export async function asistanBasla(): Promise<void> {
   onaylar.clear();
   $("as-setup").style.display = "none";
   $("as-run").style.display = "block";
-  setText("as-run-baslik", `${u.ad} · ${miktarYaz(hedefKg)}${kazanNo ? ` · Kazan ${kazanNo}` : ""}${katiPlan ? ` · ${katiPlan.kap.kapSayisi} parti × ${miktarYaz(katiPlan.kap.kapBasiKg)} (${katiPlan.kap.kapKg} kg'lık kap)` : ""}`);
+  setText("as-run-baslik", `${u.ad} · ${miktarYaz(hedefKg)}${kazanNo ? ` · Kazan ${kazanNo}` : ""}${katiPlan ? ` · ${katiPlan.kap.kapKg} kg'lık kap (tek parti)` : ""}`);
   goster();
 }
 
@@ -265,10 +273,10 @@ function goster(): void {
       const adGoster = ad === "Boya" && renk ? `Boya (${renk})`
         : (esansMi && stEsans ? `Esans (${stEsans})` : gercekAd(ad));
       const rol = ad === "Boya" && renk ? `🎨 ${renk} renk verir — az miktar, tona göre ayarlayın`
-        : (esansMi && stEsans ? `🌸 Standart esans: ${stEsans} — koku verir` : HM_ROL[ad]);
+        : (esansMi && stEsans ? `🌸 Standart esans: ${stEsans} — koku verir` : (a.rol?.[ad] || HM_ROL[ad]));
       return `
       <div class="as-malz-r">
-        <span class="as-malz-m">${miktarYaz(miktarAd(ad) / (katiPlan?.kap.kapSayisi || 1))}<span class="as-malz-y" title="Reçetedeki oran (kütlece)">${yuzdeYaz(yuzdeAd(ad))}${katiPlan && katiPlan.kap.kapSayisi > 1 ? ` · kap başına (toplam ${miktarYaz(miktarAd(ad))})` : ""}</span></span>
+        <span class="as-malz-m">${miktarYaz(miktarAd(ad))}<span class="as-malz-y" title="Reçetedeki oran (kütlece)">${yuzdeYaz(yuzdeAd(ad))}</span></span>
         <span class="as-malz-a">${adGoster}${urun ? atlamaRozet(urun.id, ad) : ""}</span>
         ${rol ? `<span class="as-malz-rol">${rol}</span>` : ""}
       </div>`;
@@ -292,7 +300,7 @@ function goster(): void {
   if (a.liste?.length) govde = `<ol class="as-liste-ol">${a.liste.map((x) => `<li>${x}</li>`).join("")}</ol>` + govde;
   if (urun && katiPlan && a.kati) {
     govde += a.kati === "kap" ? kapOneriHTML(urun, hedefKg, katiPlan.kap)
-      : a.kati === "kalip" ? kalipHTML(katiPlan.kalip, katiPlan.kap.kapSayisi)
+      : a.kati === "kalip" ? kalipHTML(urun, katiPlan.kalip, hedefKg)
       : kesimHTML(katiPlan.kalip);
   }
 
@@ -420,7 +428,7 @@ export function asBitir(): void {
   if (onaysizIlk(adimlar.length) >= 0) { gecebilir(adimlar.length); return; }
   if (urun) acUretimGunWithLines([{ urunId: urun.id, kg: hedefKg, ambLt: 5, esansId: URUN_ESANS[urun.id] || "" }]);
   if (urun && kazanNo) setVal("ug-not", `Kazan: ${kazanNo} · Hammadde eklemeleri öğretmen onaylı${session.CU ? ` (${session.CU.ad})` : ""}`);
-  if (urun && katiPlan) setVal("ug-not", `Katı sabun · tüp üzerinde ${katiPlan.kap.kapKg} kg'lık kap · ${katiPlan.kap.kapSayisi} parti × ${miktarYaz(katiPlan.kap.kapBasiKg)} · kalıp ${katiPlan.kalip.en}×${katiPlan.kalip.boy} cm, kesim ${katiPlan.kalip.kesimCm} cm · Hammadde eklemeleri öğretmen onaylı${session.CU ? ` (${session.CU.ad})` : ""}`);
+  if (urun && katiPlan) setVal("ug-not", `Katı sabun · tüp üzerinde ${katiPlan.kap.kapKg} kg'lık kap · tek parti · kalıp ${katiPlan.kalip.en}×${katiPlan.kalip.boy} cm, kesim ${katiPlan.kalip.kesimCm} cm · Hammadde eklemeleri öğretmen onaylı${session.CU ? ` (${session.CU.ad})` : ""}`);
   showToast("Üretim kaydına aktarıldı — öğretmen/öğrenci seçip kaydet");
   rAsistan();
 }
