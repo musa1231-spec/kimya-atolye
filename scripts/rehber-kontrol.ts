@@ -281,7 +281,7 @@ import { GOZLUK_KURAL } from "../src/atolyeDuzen";
   const dav = KURAL_BOLUMLERI.find((k) => k.id === "davranis")!.maddeler.join("\n");
   const hepsi = [...KURAL_BOLUMLERI.flatMap((k) => k.maddeler), ...ROLLER.flatMap((r) => r.gorevler)].join("\n");
   if (!/telefon[^\n]*şeflik odasına teslim[^\n]*öğretmenden geri alınır/i.test(dav)) tf.push("telefon teslim maddesi yok");
-  if (!/görevi olmayan[^\n]*başka bölüm[^\n]*giremez/i.test(dav)) tf.push("görevi olmayan/başka bölüm giremez maddesi yok");
+  if (!dav.includes("Üretimde görevli olmayan hiçbir öğrenci üretim atölyesine giremez. Diğer bölümlerin öğrencileri özellikle giremez.")) tf.push("atölyeye giriş maddesi Musa Hocam'ın cümlesiyle değil");
   if (/cepte durur|telefona,/i.test(hepsi)) tf.push("telefonun atölyede olduğunu varsayan eski ifade kalmış");
   if (tf.length) { console.error("❌ Telefon/giriş kuralı:\n  " + tf.join("\n  ")); process.exit(1); }
   console.log("✅ Telefon şeflik odasında, görevi olmayan atölyeye giremez");

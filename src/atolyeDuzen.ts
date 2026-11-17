@@ -249,7 +249,7 @@ export const KURAL_BOLUMLERI: KuralBolum[] = [
   { id: "davranis", ikon: "🤝", baslik: "Genel Davranış", maddeler: [
     "Atölyede koşulmaz, şaka yapılmaz, yemek yenmez.",
     "Cep telefonları üretim başlamadan şeflik odasına teslim edilir, üretim boyunca orada bekletilir ve üretim bitince öğretmenden geri alınır.",
-    "Üretimde görevi olmayan hiç kimse, başka bölümlerin öğrencileri de dahil, üretim atölyesine giremez.",
+    "Üretimde görevli olmayan hiçbir öğrenci üretim atölyesine giremez. Diğer bölümlerin öğrencileri özellikle giremez.",
     "Hata yaptıysan hemen söyle. Hatasını kendisi söyleyen ceza almaz; saklayan alır.",
   ] },
   { id: "puan", ikon: "🏅", baslik: "Değerlendirme", maddeler: [
