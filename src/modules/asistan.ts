@@ -9,7 +9,7 @@ import { $, urunSelect, val, numVal, esansAd, setHTML, setText, setVal, showToas
 import { KAZANLAR, asistanKazanEngel, kazanUyum, urunKazanTipi, SAF_SU_DINAMO_UYARI, GOZLUK_KURAL, KATI_SABUN_KAZAN_KURAL } from "../atolyeDuzen";
 import { bugunKazanPlani, bugunKazanPlaniTaze } from "./duzen";
 import {
-  KAP_VARSAYILAN_KG, KAP_DOLULUK, KALIP_VARSAYILAN, KENAR_PAYI_CM, sicakMi, kapPlani, kalipPlani, kapOnerisi, yagOrani, yagdanUrunKg, yagaGoreSuKostik, kaynatmaMi, kalibaGirenKg,
+  KAP_VARSAYILAN_KG, KAP_DOLULUK, KALIP_VARSAYILAN, KENAR_PAYI_CM, sicakMi, kapPlani, kalipPlani, kapOnerisi, otomatikKap, KAP_BOYLARI, yagOrani, yagdanUrunKg, yagaGoreSuKostik, kaynatmaMi, kalibaGirenKg,
 } from "../katiSabun";
 import type { KapPlani, KalipPlani } from "../katiSabun";
 import { session } from "../state";
@@ -113,8 +113,9 @@ export function asistanUrunDegisti(): void {
     if (!numVal("as-kalip-en")) setVal("as-kalip-en", String(KALIP_VARSAYILAN.en));
     if (!numVal("as-kalip-boy")) setVal("as-kalip-boy", String(KALIP_VARSAYILAN.boy));
     // Varsayılan hedef: seçili kabın bir dolusu
-    setVal("as-kg", String(kapPlani(1, numVal("as-kap"), sicakMi(u)).enFazlaKg));
-    asKatiDegisti();
+    setVal("as-kg", String(kapPlani(1, KAP_VARSAYILAN_KG, sicakMi(u)).enFazlaKg));
+    setVal("as-yag", "");
+    asKatiDegisti("miktar");
   }
   setHTML("as-atla", u ? atlamaListesi(u.id, u.ings.map(([a]) => a)).map((x) => atlamaUyariHTML(u.id, x.ad, true)).join("") : "");
   const w = $("as-alkol");
@@ -167,9 +168,12 @@ function kapOneriHTML(u: Urun, hedefKg: number, kap: KapPlani): string {
   const yag = hedefKg * yagOrani(u);
   const dol = Math.round((sicak ? KAP_DOLULUK.sicak : KAP_DOLULUK.soguk) * 100);
   const dugme = (kg: number) => ` <button class="btn bg" style="padding:2px 10px;font-size:.78rem" onclick="asKapUygula(${kg})">${kg} kg'lık kabı kullan</button>`;
+  const otomatik = !kapElle && on.onerilenKg === kap.kapKg;
   const durum = kap.sigar
-    ? `✅ Seçili ${sayi(kap.kapKg)} kg'lık kap yeterli (en fazla ${sayi(kap.enFazlaKg, 2)} kg alır).${on.onerilenKg && on.onerilenKg < kap.kapKg ? ` Daha küçük ${on.onerilenKg} kg'lık kap da yeter.` : ""}`
-    : `<span style="color:#C62828"><b>⛔ Bu miktar ${sayi(kap.kapKg)} kg'lık kaba sığmaz</b> (en fazla ${sayi(kap.enFazlaKg, 2)} kg alır, taşar).</span> ${on.onerilenKg ? `En az ${on.onerilenKg} kg'lık kap gerekir:${dugme(on.onerilenKg)}` : "Miktarı azaltın."}`;
+    ? (otomatik
+      ? `✅ <b>Önerilen kap: ${sayi(kap.kapKg)} kg</b> (miktara göre otomatik seçildi; en fazla ${sayi(kap.enFazlaKg, 2)} kg alır). Elinizde başka boy kap varsa kutudan değiştirin.`
+      : `✅ Seçili ${sayi(kap.kapKg)} kg'lık kap yeterli (en fazla ${sayi(kap.enFazlaKg, 2)} kg alır).${on.onerilenKg && on.onerilenKg !== kap.kapKg ? ` Önerilen: ${on.onerilenKg} kg${dugme(on.onerilenKg)}` : ""}`)
+    : `<span style="color:#C62828"><b>⛔ Bu miktar ${sayi(kap.kapKg)} kg'lık kaba sığmaz</b> (en fazla ${sayi(kap.enFazlaKg, 2)} kg alır, taşar).</span> ${on.onerilenKg ? `En az ${on.onerilenKg} kg'lık kap gerekir:${dugme(on.onerilenKg)}` : `En büyük kap da yetmiyor (${KAP_BOYLARI[KAP_BOYLARI.length - 1]} kg); miktarı azaltın.`}`;
   return `<div class="as-uyari" style="margin-top:6px">
     <b>🍲 Malzeme ve kap</b><br>
     ${sayi(hedefKg, 2)} kg reçete = <b>${sayi(yag, 2)} kg yağ</b> + ${sayi(hedefKg - yag, 2)} kg ${kaynatmaMi(u) ? "su, kostik ve tuz" : "kostik çözeltisi (su + kostik)"}.<br>
@@ -188,17 +192,30 @@ function kalipHTML(u: Urun, k: KalipPlani, hedefKg: number): string {
   </div>`;
 }
 
-export function asKatiDegisti(): void {
+/** Kap elle değiştirildi mi? (elle seçilen kap, miktar yeniden değişene dek korunur) */
+let kapElle = false;
+/**
+ * Musa Hocam (17 Kas): kap, seçilen yağ ya da ürün miktarına göre OTOMATİK önerilir ve seçilir.
+ * kaynak: "miktar" (ürün/yağ/mod değişti → kap yeniden önerilir) · "kap" (elle kap girildi → korunur) · "kalip".
+ */
+export function asKatiDegisti(kaynak: "miktar" | "kap" | "kalip" = "miktar"): void {
   const u = URUNLER.find((x) => x.id === val("as-urun"));
   if (!u || urunKazanTipi(u.id) !== null) return;
   const yagModu = val("as-kati-mod") === "yag";
   $("as-yag-fg").style.display = yagModu ? "block" : "none";
   ($("as-kg") as HTMLInputElement).readOnly = yagModu;
   if (yagModu && !numVal("as-yag")) setVal("as-yag", String(+(numVal("as-kg") * yagOrani(u)).toFixed(2)));
+  if (kaynak === "kap") kapElle = true;
+  if (kaynak === "miktar") {
+    kapElle = false;
+    if (yagModu && numVal("as-yag") > 0) setVal("as-kg", String(+yagdanUrunKg(u, numVal("as-yag")).toFixed(2)));
+    const on = otomatikKap(u, numVal("as-kg"));
+    if (on) setVal("as-kap", String(on));
+  }
   const h = katiHesap(u);
   setHTML("as-kati-ozet", typeof h === "string" ? `<div class="tm">${h}</div>` : kapOneriHTML(u, h.hedefKg, h.kap) + kalipHTML(u, h.kalip, h.hedefKg));
 }
-export function asKapUygula(kg: number): void { setVal("as-kap", String(kg)); asKatiDegisti(); }
+export function asKapUygula(kg: number): void { setVal("as-kap", String(kg)); kapElle = false; asKatiDegisti("kalip"); }
 
 /** Kesim adımı: çizgi aralıkları (kenar payından sonra). */
 function kesimHTML(k: KalipPlani): string {

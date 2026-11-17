@@ -446,3 +446,17 @@ import { kurHafta as kurH, kaynatmaMi as kaynatmaMi2, kalibaGirenKg } from "../s
   if (!(i("Dip yağını") < i("Kostik çözeltisi — Su") && i("Dip yağını") < i("Yağları ") && i("Tüpte kaynat") < i("Tuzla ayır") && i("Tuzla ayır") < i("Dinlendir ve alt suyu") && i("Son kaynatma") < i("Kalıba dök"))) { console.error("❌ Kaynatma adım sırası yanlış: " + z.join(" | ")); process.exit(1); }
   console.log("✅ Kaynatma adım sırası: dip yağı → çözelti → kaynat → tuzla → alt su → son kaynatma → kalıp");
 }
+// ── Musa Hocam (17 Kas): kap, yağ ya da ürün miktarına göre OTOMATİK önerilir ──
+import { otomatikKap } from "../src/katiSabun";
+{
+  const ok: string[] = [];
+  const u = (id: string) => URUNLER.find((x) => x.id === id)!;
+  if (otomatikKap(u("halep-30"), yagdanUrunKg(u("halep-30"), 6)) !== 20) ok.push("Halep 6 kg yağ → 20 kg kap bekleniyordu");
+  if (otomatikKap(u("kastilya-soguk"), 6) !== 8) ok.push("Kastilya soğuk 6 kg → 8 kg kap bekleniyordu");
+  if (otomatikKap(u("kastilya-sicak"), 6) !== 15) ok.push("Kastilya sıcak 6 kg → 15 kg kap bekleniyordu");
+  const html = readFileSync("index.html", "utf8"), src = readFileSync("src/modules/asistan.ts", "utf8");
+  if (!html.includes(`id="as-kap" min="1" step="1" oninput="asKatiDegisti('kap')"`)) ok.push("elle kap girişi otomatik öneriyi ezmeyecek şekilde bağlı değil");
+  if (!/kaynak === "miktar"[\s\S]{0,400}otomatikKap\(/.test(src)) ok.push("miktar değişince kap otomatik seçilmiyor");
+  if (ok.length) { console.error("❌ Otomatik kap önerisi:\n  " + ok.join("\n  ")); process.exit(1); }
+  console.log("✅ Kap, yağ/ürün miktarına göre otomatik seçiliyor; elle seçilen kap korunuyor");
+}

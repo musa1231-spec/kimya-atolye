@@ -250,9 +250,9 @@
     <div class="fg"><label>Hedef Miktar (kg)</label><input type="number" id="as-kg" min="1" value="900" oninput="asKatiDegisti()"></div>
     <div class="fg" id="as-kazan-fg"><label>Kazan</label><select id="as-kazan" onchange="asKazanDegisti()"></select><div id="as-kazan-not"></div></div>
     <div id="as-kati" style="display:none">
-      <div class="fg"><label>Kullanılacak kap (kg) — tüp üzerinde</label><input type="number" id="as-kap" min="1" step="1" oninput="asKatiDegisti()"></div>
+      <div class="fg"><label>Kullanılacak kap (kg) — tüp üzerinde · miktara göre otomatik önerilir</label><input type="number" id="as-kap" min="1" step="1" oninput="asKatiDegisti('kap')"></div>
       <div class="fg"><label>Tahta kalıp iç ölçüsü (cm): en × boy</label>
-        <div style="display:flex;gap:8px;align-items:center"><input type="number" id="as-kalip-en" min="5" step="1" oninput="asKatiDegisti()"> × <input type="number" id="as-kalip-boy" min="5" step="1" oninput="asKatiDegisti()"></div></div>
+        <div style="display:flex;gap:8px;align-items:center"><input type="number" id="as-kalip-en" min="5" step="1" oninput="asKatiDegisti('kalip')"> × <input type="number" id="as-kalip-boy" min="5" step="1" oninput="asKatiDegisti('kalip')"></div></div>
       <div id="as-kati-ozet"></div>
     </div>
     <div id="as-alkol" style="display:none;margin-bottom:12px"></div>

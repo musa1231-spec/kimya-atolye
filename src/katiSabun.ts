@@ -96,6 +96,10 @@ export function kapOnerisi(hedefKg: number, sicak: boolean): KapOnerisi {
   return { gerekliKg, onerilenKg: KAP_BOYLARI.find((k) => k >= gerekliKg - 1e-9) ?? null };
 }
 
+/** Miktara göre otomatik seçilecek kap (kg): tek seferde alacak en küçük olağan kap; yoksa null. */
+export const otomatikKap = (u: Urun, hedefKg: number): number | null =>
+  hedefKg > 0 ? kapOnerisi(hedefKg, sicakMi(u)).onerilenKg : null;
+
 export interface KalipPlani {
   en: number; boy: number; hacimCm3: number; kalipSayisi: number; kalinlikCm: number;
   kesimCm: number; seritSayisi: number; seritBasiAdet: number; kalipBasiAdet: number; toplamAdet: number; kalipSabunG: number;
