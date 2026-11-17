@@ -195,10 +195,10 @@ export const HM_REHBER: Record<string, Rehber> = {
     dikkat: ["Asit eklendikten sonra eklenir; çok küçük miktardır, gram hassasiyetinde tartın. Asidin metal yüzeyleri aşındırmasını azaltır."],
   },
   Zeytinyağı: {
-    dikkat: ["Yağı ≈40 °C'ye ısıtın, termometreyle kontrol edin; aşırı ısıtmayın."],
+    dikkat: ["Yağı termometreyle kontrol ederek ısıtın, kızdırmayın; hedef sıcaklık Asistan adımında yazar."],
   },
   "Defne Yağı": {
-    dikkat: ["Zeytinyağı ılınınca (≈40 °C) kaba eklenir; kokusu ısıyla uçar, aşırı ısıtılmaz."],
+    dikkat: ["Zeytinyağı ısınınca kaba eklenir; kokusu ısıyla uçar, kızdırılmaz."],
   },
 };
 
@@ -268,7 +268,7 @@ export const TIP_REHBER: Partial<Record<ProsesAdim["tip"], Rehber>> = {
 export interface UrunRehber { hazirlik: Rehber; kontrol: Rehber }
 
 const SOGUK_SABUN_SORUN: Sorun[] = [
-  { belirti: "İz (trace) bir türlü oluşmuyor", neden: "Yağ/kostik sıcaklığı düşük ya da elle karıştırma yetersiz", cozum: "Her ikisini ≈40 °C'de birleştirin; tahta karıştırıcıyla dibi sıyırarak 5 dk karıştırıp 5 dk dinlendirin; öğrenciler sırayla karıştırsın, elle iz 1 saati bulabilir." },
+  { belirti: "İz (trace) bir türlü oluşmuyor", neden: "Yağ/kostik sıcaklığı düşük ya da elle karıştırma yetersiz", cozum: "Yağı ve çözeltiyi termometreyle kontrol edip Asistan adımındaki sıcaklıkta birleştirin; tahta karıştırıcıyla dibi sıyırarak 5 dk karıştırıp 5 dk dinlendirin; öğrenciler sırayla karıştırsın, elle iz 1 saati bulabilir." },
   { belirti: "Karışım çok hızlı katılaştı, kalıba dökülemiyor", neden: "Sıcaklık yüksek ya da aşırı karıştırma", cozum: "Malayla hızla kalıba aktarıp bastırın, tahta düzleştiriciyle düzleyin; sonraki partide daha düşük sıcaklıkta çalışın." },
   { belirti: "Kalıpta yağ ayrıştı, üstte sıvı yağ birikti", neden: "Karıştırma iz alınmadan kesildi ya da tartım hatası", cozum: "Sabunu kullanmayın; öğretmen gözetiminde kesip tekrar eritip karıştırarak kurtarılabilir." },
   { belirti: "Yüzeyde beyaz toz tabakası", neden: "Soda külü (kostiğin havadaki CO₂ ile tepkimesi); zararsızdır", cozum: "Kür sonunda bıçakla kazıyın ya da buharla silin; sonraki partide kalıbın üstünü streç filmle örtün." },
@@ -278,7 +278,8 @@ const SOGUK_SABUN_SORUN: Sorun[] = [
 
 const HALEP_HAZIRLIK: Rehber = {
   dikkat: [
-    "Defne yağı pahalıdır ve kokusu ısıyla uçar; zeytinyağı ılınınca eklenir, karışım en fazla ≈40–45 °C olur.",
+    "Defne yağı pahalıdır ve kokusu ısıyla uçar; yağ kızdırılmaz, kabartmalarda ateş en kısıkta tutulur.",
+    "Atölyede Halep sabunu SICAK PROSESLE yapılır: kostik çözeltisi ısınmış yağa eklenir, tüpte 2 kez kabartılıp karıştırılır, sonra kalıba alınır.",
     "Defne oranı arttıkça (%20 → %40) iz daha geç oluşur; sabırla karıştırın.",
     "Halep sabunu uzun kür ister: en az 6 hafta, geleneksel olarak aylarca. Kesilen kalıplar havadar rafta, aralıklı dizilir.",
   ],
@@ -481,8 +482,8 @@ export const URUN_REHBER: Record<string, UrunRehber> = {
   "kastilya-sicak": {
     hazirlik: { dikkat: [
       "🎯 Hedef: sıcak proses Kastilya sabunu; kür süresi soğuk prosese göre kısadır.",
-      "İz alındıktan sonra karışım düşük ateşte/su banyosunda ≈1–2 saat PİŞİRİLİR; vazelin gibi yarı saydam olunca kalıba alınır.",
-      "Pişirirken karışım kabarabilir; kabı yarıdan fazla doldurmayın, başından ayrılmayın.",
+      "Hafif iz alınınca karışım tüpte en kısık ateşte 2 KEZ KABARTILIP tahta karıştırıcıyla karıştırılarak pişirilir; vazelin gibi yarı saydam olunca kalıba alınır.",
+      "Kabartmada sabun yükselir; kabı yarıdan fazla doldurmayın, ocağın başından ayrılmayın.",
     ] },
     kontrol: {
       dikkat: ["🎯 Kalıptan sonra pH 9–10; birkaç hafta kurumaya bırakılır."],

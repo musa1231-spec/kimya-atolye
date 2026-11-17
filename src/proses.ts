@@ -1,5 +1,5 @@
 import type { Urun } from "./types";
-import { KOSTIK_COZME, KATI_EKIPMAN,KAP_VARSAYILAN_KG, KAP_DOLULUK, KENAR_PAYI_CM, sicakMi, superyag, kalipBekleme, kurHafta } from "./katiSabun";
+import { KOSTIK_COZME, KABARTMA_SAYISI, HALEP_OLGUNLASMA, KATI_EKIPMAN,KAP_VARSAYILAN_KG, KAP_DOLULUK, KENAR_PAYI_CM, sicakMi, superyag, kalipBekleme, kurHafta } from "./katiSabun";
 
 // ════════════════════════════════════════════════════════════════
 // ÜRETİM PROSESLERİ — Asistanın adım adım yol göstermesi için.
@@ -173,30 +173,41 @@ function katiSabunProses(urun: Urun): ProsesAdim[] {
     { tip: "ekle", baslik: `Kostiği suya ekle`, ekle: ["Kostik"],
       not: `⚠️ ${KOSTIK_COZME} Ayrı çubukla (tahta karıştırıcıyla değil) kostik tamamen çözünene kadar durmadan karıştırın. Bu iş açık pencerenin önünde yapılır; gözlük burada takılır (ihtiyaç hâli).`,
       dikkat: ["Kostik tek seferde girdiği için çözelti hızla ısınır (≈80–90 °C): kabı sağlam bir zemine koyun, döktükten sonra hemen karıştırmaya başlayın; karıştırılmazsa kostik dipte topaklanıp kabuk bağlar.",
-        "Kabın dibinde çözünmemiş kostik tanesi kalmadığını kontrol edin; çözelti berraklaşınca çözünme tamamdır.","Çözeltiden yükselen buharı koklamayın, yüzünüzü kabın üstüne eğmeyin.", "Çözeltiyi kenara koyup ≈40–45 °C'ye soğumaya bırakın (≈45–60 dk). Bu sürede yağı hazırlayın.", "Kostik çözeltisi tüpün ya da yağ kabının yanında DEVRİLMEYECEĞİ bir yerde durur."] },
-    { tip: "ekle", baslik: `Yağları ${KAP_VARSAYILAN_KG} kg'lık kaba tart ve tüpte ılıt`, ekle: yaglar,
-      not: `Yağları sabun kabına tartın, tüpü EN KISIK ateşte yakıp yağı tahta karıştırıcıyla karıştırarak ≈40–45 °C'ye ılıtın, sonra ATEŞİ KAPATIN.${defneli ? " Defne yağı en son eklenir; kokusu ısıyla uçtuğu için aşırı ısıtılmaz." : ""}`,
-      dikkat: ["Termometreyi kabın ortasına, dibe değdirmeden tutun.", "Yağ 50 °C'yi geçerse ocaktan alıp soğumasını bekleyin; sıcak yağla iz çok hızlı ve düzensiz oluşur."] },
-    { tip: "karistir", baslik: `Kostik çözeltisini yağa ekle`, sureDk: 5,
-      not: "Kostik çözeltisi ile yağ aynı sıcaklıkta (≈40–45 °C) olmalı. Ateş KAPALI iken çözeltiyi ince bir akışla, tahta karıştırıcının üstünden süzdürerek yağa dökün; bu sırada başka bir öğrenci sürekli karıştırır.",
+        "Kabın dibinde çözünmemiş kostik tanesi kalmadığını kontrol edin; çözelti berraklaşınca çözünme tamamdır.","Çözeltiden yükselen buharı koklamayın, yüzünüzü kabın üstüne eğmeyin.", sicak ? "Çözeltiyi kenara koyup ≈50 °C'ye kadar soğumasını bekleyin; bu sürede yağı ısıtın." : "Çözeltiyi kenara koyup ≈40–45 °C'ye soğumaya bırakın (≈45–60 dk). Bu sürede yağı hazırlayın.", "Kostik çözeltisi tüpün ya da yağ kabının yanında DEVRİLMEYECEĞİ bir yerde durur."] },
+    { tip: "ekle", baslik: `Yağları ${KAP_VARSAYILAN_KG} kg'lık kaba tart ve tüpte ${sicak ? "ısıt" : "ılıt"}`, ekle: yaglar,
+      not: `Yağları sabun kabına tartın, tüpü EN KISIK ateşte yakıp yağı tahta karıştırıcıyla karıştırarak ${sicak ? "≈50–60 °C'ye ısıtın" : "≈40–45 °C'ye ılıtın"}, sonra ATEŞİ KAPATIN.${defneli ? " Defne yağı en son eklenir; kokusu ısıyla uçtuğu için aşırı ısıtılmaz." : ""}`,
+      dikkat: ["Termometreyi kabın ortasına, dibe değdirmeden tutun.", sicak ? "Yağı kızdırmayın (70 °C'yi geçmesin); çok sıcak yağa kostik eklenince köpürüp taşar." : "Yağ 50 °C'yi geçerse ocaktan alıp soğumasını bekleyin; sıcak yağla iz çok hızlı ve düzensiz oluşur."] },
+    { tip: "karistir", baslik: `Kostik çözeltisini ${sicak ? "ısınan " : ""}yağa yavaşça ekle`, sureDk: 5,
+      not: (sicak ? "Kostik çözeltisi ısınmış yağa eklenir." : "Kostik çözeltisi ile yağ aynı sıcaklıkta (≈40–45 °C) olmalı.") + " Ateş KAPALI iken çözeltiyi YAVAŞÇA, ince bir akışla, tahta karıştırıcının üstünden süzdürerek yağa dökün; bu sırada başka bir öğrenci tahta karıştırıcıyla sürekli karıştırır.",
       dikkat: ["Çözeltiyi yüksekten dökmeyin; sıçrar.", "Bütün çözelti bitene kadar karıştırma durmaz."] },
-    { tip: "karistir", baslik: `Tahta karıştırıcıyla iz al`, sureDk: defneli ? 75 : 60,
-      not: `Elle karıştırma uzun sürer (zeytinyağı geç iz verir${defneli ? ", defne oranı arttıkça daha da gecikir" : ""}); öğrenciler sırayla karıştırır. Karışım muhallebi kıvamına gelip "iz" alınca hemen kalıba geçilir.`,
+    sicak
+      ? { tip: "karistir", baslik: `Tahta karıştırıcıyla karıştır (hafif iz)`, sureDk: 20,
+        not: "Karışım tahta karıştırıcıyla, ince muhallebi kıvamına (hafif iz) gelene dek karıştırılır. Sabunlaşmayı asıl tüpteki kabartmalar tamamlar; burada tam iz beklenmez.",
+        liste: [
+          "Tahta karıştırıcıyı kabın dibine değdirerek ve kenarları sıyırarak, \"8\" çizer gibi düzenli karıştırın; çırpmayın.",
+          "Hafif iz testi: karıştırıcıdan damlayan sabun yüzeyde bir an iz bırakıyorsa yeterlidir.",
+        ] }
+      : { tip: "karistir", baslik: `Tahta karıştırıcıyla iz al`, sureDk: 60,
+        not: "Elle karıştırma uzun sürer (zeytinyağı geç iz verir); öğrenciler sırayla karıştırır. Karışım muhallebi kıvamına gelip \"iz\" alınca hemen kalıba geçilir.",
+        liste: [
+          "Tahta karıştırıcıyı kabın dibine değdirerek ve kenarları sıyırarak, \"8\" çizer gibi düzenli karıştırın; çırpmayın (hava kabarcığı olur).",
+          "5 dakika karıştırın, 5 dakika dinlendirin; bu döngüyü sürdürün. Dinlenmede sabunlaşma yine devam eder.",
+          "İz testi: karıştırıcıyı kaldırıp sabunu yüzeye damlatın. Damla yüzeyde bir an iz bırakıp hemen kaybolmuyorsa İZ ALINDI.",
+          "Su gibi akıyorsa iz yoktur, karıştırmaya devam. Çok koyulaşıp topaklanıyorsa beklemeden kalıba geçin.",
+        ] },
+    ...(sicak ? [{ tip: "karistir" as const, baslik: `Tüpte ${KABARTMA_SAYISI} kez kabart ve karıştır`, sureDk: 60,
+      not: `Sabun tüpte EN KISIK ateşte ısıtılır; ısındıkça kabarır (yükselir, köpürür). Kabarınca tahta karıştırıcıyla karıştırılarak indirilir. Bu ${KABARTMA_SAYISI} KEZ yapılır. Süre değil, kıvam esastır.`,
       liste: [
-        "Tahta karıştırıcıyı kabın dibine değdirerek ve kenarları sıyırarak, \"8\" çizer gibi düzenli karıştırın; çırpmayın (hava kabarcığı olur).",
-        "5 dakika karıştırın, 5 dakika dinlendirin; bu döngüyü sürdürün. Dinlenmede sabunlaşma yine devam eder.",
-        "İz testi: karıştırıcıyı kaldırıp sabunu yüzeye damlatın. Damla yüzeyde bir an iz bırakıp hemen kaybolmuyorsa İZ ALINDI.",
-        "Su gibi akıyorsa iz yoktur, karıştırmaya devam. Çok koyulaşıp topaklanıyorsa beklemeden kalıba geçin.",
-      ] },
-    ...(sicak ? [{ tip: "karistir" as const, baslik: `Tüpte pişir`, sureDk: 90,
-      not: "Hafif iz alınca tüpü yeniden EN KISIK ateşte yakın. Mümkünse su banyosu (benmari) kurun: büyük bir kaba su koyup sabun kabını içine oturtun; doğrudan ateşte dip yanar.",
-      liste: [
-        "15 dakikada bir tahta karıştırıcıyla dipten kazıyarak karıştırın; arada kabın ağzını kapakla örtün (su kaybı azalır).",
-        "Sabun önce kabarır, köpürür; sonra koyu, parlak, VAZELİN GİBİ YARI SAYDAM bir kıvama geçer.",
-        "Hazır olma testi: bir parça alın, soğutup üstüne 1 damla fenolftalein damlatın. Pembeleşmiyor ya da çok soluk pembe ise hazırdır; koyu pembe olursa pişirmeye devam.",
-        "Hazır olunca ateşi KAPATIN ve tüp vanasını kapatın.",
+        "Tüpü EN KISIK ateşte yakın; sabunu ara ara tahta karıştırıcıyla dipten kazıyarak karıştırın (dip tutmasın).",
+        "1. KABARMA: Sabun kabarıp yükselmeye başlayınca, kabın ağzına ulaşmadan ateşi kısın ya da kapatın; tahta karıştırıcıyla dipten karıştırarak sabunu indirin.",
+        "Ateşi yeniden en kısığa alın; sabunu ısıtmaya devam edin.",
+        "2. KABARMA: Sabun yeniden kabarınca aynı şekilde ateşi kısıp karıştırarak indirin.",
+        "İkinci kabartmadan sonra sabun koyu, parlak, VAZELİN GİBİ YARI SAYDAM bir hamur olur.",
+        "Hazır olma testi: bir parça alın, soğutup üstüne 1 damla fenolftalein damlatın. Renksiz ya da çok soluk pembe ise hazırdır; koyu pembe olursa bir kez daha kabartın.",
+        "Hazır olunca ateşi KAPATIN ve tüp vanasını kapatın; sabun bekletilmeden kalıba alınır.",
       ],
-      dikkat: [`Kap en fazla yarıya kadar doldurulur (%${Math.round(KAP_DOLULUK.sicak * 100)}); pişerken sabun kabarır.`, "Ocağın başından ayrılmayın; kabarma başlarsa ateşi kısıp karıştırarak bastırın.", "Sıcak sabun ciddi yanık yapar: uzun kollu önlük ve eldiven."] }] : []),
+      dikkat: [`Kap en fazla yarıya kadar doldurulur (%${Math.round(KAP_DOLULUK.sicak * 100)}); kabarırken sabun yükselir, dolu kap taşar.`, "Ocağın başından ayrılmayın; kabarma hızlıdır, birkaç saniyede taşabilir.", "Sıcak sabun ciddi yanık yapar: uzun kollu önlük ve eldiven; yüzünüzü kabın üstüne eğmeyin.",
+        ...(defneli ? ["Defne yağının kokusu ısıyla uçar; ateşi en kısıkta tutun, gereğinden uzun pişirmeyin."] : [])] }] : []),
     { tip: "bilgi", baslik: `Kalıba dök ve tahta düzleştiriciyle düzle`,
       not: sicak ? "Pişmiş sabun koyu bir hamurdur, dökülmez; malayla kalıba aktarılıp bastırılır." : "İz alan sabun hemen kalıba dökülür; beklerse kapta katılaşır.",
       liste: sicak ? [
@@ -229,8 +240,8 @@ function katiSabunProses(urun: Urun): ProsesAdim[] {
         "Kesilen sabunları tartın; birkaçının ağırlığını Kalite Kontrol için not edin.",
       ],
       dikkat: ["Kesim sırasında sabun ufalanıyorsa çok beklenmiştir; kalan bloğu biraz ılık bir yerde bekletip yumuşatın.", "Mala keskin değildir ama iki elle bastırırken parmaklarınızı kesim çizgisinden uzak tutun."] },
-    { tip: "bilgi", baslik: `Kürlemeye diz (${kurHafta(urun)} hafta)`,
-      not: `Kesilen sabunlar ${kurHafta(urun)} hafta kürlenir; kür bitmeden sabun kullanılmaz, satılmaz. Bu sürede sabunlaşma tamamlanır, su uçar, sabun sertleşir ve cilde yumuşak gelir (tahriş etmez).${defneli ? " Geleneksel Halep sabunu aylarca bekletilir; kür uzadıkça kalitesi artar." : ""}`,
+    { tip: "bilgi", baslik: `Kürlemeye diz (en az ${kurHafta(urun)} hafta)`,
+      not: `Kesilen sabunlar en az ${kurHafta(urun)} hafta kürlenir; kür bitmeden sabun kullanılmaz, satılmaz. Bu sürede sabunlaşma tamamlanır, su uçar, sabun sertleşir ve cilde yumuşak gelir (tahriş etmez).${HALEP_OLGUNLASMA[urun.id] ? ` Bu en az süredir; Halep sabunu ideal olarak ${HALEP_OLGUNLASMA[urun.id]} olgunlaştırılır — kür uzadıkça sertleşir, rengi yeşilden sarı-kahverengiye döner ve kalitesi artar.` : ""}`,
       liste: [
         "Sabunları tahta raf ya da ızgara üstüne, aralarında BİR PARMAK boşluk kalacak şekilde dizin; birbirine değmesin.",
         "Raf havadar, gölge ve kuru olmalı; güneş ve nem sabunu bozar.",

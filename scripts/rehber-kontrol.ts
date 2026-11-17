@@ -390,3 +390,27 @@ import { KOSTIK_COZME } from "../src/katiSabun";
   if (kk.length) { console.error("❌ Kostik çözme:\n  " + kk.join("\n  ")); process.exit(1); }
   console.log("✅ Kostik suya tek seferde (Asistan + Rehber), dil testi yok");
 }
+// ── Musa Hocam (17 Kas): atölye yöntemi = SICAK PROSES (2 kez kabartma); yağa göre su + kostik ──
+import { sicakMi, KABARTMA_SAYISI, HALEP_OLGUNLASMA, yagaGoreSuKostik } from "../src/katiSabun";
+{
+  const sp: string[] = [];
+  const u = (id: string) => URUNLER.find((x) => x.id === id)!;
+  for (const id of ["halep-20", "halep-30", "halep-40", "kastilya-sicak"]) {
+    if (!sicakMi(u(id))) sp.push(`${id} sıcak proses değil`);
+    const m = JSON.stringify(prosesUret(u(id)));
+    if (KABARTMA_SAYISI !== 2 || !m.includes("2 kez kabart") || !m.includes("1. KABARMA") || !m.includes("2. KABARMA")) sp.push(`${id}: 2 kez kabartma adımı yok`);
+    if (!/ısınan yağa yavaşça ekle/.test(m)) sp.push(`${id}: kostik çözeltisi ısınan yağa yavaşça eklenmiyor`);
+  }
+  if (sicakMi(u("kastilya-soguk")) || JSON.stringify(prosesUret(u("kastilya-soguk"))).includes("KABARMA")) sp.push("kastilya-soğuk kabartılıyor");
+  // Yağa göre su/kostik: Halep %30, 6 kg yağ → su 6×25,5/66, kostik 6×8,5/66; yağ+su+kostik = ürün
+  const sk = yagaGoreSuKostik(u("halep-30"), 6);
+  if (Math.abs(sk.su - 6 * 25.5 / 66) > 1e-9 || Math.abs(sk.kostik - 6 * 8.5 / 66) > 1e-9) sp.push(`yağa göre su/kostik yanlış: ${JSON.stringify(sk)}`);
+  for (const x of URUNLER.filter((y) => y.kat === "Katı Sabun")) { const s = yagaGoreSuKostik(x, 5); if (Math.abs(5 + s.su + s.kostik - yagdanUrunKg(x, 5)) > 1e-9) sp.push(`${x.id}: yağ+su+kostik ≠ ürün`); }
+  const html = readFileSync("index.html", "utf8");
+  if (/YÖNTEM [345] — Halep[^<]*Soğuk Proses/.test(html)) sp.push("Rehber'de Halep hâlâ soğuk proses");
+  if (!/YÖNTEM 2[\s\S]{0,4000}<b>2 kez<\/b>/.test(html)) sp.push("Rehber Yöntem 2'de 2 kez kabartma yok");
+  for (const [id, sure] of Object.entries(HALEP_OLGUNLASMA)) { const o = u(id).ings.find(([a]) => a === "Defne Yağı")![1]; const pct = Math.round(o / 66 * 10) * 10;
+    if (!html.includes(`<td class="tc">%${pct}</td><td>${sure}</td>`)) sp.push(`${id}: olgunlaşma süresi Rehber tablosuyla aynı değil`); }
+  if (sp.length) { console.error("❌ Sıcak proses / yağa göre su-kostik:\n  " + sp.join("\n  ")); process.exit(1); }
+  console.log("✅ Atölye yöntemi sıcak proses (2 kez kabartma), yağa göre su + kostik, Rehber ile aynı");
+}

@@ -9,7 +9,7 @@ import { $, urunSelect, val, numVal, esansAd, setHTML, setText, setVal, showToas
 import { KAZANLAR, asistanKazanEngel, kazanUyum, urunKazanTipi, SAF_SU_DINAMO_UYARI, GOZLUK_KURAL, KATI_SABUN_KAZAN_KURAL } from "../atolyeDuzen";
 import { bugunKazanPlani, bugunKazanPlaniTaze } from "./duzen";
 import {
-  KAP_VARSAYILAN_KG, KAP_DOLULUK, KALIP_VARSAYILAN, KENAR_PAYI_CM, sicakMi, kapPlani, kalipPlani, kapOnerisi, yagOrani, yagdanUrunKg,
+  KAP_VARSAYILAN_KG, KAP_DOLULUK, KALIP_VARSAYILAN, KENAR_PAYI_CM, sicakMi, kapPlani, kalipPlani, kapOnerisi, yagOrani, yagdanUrunKg, yagaGoreSuKostik,
 } from "../katiSabun";
 import type { KapPlani, KalipPlani } from "../katiSabun";
 import { session } from "../state";
@@ -148,6 +148,20 @@ function katiHesap(u: Urun): { hedefKg: number; kap: KapPlani; kalip: KalipPlani
   return { hedefKg, kap, kalip: kalipPlani(kap.kapBasiKg, u.yog, en, boy) };
 }
 
+/** Yağ miktarına göre katılacak su ve kostik: toplam, kap başına ve 1 kg yağ başına. */
+function suKostikTablo(u: Urun, yagKg: number, kapSayisi: number): string {
+  const top = yagaGoreSuKostik(u, yagKg), bir = yagaGoreSuKostik(u, 1);
+  const sat = (ad: string, yag: number, sk: { su: number; kostik: number }) =>
+    `<tr><td style="padding:2px 6px">${ad}</td><td style="text-align:right;padding:2px 6px">${miktarYaz(yag)}</td><td style="text-align:right;padding:2px 6px"><b>${miktarYaz(sk.su)}</b></td><td style="text-align:right;padding:2px 6px"><b>${miktarYaz(sk.kostik)}</b></td></tr>`;
+  return `<table style="width:100%;margin:6px 0;font-size:.78rem;border-collapse:collapse">
+    <tr style="border-bottom:1px solid #ffcc80"><th style="text-align:left;padding:2px 6px">Yağa göre</th><th style="text-align:right;padding:2px 6px">Yağ</th><th style="text-align:right;padding:2px 6px">💧 Su</th><th style="text-align:right;padding:2px 6px">⚠️ Kostik</th></tr>
+    ${sat("Toplam", yagKg, top)}
+    ${kapSayisi > 1 ? sat(`Kap başına (${kapSayisi} parti)`, yagKg / kapSayisi, yagaGoreSuKostik(u, yagKg / kapSayisi)) : ""}
+    ${sat("1 kg yağ için", 1, bir)}
+  </table>
+  <small>Su ve kostik ayrı tartılır, kostiğin tamamı suya tek seferde eklenip çözülür; çözelti ısınmış yağa yavaşça eklenir.</small><br>`;
+}
+
 function kapOneriHTML(u: Urun, hedefKg: number, kap: KapPlani): string {
   const sicak = sicakMi(u);
   const on = kapOnerisi(hedefKg, sicak);
@@ -159,6 +173,7 @@ function kapOneriHTML(u: Urun, hedefKg: number, kap: KapPlani): string {
   return `<div class="as-uyari" style="margin-top:6px">
     <b>🍲 Kap önerisi</b><br>
     ${sayi(hedefKg, 2)} kg sabun = <b>${sayi(yag, 2)} kg yağ</b> + ${sayi(hedefKg - yag, 2)} kg kostik çözeltisi (su + kostik).<br>
+    ${suKostikTablo(u, yag, kap.kapSayisi)}
     Kap en fazla %${dol} doldurulur${sicak ? " (sıcak proseste pişerken kabarır)" : ""} → en az <b>${sayi(on.gerekliKg)} kg'lık kap</b> gerekir.<br>
     ${oneri}<br>
     Seçili kap (${sayi(kap.kapKg)} kg) ile: <b>${kap.kapSayisi} parti × ${sayi(kap.kapBasiKg, 2)} kg</b> (her parti ≈${sayi(kap.kapBasiKg * yagOrani(u), 2)} kg yağ).

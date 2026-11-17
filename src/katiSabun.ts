@@ -23,7 +23,25 @@ export const KENAR_PAYI_CM = 0.5;
 /** Sabunlaşma değerleri (g NaOH / g yağ). Zeytinyağı KOH 190 mg/g, defne yağı KOH 198 mg/g → ×40/56,1. */
 export const SAP_NAOH: Record<string, number> = { "Zeytinyağı": 0.1354, "Defne Yağı": 0.1412 };
 
-export const sicakMi = (u: Urun) => u.id.includes("sicak");
+/**
+ * Atölye yöntemi (Musa Hocam 17 Kas): su + kostik tek seferde çözülür, ısınan yağa yavaşça eklenir,
+ * tahta karıştırıcıyla karıştırılır, tüpte 2 KEZ KABARTILIP karıştırılır, kalıba dökülür → SICAK PROSES.
+ * Halep sabunları da böyle (geleneksel Halep sabunu da pişirilerek yapılır). Yalnız "Kastilya — Soğuk Proses" pişirilmez.
+ */
+export const SOGUK_PROSES = new Set(["kastilya-soguk"]);
+export const sicakMi = (u: Urun) => !SOGUK_PROSES.has(u.id);
+/** Sıcak proseste kabartma sayısı (atölye uygulaması). */
+export const KABARTMA_SAYISI = 2;
+
+/** Halep sabununun ideal olgunlaşma süresi (Rehber'deki tabloyla aynı). Kullanıma hazır olması için en az kurHafta yeter. */
+export const HALEP_OLGUNLASMA: Record<string, string> = { "halep-20": "3–6 ay", "halep-30": "6–9 ay", "halep-40": "9–12 ay" };
+
+/** Yağ miktarına göre katılacak su ve kostik (reçete oranlarıyla). */
+export function yagaGoreSuKostik(u: Urun, yagKg: number): { su: number; kostik: number } {
+  const yagP = u.ings.filter(([a]) => a in SAP_NAOH).reduce((t, [, p]) => t + p, 0);
+  const p = (ad: string) => u.ings.find(([a]) => a === ad)?.[1] || 0;
+  return { su: (yagKg * p("Su")) / yagP, kostik: (yagKg * p("Kostik")) / yagP };
+}
 
 export const KATI_EKIPMAN: string[] = [
   `🍲 ${KAP_VARSAYILAN_KG} kg'lık PASLANMAZ ÇELİK ya da emaye kap (tüp üzerinde). ALÜMİNYUM, galvaniz, teflonlu kap KULLANILMAZ: kostik aşındırır, hidrojen gazı çıkar.`,
@@ -96,12 +114,10 @@ export function superyag(u: Urun): number {
 
 /** Kalıpta bekleme (saat): sıcak 24; soğuk zeytinyağı 48; defne oranı yüksekse 72. */
 export function kalipBekleme(u: Urun): number {
-  if (sicakMi(u)) return 24;
-  const defne = u.ings.find(([a]) => a === "Defne Yağı")?.[1] || 0;
-  return defne >= 20 ? 72 : 48;
+  return sicakMi(u) ? 24 : 48;
 }
-/** Kür süresi (hafta). */
+/** En az kür süresi (hafta) — kullanıma hazır olması için. Defneli sabun pişirilse de uzun kür ister. */
 export function kurHafta(u: Urun): string {
-  if (sicakMi(u)) return "2–3";
-  return u.ings.some(([a]) => a === "Defne Yağı") ? "6–8" : "4–6";
+  if (u.ings.some(([a]) => a === "Defne Yağı")) return "6–8";
+  return sicakMi(u) ? "2–3" : "4–6";
 }
