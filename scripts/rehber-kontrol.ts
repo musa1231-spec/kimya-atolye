@@ -407,7 +407,7 @@ import { sicakMi, KABARTMA_SAYISI, HALEP_OLGUNLASMA, yagaGoreSuKostik } from "..
   if (sicakMi(u("kastilya-soguk")) || JSON.stringify(prosesUret(u("kastilya-soguk"))).includes("KABARMA")) sp.push("kastilya-soğuk kabartılıyor");
   // Yağa göre su/kostik: Halep %30, 6 kg yağ → su 6×25,5/66, kostik 6×8,5/66; yağ+su+kostik = ürün
   const sk = yagaGoreSuKostik(u("halep-30"), 6);
-  if (Math.abs(sk.su - 6 * 25.5 / 66) > 1e-9 || Math.abs(sk.kostik - 6 * 8.5 / 66) > 1e-9) sp.push(`yağa göre su/kostik yanlış: ${JSON.stringify(sk)}`);
+  if (Math.abs(sk.su - 6 * 21 / 70) > 1e-9 || Math.abs(sk.kostik - 6 * 9 / 70) > 1e-9) sp.push(`yağa göre su/kostik yanlış: ${JSON.stringify(sk)}`);
   for (const x of URUNLER.filter((y) => y.kat === "Katı Sabun")) { const s = yagaGoreSuKostik(x, 5); if (Math.abs(5 + s.su + s.kostik + s.tuz - yagdanUrunKg(x, 5)) > 1e-9) sp.push(`${x.id}: yağ+su+kostik+tuz ≠ ürün`); }
   const html = readFileSync("index.html", "utf8");
   if (/YÖNTEM [345] — Halep[^<]*Soğuk Proses/.test(html)) sp.push("Rehber'de Halep hâlâ soğuk proses");
@@ -482,4 +482,17 @@ import { karmaSap, SAP_NAOH } from "../src/katiSabun";
   for (const id of ["halep-20", "halep-30", "halep-40"]) if (!JSON.stringify(URUN_REHBER[id]).includes("TÜRKPATENT tescil 219")) fd.push(`${id}: resmî Hatay ölçütü yok`);
   if (fd.length) { console.error("❌ Formülasyon doğrulaması:\n  " + fd.join("\n  ")); process.exit(1); }
   console.log("✅ Formülasyon doğrulaması: SAP kaynaklı, Rehber karma SAP = hesap, Halep'te resmî Hatay ölçütü");
+}
+// ── Musa Hocam (17 Kas) kararı: Halep ve Kastilya-soğuk suyu 1 kg yağa 300 g (Hatay resmî 270 · Google AI 300–350); kostik %5–7 süperyağ ──
+{
+  const sk2: string[] = [];
+  for (const id of ["kastilya-soguk", "kastilya-sicak", "halep-20", "halep-30", "halep-40"]) {
+    const u = URUNLER.find((x) => x.id === id)!, y = yagOrani(u) * 100;
+    const su = u.ings.find(([a]) => a === "Su")![1] / y * 1000, ko = u.ings.find(([a]) => a === "Kostik")![1] / y * 1000;
+    if (Math.abs(su - 300) > 3) sk2.push(`${id}: 1 kg yağa su ${su.toFixed(0)} g (300 olmalı)`);
+    if (ko < 125 || ko > 132) sk2.push(`${id}: 1 kg yağa kostik ${ko.toFixed(1)} g (≈129 olmalı)`);
+  }
+  if (!/defne MEYVESİ yağı/.test(JSON.stringify(URUN_REHBER["halep-20"]))) sk2.push("defne meyve yağı / yaprak yağı ayrımı Rehber'de yok");
+  if (sk2.length) { console.error("❌ Su/kostik kararı:\n  " + sk2.join("\n  ")); process.exit(1); }
+  console.log("✅ Katı sabun suyu 1 kg yağa 300 g, kostik ≈129 g (Halep + Kastilya)");
 }

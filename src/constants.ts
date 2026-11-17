@@ -15,11 +15,11 @@ export const URUNLER: Urun[] = [
   { id: "wc-banyo", ad: "WC/Banyo Temizleyici", kat: "Endüstriyel", yog: 1.08, batch: 20, ings: [["Su", 86.15], ["Fosforik Asit", 12.0], ["NP10", 1.5], ["Esans", 0.2], ["Asit İnhibitörü", 0.15]] },
   { id: "tuz-ruhu", ad: "Tuz Ruhu", kat: "Endüstriyel", yog: 1.15, batch: 30, ings: [["Su", 67.0], ["HCl", 33.0]] },
   { id: "kirec-coz", ad: "Kireç Çözücü", kat: "Endüstriyel", yog: 1.12, batch: 400, ings: [["Su", 67.0], ["HNO3", 33.0]] },
-  { id: "kastilya-soguk", ad: "Kastilya Sabunu — Soğuk Proses", kat: "Katı Sabun", yog: 1.07, batch: 2, ings: [["Zeytinyağı", 66.5], ["Su", 25.0], ["Kostik", 8.5]] },
+  { id: "kastilya-soguk", ad: "Kastilya Sabunu — Soğuk Proses", kat: "Katı Sabun", yog: 1.07, batch: 2, ings: [["Zeytinyağı", 70.0], ["Su", 21.0], ["Kostik", 9.0]] },
   { id: "kastilya-sicak", ad: "Kastilya Sabunu — Sıcak Proses", kat: "Katı Sabun", yog: 1.07, batch: 2, ings: [["Zeytinyağı", 70.0], ["Su", 21.0], ["Kostik", 9.0]] },
-  { id: "halep-20", ad: "Halep Sabunu Klasik (%20 Defne)", kat: "Katı Sabun", yog: 1.07, batch: 2, ings: [["Zeytinyağı", 53.0], ["Defne Yağı", 13.0], ["Su", 25.5], ["Kostik", 8.5]] },
-  { id: "halep-30", ad: "Halep Sabunu Standart (%30 Defne)", kat: "Katı Sabun", yog: 1.07, batch: 2, ings: [["Zeytinyağı", 46.0], ["Defne Yağı", 20.0], ["Su", 25.5], ["Kostik", 8.5]] },
-  { id: "halep-40", ad: "Halep Sabunu Premium (%40 Defne)", kat: "Katı Sabun", yog: 1.07, batch: 2, ings: [["Zeytinyağı", 40.0], ["Defne Yağı", 26.5], ["Su", 25.0], ["Kostik", 8.5]] },
+  { id: "halep-20", ad: "Halep Sabunu Klasik (%20 Defne)", kat: "Katı Sabun", yog: 1.07, batch: 2, ings: [["Zeytinyağı", 56.2], ["Defne Yağı", 13.8], ["Su", 21.0], ["Kostik", 9.0]] },
+  { id: "halep-30", ad: "Halep Sabunu Standart (%30 Defne)", kat: "Katı Sabun", yog: 1.07, batch: 2, ings: [["Zeytinyağı", 48.8], ["Defne Yağı", 21.2], ["Su", 21.0], ["Kostik", 9.0]] },
+  { id: "halep-40", ad: "Halep Sabunu Premium (%40 Defne)", kat: "Katı Sabun", yog: 1.07, batch: 2, ings: [["Zeytinyağı", 42.1], ["Defne Yağı", 27.9], ["Su", 21.0], ["Kostik", 9.0]] },
   { id: "zy-kaynatma", ad: "Zeytinyağı Sabunu — Kaynatma ve Tuzlama (dip yağına uygun)", kat: "Katı Sabun", yog: 1.07, batch: 2, ings: [["Zeytinyağı", 48.0], ["Su", 38.5], ["Kostik", 6.8], ["Tuz", 6.7]] },
 ];
 

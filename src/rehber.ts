@@ -282,6 +282,7 @@ const HATAY_OLCUT = "📜 Resmî ölçüt (Hatay Defne Sabunu, TÜRKPATENT tesci
 const HALEP_HAZIRLIK: Rehber = {
   dikkat: [
     "Defne yağı pahalıdır ve kokusu ısıyla uçar; yağ kızdırılmaz, kabartmalarda ateş en kısıkta tutulur.",
+    "Sabunda defne MEYVESİ yağı (sabit yağ, \"gar yağı\", koyu yeşil, ≈30 °C'de erir) kullanılır; defne YAPRAĞI uçucu yağı (esans) yerine geçmez.",
     "Atölyede Halep sabunu SICAK PROSESLE yapılır: kostik çözeltisi ısınmış yağa eklenir, tüpte 2 kez kabartılıp karıştırılır, sonra kalıba alınır.",
     "Defne oranı arttıkça (%20 → %40) iz daha geç oluşur; sabırla karıştırın.",
     "Halep sabunu uzun kür ister: en az 6 hafta, geleneksel olarak aylarca. Kesilen kalıplar havadar rafta, aralıklı dizilir.",
