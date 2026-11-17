@@ -92,9 +92,6 @@ export const HM_REHBER: Record<string, Rehber> = {
       { belirti: "Kostik göze veya cilde sıçradı", neden: "Koruyucu ekipman eksik", cozum: "En az 15 dakika bol akan suyla yıkayın, öğretmene hemen haber verin." },
     ],
   },
-  TEA: {
-    dikkat: ["Azar azar ekleyip her ilaveden sonra pH ölçün; hedefe gelince durun."],
-  },
   Tuz: {
     dikkat: [
       "Hepsini birden EKLEMEYİN: önce yaklaşık yarısını, kalanını 3–4 parçada ekleyin. Her parçadan sonra 5–10 dk karıştırıp kıvama bakın.",

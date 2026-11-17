@@ -32,7 +32,6 @@ export const HM_ROL: Record<string, string> = {
   "Sitrik Asit": "⚗️ pH DÜŞÜRÜR — cilt pH'ına (≈5,5) ayarlar",
   Kostik: "⚠️ Nötralizasyon — pH YÜKSELTİR (aşındırıcı, dikkat)",
   "Sıvı Kostik": "⚠️ Nötralizasyon — pH YÜKSELTİR (aşındırıcı)",
-  TEA: "⚗️ LABSA nötralizasyonu — pH ayarı",
   "Fosforik Asit": "⚗️ Asit — kireç/kir çözer (aşındırıcı)",
   HCl: "⚠️ Kuvvetli asit — suya yavaşça ekleyin (asla tersi)",
   HNO3: "⚠️ Kuvvetli asit — suya yavaşça ekleyin (asla tersi)",
@@ -63,7 +62,7 @@ function rolSira(ad: string): number {
   if (["Etil Alkol", "IPA"].includes(ad)) return 1;
   if (["SLES", "LABSA", "NP10"].includes(ad)) return 2;
   if (["Betain", "Kokamid DEA", "Gliserin"].includes(ad)) return 3;
-  if (["Kostik", "Sıvı Kostik", "TEA"].includes(ad)) return 4;     // nötralizasyon
+  if (["Kostik", "Sıvı Kostik"].includes(ad)) return 4;     // nötralizasyon
   if (["Sitrik Asit", "Fosforik Asit", "HCl", "HNO3", "Asit İnhibitörü"].includes(ad)) return 5;
   if (["Hipoklorit %16"].includes(ad)) return 6;
   if (ad === "Köpük Kesici") return 7;
@@ -181,7 +180,7 @@ function genericProses(urun: Urun): ProsesAdim[] {
     } else {
       const ipuc = ad.map((a) => HM_ROL[a]).filter(Boolean).join(" · ");
       steps.push({ tip: "ekle", baslik: ad.join(" + "), ekle: ad, sureDk: s <= 3 ? 15 : undefined, not: ipuc });
-      const phVar = ad.some((a) => ["Kostik", "Sıvı Kostik", "TEA", "Sitrik Asit", "Fosforik Asit"].includes(a));
+      const phVar = ad.some((a) => ["Kostik", "Sıvı Kostik", "Sitrik Asit", "Fosforik Asit"].includes(a));
       if (phVar && !pHyapildi) { steps.push({ tip: "olcum", baslik: "pH Kontrol", not: "pH'ı ölçüp hedefe ayarlayın." }); pHyapildi = true; }
     }
   }

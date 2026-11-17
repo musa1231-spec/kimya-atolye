@@ -196,3 +196,14 @@ import { YARDIM_SEKME, KATI_SABUN_KAT } from "../src/rehber";
   if (yh.length) { console.error("❌ Üretim Rehberi / kural bütünlüğü:\n  " + yh.join("\n  ")); process.exit(1); }
   console.log("✅ Üretim Rehberi: sıvı kartlar tek kaynaktan, katı sabun yüzdeleri reçeteyle aynı, kural metni tutarlı");
 }
+// ── Ölü ham madde kaydı yok: rehber/rol/grup listesindeki her ham madde en az bir reçetede geçmeli ──
+// (Musa Hocam, 17 Kas: "TEA yok bizde" — kullanılmayan madde rehberde/Asistan'da öğrenciyi yanıltır)
+import { HM_ROL } from "../src/proses";
+{
+  const kullanilan = new Set(URUNLER.flatMap((u) => u.ings.map(([a]) => a)));
+  const olu: string[] = [];
+  for (const [ad_, liste] of [["HM_REHBER", Object.keys(HM_REHBER)], ["HM_ROL", Object.keys(HM_ROL)], ["HM_GRUP", Object.keys(HM_GRUP)]] as [string, string[]][])
+    for (const ad of liste) if (!kullanilan.has(ad)) olu.push(`${ad_}: '${ad}'`);
+  if (olu.length) { console.error("❌ Hiçbir reçetede kullanılmayan ham madde kaydı:\n  " + olu.join("\n  ")); process.exit(1); }
+  console.log("✅ Ölü ham madde kaydı yok (rehber/rol/grup listelerindeki her madde bir reçetede kullanılıyor)");
+}

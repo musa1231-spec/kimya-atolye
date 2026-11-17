@@ -19,7 +19,7 @@ export const HM_GRUP: Record<string, string> = {
   SLES: "aktif", LABSA: "aktif", Betain: "aktif", "Kokamid DEA": "aktif", NP10: "aktif",
   "Etil Alkol": "alkol", IPA: "alkol",
   "Sitrik Asit": "asit", "Fosforik Asit": "asit", HCl: "asit", HNO3: "asit",
-  Kostik: "baz", "Sıvı Kostik": "baz", TEA: "baz",
+  Kostik: "baz", "Sıvı Kostik": "baz",
   "Hipoklorit %16": "oks",
   Tuz: "kivam", Gliserin: "kivam",
   Zeytinyağı: "yag", "Defne Yağı": "yag",
