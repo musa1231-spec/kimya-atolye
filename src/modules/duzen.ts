@@ -1,11 +1,11 @@
 // ════════════════════════════════════════════════════════════════
-// 📋 ATÖLYE DÜZENİ — günün kazan planı + görev dağılımı + kurallar
+// 📋 ATÖLYE DÜZENİ — günün kazan planı + kurallar (+ öğretmene özel taşıma adaleti)
 // Öğrenci PDF'i (WhatsApp grubu için) bu sayfadan üretilir.
 // İçerik tek kaynaktan: src/atolyeDuzen.ts
 // ════════════════════════════════════════════════════════════════
 import { URUNLER, ATOLYE_BILGI } from "../constants";
 import {
-  KAZANLAR, ROLLER, ALTIN_KURAL, KURAL_BOLUMLERI, URUN_AILE, AILE_AD, kazanPlaniDenetle,
+  KAZANLAR, ALTIN_KURAL, KURAL_BOLUMLERI, URUN_AILE, AILE_AD, kazanPlaniDenetle,
   KAZAN_TIP_AD, kazanUrunleri, urunKazanTipi, kurallarMetni,
   maddeAyir, IMZA_ZUMRE, TASIMA_ANAHTAR, GELENLER_ANAHTAR, TASIYICI_SAYISI, adListesi, adNorm, agirIsYapanlar, agirIsSayaci, adilTasiyiciDagit,
 } from "../atolyeDuzen";
@@ -132,7 +132,6 @@ export function rDuzen(): void {
   if (!gosterilenTarih) gosterilenTarih = today();
   plan = planiBul(gosterilenTarih);
   if (!plan.ogretmen && session.CU) plan.ogretmen = session.CU.ad;
-  const onceki = oncekiPlan(plan.tarih);
   const ogrAdlari = store.ogrenciler.map((o) => o.ad).sort((a, b) => a.localeCompare(b, "tr"));
 
   setHTML("dz-form", `
@@ -169,15 +168,7 @@ export function rDuzen(): void {
         <span class="tm">Her kullanılan kazana ${TASIYICI_SAYISI} kişi; önceki günlerde en az ağır iş yapan öne alınır. Elle yazılan kazana dokunulmaz. Öğretmen ya da gönüllü isterse aynı kişiyi birden çok kazana yazabilir.</span></div>
       <div id="dz-sayac"></div>
     </div>
-    <div class="ch" style="margin-top:12px"><span class="ct">👥 Bugünün görev dağılımı</span><span class="tm">Adları virgülle yazın. Her üretimde görevleri değiştirin.</span></div>
-    <datalist id="dz-ogc-list">${ogrAdlari.map((a) => `<option value="${esc(a)}">`).join("")}</datalist>
-    <div class="dz-roller">
-    ${ROLLER.map((r) => `<div class="fg dz-rol">
-      <label>${r.ikon} ${r.ad} <span class="tm">(${r.kisi})</span></label>
-      <input type="text" id="dz-r-${r.id}" value="${esc(plan.roller[r.id] || "")}" list="dz-ogc-list" oninput="dzKaydet()" placeholder="Öğrenci adları" autocomplete="off">
-      ${onceki?.roller[r.id] ? `<div class="dz-onceki">Geçen sefer (${fmt(onceki.tarih)}): ${esc(onceki.roller[r.id])}</div>` : ""}
-    </div>`).join("")}
-    </div>`);
+    <datalist id="dz-ogc-list">${ogrAdlari.map((a) => `<option value="${esc(a)}">`).join("")}</datalist>`);
   dzDenetimGoster();
   dzSayacGoster();
   setHTML("dz-onizleme", `<div class="pdfd">${pdfStil()}${bloklar().join("")}</div>`);
@@ -202,7 +193,6 @@ function formOku(): void {
     urunId: (document.getElementById(`dz-k-u-${i}`) as HTMLSelectElement | null)?.value || "",
     kg: parseFloat((document.getElementById(`dz-k-kg-${i}`) as HTMLInputElement | null)?.value || "") || 0,
   }));
-  for (const r of ROLLER) plan.roller[r.id] = (document.getElementById(`dz-r-${r.id}`) as HTMLInputElement | null)?.value || "";
   plan.kazan.forEach((k, i) => { plan.roller[TASIMA_ANAHTAR(k.no)] = (document.getElementById(`dz-k-t-${i}`) as HTMLInputElement | null)?.value || ""; });
   plan.roller[GELENLER_ANAHTAR] = (document.getElementById("dz-gelenler") as HTMLInputElement | null)?.value || "";
 }
@@ -304,12 +294,8 @@ function pdfStil(): string {
   .pdfd td.kno{font-weight:900;font-size:17px;text-align:center;width:62px;color:#0b2a66}
   .pdfd td.bos{color:#99a;font-style:italic}
   .pdfd .uy{background:#fff8e1;border:1.5px solid #f9a825;border-radius:8px;padding:7px 10px;margin-top:6px;font-weight:700;font-size:12px}
-  .pdfd .rol{border:1.5px solid #c8dbff;border-radius:9px;padding:8px 10px;background:#f7faff}
-  .pdfd .rol .rb{font-weight:800;font-size:14px;color:#0b2a66}
-  .pdfd .rol .rk{font-size:11px;color:#5a6f99;font-weight:700}
-  .pdfd .rol ul,.pdfd .kb ul{margin:4px 0 0 18px;padding:0}
-  .pdfd .rol li,.pdfd .kb li{margin:2px 0}
-  .pdfd .ikili{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .pdfd .kb ul{margin:4px 0 0 18px;padding:0}
+  .pdfd .kb li{margin:2px 0}
   .pdfd .kb{border:1.5px solid #c8dbff;border-radius:9px;padding:9px 12px}
   .pdfd .kb.safsu{border-color:#1565C0;background:#eef6ff}
   .pdfd .onemli{color:#b71c1c;font-weight:800}
@@ -357,17 +343,7 @@ function bloklar(): string[] {
     </tbody></table>
     ${d.uyarilar.map((u) => `<div class="uy">⚠️ ${esc(u)}</div>`).join("")}</div>`);
 
-  b.push(`<div class="b"><h2>👥 Bugünün Görev Dağılımı</h2>
-    <table><thead><tr><th style="width:38%">Görev</th><th>Öğrenci</th></tr></thead><tbody>
-    ${ROLLER.map((r) => `<tr><td><b>${r.ikon} ${r.ad}</b></td><td>${esc(plan.roller[r.id] || "") || "&nbsp;"}</td></tr>`).join("")}
-    </tbody></table></div>`);
-
-  // Bölüm başlığı ilk kutuyla aynı blokta: sayfa sonunda başlık yalnız kalmasın
-  for (let i = 0; i < ROLLER.length; i += 2) {
-    b.push(`<div class="b">${i === 0 ? `<h2>📌 Görevler ve Sorumluluklar</h2>` : ""}<div class="ikili">${ROLLER.slice(i, i + 2).map((r) => `<div class="rol">
-      <div class="rb">${r.ikon} ${r.ad}</div><div class="rk">${r.kisi}</div>
-      <ul>${r.gorevler.map((g) => `<li>${g}</li>`).join("")}</ul></div>`).join("")}</div></div>`);
-  }
+  // (Görev dağılımı ve Görevler/Sorumluluklar bölümleri Musa Hocam'ın isteğiyle kaldırıldı, 17 Kas)
 
   KURAL_BOLUMLERI.forEach((k, i) => {
     const liste = k.id === "cikis"
@@ -486,8 +462,7 @@ export async function dzMesajPaylas(): Promise<void> {
   await bekleyeniYaz();
   // Taşıyıcı adları gruba gitmez (Musa Hocam): yalnız öğretmenin adalet aracında durur
   const kaz = plan.kazan.map((k) => `${k.no}: ${k.urunId ? `${urunAdi(k.urunId)}${k.kg ? ` (${k.kg} kg)` : ""}` : "boş"}`).join("\n");
-  const rol = ROLLER.filter((r) => (plan.roller[r.id] || "").trim()).map((r) => `${r.ikon} ${r.ad}: ${plan.roller[r.id]}`).join("\n");
-  const metin = `🧪 ATÖLYE ÜRETİM GÜNÜ — ${fmt(plan.tarih)}\n${plan.ogretmen ? `Sorumlu öğretmen: ${plan.ogretmen}\n` : ""}\n🛢️ KAZANLAR\n${kaz}\n${rol ? `\n👥 GÖREVLER\n${rol}\n` : ""}\n⛔ ${ALTIN_KURAL.baslik}\n\nKurallar PDF'te. Herkes okusun.`;
+  const metin = `🧪 ATÖLYE ÜRETİM GÜNÜ — ${fmt(plan.tarih)}\n${plan.ogretmen ? `Sorumlu öğretmen: ${plan.ogretmen}\n` : ""}\n🛢️ KAZANLAR\n${kaz}\n\n⛔ ${ALTIN_KURAL.baslik}\n\nKurallar PDF'te. Herkes okusun.`;
   whatsappPaylas(metin);
 }
 

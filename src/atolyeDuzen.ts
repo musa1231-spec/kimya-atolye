@@ -1,6 +1,6 @@
 // ════════════════════════════════════════════════════════════════
 // ATÖLYE VE ÜRETİM DÜZENİ — TEK KAYNAK
-// Kazanlar, öğrenci rolleri ve kurallar burada tanımlanır.
+// Kazanlar ve kurallar burada tanımlanır (öğrenci rolleri/görev dağılımı yok — Musa Hocam, 17 Kas).
 // "Atölye Düzeni" sayfası, öğrenci PDF'i ve Üretim Asistanı buradan okur.
 // (DOM yok → scripts/rehber-kontrol.ts içinde test edilir.)
 // ════════════════════════════════════════════════════════════════
@@ -112,47 +112,6 @@ export function asistanKazanEngel(kazanNo: string, urunId: string, kg: number, p
 /** Asistanda saf su adımında gösterilen dinamo uyarısı (KURAL_BOLUMLERI › safsu ile aynı kural). */
 export const SAF_SU_DINAMO_UYARI = "Dinamoyu çalıştırmadan önce mavi deponun ALT MUSLUĞUNU ve bu kazanın saf su VANASINI açın. Dinamo çalışırken vanaların hepsi kapalı kalırsa DİNAMO YANAR. Bitince sıra: dinamo → kazan vanası → depo musluğu. Su bitince saf su HORTUMUNU HEMEN KAZANDAN ÇIKARIN: içeride kalırsa sifonla kazandaki karışım mavi saf su deposuna çekilir.";
 
-// ── Öğrenci rolleri ──────────────────────────────────────────────
-export interface Rol { id: string; ikon: string; ad: string; kisi: string; gorevler: string[] }
-export const ROLLER: Rol[] = [
-  { id: "kazan", ikon: "⚖️", ad: "Kazan Sorumlusu", kisi: "1–2 öğrenci", gorevler: [
-    "Hammaddeyi tartar ve numaralı kaba koyar. Tartıyı her seferinde sıfırlar.",
-    "Kazana HİÇBİR ŞEYİ öğretmen «tamam» demeden dökmez.",
-    "Saf su basarken: önce mavi deponun alt musluğu ve kazanın saf su vanası açılır, sonra dinamo çalıştırılır.",
-    "Saf su bitince hortumu HEMEN kazandan çıkarır. İçeride kalırsa kazandaki karışım mavi depoya geri çekilir.",
-    "Karıştırma sürerken kazanın başından ayrılmaz, süreyi takip eder.",
-    "Kazan boşalınca kazanı ve tartıyı yıkar.",
-  ] },
-  { id: "kontrol", ikon: "✅", ad: "Kontrolcü", kisi: "1 öğrenci", gorevler: [
-    "Reçeteden maddeyi ve miktarı yüksek sesle okur: «3 numara, SLES, 50 kg».",
-    "Kabın üstündeki adı ve tartıdaki rakamı gözüyle kontrol eder.",
-    "Her madde için öğretmeni çağırır; onaydan sonra listede işaretler.",
-    "Yükleme bitince listeyi kazan sorumlusuyla birlikte imzalar.",
-  ] },
-  { id: "dolum", ikon: "🛢️", ad: "Dolum ve Kapak", kisi: "2 öğrenci", gorevler: [
-    "Bidonları dolum çizgisine kadar doldurur; ürünü yere döküp israf etmez.",
-    "Kapağı sıkar, doldurduğu bidonları sayar.",
-  ] },
-  { id: "koli", ikon: "📦", ad: "Koli ve Taşıma", kisi: "2 öğrenci", gorevler: [
-    "Bidonları koliye yerleştirir, koliyi bantlar.",
-    "Kolileri düzgün istifler, depoya taşır.",
-    "Yükü dizlerini bükerek kaldırır; ağır yükü iki kişi taşır.",
-    "İşi biten boş beklemez, öğretmene «başka iş var mı?» diye sorar.",
-  ] },
-  { id: "etiket", ikon: "🏷️", ad: "Etiket ve Kayıt", kisi: "2 öğrenci", gorevler: [
-    "Doğru etiketi doğru ürüne, düz ve kabarcıksız yapıştırır.",
-    "Parti numarasını ve tarihi etikete/koliye yazar.",
-    "Bidon ve koli sayısını sayar, öğretmene bildirir.",
-  ] },
-  { id: "temizlik", ikon: "🧹", ad: "Temizlik ve Düzen Başı", kisi: "1 öğrenci (her üretimde değişir)", gorevler: [
-    "Temizlik bölgelerini dağıtır ve bittiğini tek tek kontrol eder.",
-    "Soyunma odasının düzenini en son kontrol eder.",
-    "Çıkış kontrol listesini öğretmenle birlikte madde madde işaretler.",
-    "Herkese 3 eldiven dağıtır; fazlasını isteyeni öğretmene yönlendirir. Çıkan eldivenlerin çöp kovasına atıldığını kontrol eder.",
-    "Her şey bitince öğretmene «temizlik tamam» der. Öğretmen onaylamadan kimse çıkmaz.",
-  ] },
-];
-
 // ── Kurallar ─────────────────────────────────────────────────────
 export const ALTIN_KURAL = {
   baslik: "ÖĞRETMENDEN HABERSİZ HİÇBİR KAZANA HİÇBİR HAMMADDE EKLENMEZ",
@@ -163,8 +122,8 @@ export const ALTIN_KURAL = {
   ],
   sira: [
     "Öğretmen maddeyi ve miktarı söyler",
-    "Kazan sorumlusu tartar",
-    "Kontrolcü okur ve kontrol eder",
+    "Hammadde tartılır",
+    "Tartım kontrol edilir",
     "Öğretmen «tamam» der",
     "Kazana yüklenir",
     "Listede işaretlenir",
@@ -222,13 +181,13 @@ export const KURAL_BOLUMLERI: KuralBolum[] = [
     "Atölye bölgelere ayrılır: kazanlar, dolum yeri, depo ve koliler, zemin, lavabo.",
     "Her bölge bir öğrenciye verilir. Bölgen temiz değilse sorumlusu sensin.",
     "Temizlik bitmeden kimse üstünü değiştirmez, kimse atölyeden çıkmaz.",
-    "Temizliği bitiren, temizlik başına haber verir. Son onayı öğretmen verir.",
+    "Temizliği bitiren öğretmene haber verir. Son onayı öğretmen verir.",
   ] },
   { id: "soyunma", ikon: "🚪", baslik: "Soyunma Odası", maddeler: [
     "Herkes kendi askısını ve yerini kullanır. Çöp çöpe atılır.",
     "!Üretim sonunda soyunma odasında kesinlikle iş kıyafeti bırakılmaz.",
     "Çizmeler iç odaya düzenli şekilde dizilir.",
-    "Odayı en son temizlik başı kontrol eder. Dağınık bırakılan eşyanın sahibi bellidir.",
+    "Odayı en son öğretmen kontrol eder. Dağınık bırakılan eşyanın sahibi bellidir.",
   ] },
   { id: "cikis", ikon: "🔒", baslik: "Çıkış Kontrol Listesi (üretim bitince)", maddeler: [
     "Bütün pencereler ve kapılar kapalı.",
@@ -264,7 +223,6 @@ export function kurallarMetni(): string {
   const s: string[] = [];
   s.push(`🧪 *KİMYA ÜRETİM ATÖLYESİ*\n*ÜRETİM VE ATÖLYE KURALLARI*`);
   s.push(`⛔ *${ALTIN_KURAL.baslik}* ⛔\n${ALTIN_KURAL.maddeler.map((m) => `• ${m}`).join("\n")}\n\n*Yükleme sırası:*\n${ALTIN_KURAL.sira.map((x, i) => `${i + 1}. ${x}`).join("\n")}`);
-  s.push(`👥 *GÖREVLER*\n` + ROLLER.map((r) => `\n${r.ikon} *${r.ad}* (${r.kisi})\n${r.gorevler.map((g) => `• ${g}`).join("\n")}`).join("\n"));
   for (const k of KURAL_BOLUMLERI) {
     const isaret = k.id === "cikis" ? "☐" : "•";
     s.push(`${k.ikon} *${k.baslik.toLocaleUpperCase("tr-TR")}*\n${k.maddeler.map((m) => {
@@ -281,15 +239,13 @@ ${IMZA_ZUMRE}`);
 // ════════════════════════════════════════════════════════════════
 // ⚖️ AĞIR İŞ ADALETİ — kazan başına taşıyıcılar
 // Her üretim gününe farklı öğrenci grubu gelir. Geçmiş planlarda kimin kaç kez
-// ağır iş (kazan taşıyıcısı ya da Koli ve Taşıma görevi) yaptığı sayılır;
+// ağır iş (kazan taşıyıcısı) yaptığı sayılır — yalnız öğretmen ekranında, PDF/mesaja girmez;
 // öneri en az yapanlardan başlar. Öğretmen/gönüllü isterse aynı kişiyi yine yazabilir.
 // Planda saklama: roller["tasima-K1"] = "Ali, Veli" · roller["gelenler"] = "…"
 // ════════════════════════════════════════════════════════════════
 export const TASIMA_ANAHTAR = (kazanNo: string) => `tasima-${kazanNo}`;
 export const GELENLER_ANAHTAR = "gelenler";
 export const TASIYICI_SAYISI = 2;
-/** Ağır iş sayılan roller (taşıyıcı anahtarlarına ek olarak). */
-export const AGIR_ROLLER = ["koli"];
 
 /** Ad karşılaştırması: Türkçe küçük harf + boşluk sadeleştirme (İ/i kayması mükerrer saymasın). */
 export const adNorm = (s: string) => s.toLocaleLowerCase("tr-TR").replace(/\s+/g, " ").trim();
@@ -308,7 +264,7 @@ interface PlanBenzeri { tarih: string; roller: Record<string, string> }
 export function agirIsYapanlar(p: PlanBenzeri): string[] {
   const out: string[] = [];
   for (const [k, v] of Object.entries(p.roller || {}))
-    if (k.startsWith("tasima-") || AGIR_ROLLER.includes(k)) out.push(...adListesi(v));
+    if (k.startsWith("tasima-")) out.push(...adListesi(v));
   return out;
 }
 /** tarih'ten ÖNCEKİ planlarda kişi başı ağır iş sayısı (anahtar: adNorm). */

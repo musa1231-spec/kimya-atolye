@@ -103,7 +103,7 @@ if (ah.length) { console.error("❌ Alkol uyarlama hatası:\n  " + ah.join("\n  
 console.log("✅ Alkol uyarlaması: saf alkol korunuyor, toplam %100, engeller çalışıyor");
 
 // ── Atölye Düzeni: kazan / ürün ailesi / roller / altın kural ──
-import { KAZANLAR, URUN_AILE, ROLLER, ALTIN_KURAL, KURAL_BOLUMLERI, kazanPlaniDenetle, asistanKazanEngel, urunKazanTipi, VISKOZ_URUN, KAZAN_DISI_URUN, SAF_SU_DINAMO_UYARI } from "../src/atolyeDuzen";
+import { KAZANLAR, URUN_AILE, ALTIN_KURAL, KURAL_BOLUMLERI, kazanPlaniDenetle, asistanKazanEngel, urunKazanTipi, VISKOZ_URUN, KAZAN_DISI_URUN, SAF_SU_DINAMO_UYARI } from "../src/atolyeDuzen";
 {
   const dh: string[] = [];
   for (const u of URUNLER) if (!URUN_AILE[u.id]) dh.push(`URUN_AILE: '${u.id}' ailesi tanımsız`);
@@ -112,7 +112,6 @@ import { KAZANLAR, URUN_AILE, ROLLER, ALTIN_KURAL, KURAL_BOLUMLERI, kazanPlaniDe
   if (KAZANLAR.filter((k) => k.tip === "yuksek").map((k) => k.no).join() !== "K3,K4") dh.push("yüksek kazanlar K3 ve K4 olmalı (Musa Hocam, 17 Kas)");
   if (!KURAL_BOLUMLERI.some((k) => k.id === "cikis" && k.maddeler.length >= 10)) dh.push("çıkış kontrol listesi eksik");
   if (new Set(KAZANLAR.map((k) => k.no)).size !== KAZANLAR.length) dh.push("kazan numarası tekrarlıyor");
-  if (new Set(ROLLER.map((r) => r.id)).size !== ROLLER.length) dh.push("rol kimliği tekrarlıyor");
   if (!/HABERSİZ/.test(ALTIN_KURAL.baslik)) dh.push("altın kural başlığı değişmiş");
   const ss = KURAL_BOLUMLERI.find((k) => k.id === "safsu");
   if (!ss || !ss.maddeler.some((m) => /DİNAMO YANAR/.test(m)) || !/YANAR/.test(SAF_SU_DINAMO_UYARI)) dh.push("saf su dinamo kuralı eksik");
@@ -129,14 +128,13 @@ import { KAZANLAR, URUN_AILE, ROLLER, ALTIN_KURAL, KURAL_BOLUMLERI, kazanPlaniDe
   if (asistanKazanEngel(yk, "sivi-sabun", 900, [{ no: yk, urunId: "sivi-sabun", kg: 900 }])) dh.push("plana uygun üretim engellendi");
   if (urunKazanTipi("sivi-sabun") !== "yuksek" || urunKazanTipi("camasir-suyu") !== "alcak") dh.push("viskozite sınıfı yanlış");
   if (dh.length) { console.error("❌ Atölye Düzeni hatası:\n  " + dh.join("\n  ")); process.exit(1); }
-  console.log(`✅ Atölye Düzeni: ${KAZANLAR.length} kazan, ${ROLLER.length} rol, ${KURAL_BOLUMLERI.length} kural bölümü; engeller çalışıyor`);
+  console.log(`✅ Atölye Düzeni: ${KAZANLAR.length} kazan, ${KURAL_BOLUMLERI.length} kural bölümü; engeller çalışıyor`);
 }
 // WhatsApp metni bütün bölümleri içermeli (PDF ile aynı kaynak)
 import { kurallarMetni } from "../src/atolyeDuzen";
 {
   const t = kurallarMetni(), eksik: string[] = [];
   for (const k of KURAL_BOLUMLERI) if (!t.includes(k.baslik.toLocaleUpperCase("tr-TR"))) eksik.push(k.baslik);
-  for (const r of ROLLER) if (!t.includes(r.ad)) eksik.push(r.ad);
   if (!t.includes(ALTIN_KURAL.baslik)) eksik.push("altın kural");
   if (eksik.length) { console.error("❌ WhatsApp kurallar metninde eksik: " + eksik.join(", ")); process.exit(1); }
   if (process.env.KURAL_METNI_YAZ) (await import("node:fs")).writeFileSync(process.env.KURAL_METNI_YAZ, t, "utf8");
@@ -147,7 +145,7 @@ import { adilTasiyiciDagit, agirIsSayaci, adListesi, adNorm, TASIYICI_SAYISI } f
 {
   const ah: string[] = [];
   const gecmis = [
-    { tarih: "2026-11-10", roller: { "tasima-K3": "Ali, Veli", koli: "Ayşe" } },
+    { tarih: "2026-11-10", roller: { "tasima-K3": "Ali, Veli", "tasima-K2": "Ayşe" } },
     { tarih: "2026-11-12", roller: { "tasima-K1": "ali , Can", "tasima-K4": "Veli" } },
     { tarih: "2026-11-20", roller: { "tasima-K1": "Deniz" } },   // gelecekteki gün sayılmamalı
   ];
@@ -190,7 +188,7 @@ import { YARDIM_SEKME, KATI_SABUN_KAT } from "../src/rehber";
     if (yuz.join() !== gercek.join()) yh.push(`Katı sabun YÖNTEM ${n} (${id}): Rehber ${yuz.join("/")} ≠ reçete ${gercek.join("/")}`);
   }
   // Kurallar her ortamda (PDF + WhatsApp) doğru okunmalı; program yapmadığı şeyi vaat etmemeli
-  const kuralMetin = [...KURAL_BOLUMLERI.flatMap((k) => k.maddeler), ...ROLLER.flatMap((r) => r.gorevler)].join("\n");
+  const kuralMetin = KURAL_BOLUMLERI.flatMap((k) => k.maddeler).join("\n");
   if (/ilk sayfa/i.test(kuralMetin)) yh.push("kurallarda 'ilk sayfa' geçiyor (WhatsApp metninde sayfa yok)");
   if (/puanlar beceri karnesine/i.test(kuralMetin)) yh.push("kurallar Beceri Karnesi'nde olmayan puanlamayı vaat ediyor");
   if (yh.length) { console.error("❌ Üretim Rehberi / kural bütünlüğü:\n  " + yh.join("\n  ")); process.exit(1); }
@@ -216,19 +214,18 @@ import { maddeAyir, SAF_SU_DINAMO_UYARI as DINAMO_UYARI } from "../src/atolyeDuz
   if (!hortum || !maddeAyir(hortum).onemli) sf.push("Saf Su bölümünde ÖNEMLİ (!) hortum/sifonlama maddesi yok");
   if (!safsu.maddeler.some((m) => /DİNAMO YANAR/.test(m) && maddeAyir(m).onemli)) sf.push("dinamo maddesi ÖNEMLİ (!) işaretli değil");
   if (!/HORTUM/i.test(DINAMO_UYARI) || !/sifon/i.test(DINAMO_UYARI)) sf.push("Asistan/Rehber saf su uyarısında hortum-sifon yok");
-  if (!ROLLER.find((r) => r.id === "kazan")!.gorevler.some((g) => /hortum/i.test(g))) sf.push("Kazan Sorumlusu görevinde hortum yok");
   if (!KURAL_BOLUMLERI.find((k) => k.id === "cikis")!.maddeler.some((m) => /saf su hortumu/i.test(m))) sf.push("Çıkış listesinde saf su hortumu yok");
   const t = kurallarMetni();
   if (/[•☐] !/.test(t)) sf.push("WhatsApp metnine ham '!' işareti sızıyor");
   if (!/‼️ \*Kazana saf su eklendikten sonra/.test(t)) sf.push("WhatsApp metninde hortum kuralı ‼️ ile vurgulanmamış");
   if (sf.length) { console.error("❌ Saf su hortumu kuralı:\n  " + sf.join("\n  ")); process.exit(1); }
-  console.log("✅ Saf su hortumu/sifonlama kuralı: Kurallar, Kazan Sorumlusu, Çıkış listesi, Asistan/Rehber uyarısı, WhatsApp");
+  console.log("✅ Saf su hortumu/sifonlama kuralı: Kurallar, Çıkış listesi, Asistan/Rehber uyarısı, WhatsApp");
 }
 // ── Musa Hocam düzeltmeleri (17 Kas): kazan no kolonda · ürün kartı asılmıyor · klor–asit "eklenmez" ──
 import { KLOR_ASIT_KURAL } from "../src/atolyeDuzen";
 {
   const dz: string[] = [];
-  const hepsi = [...KURAL_BOLUMLERI.flatMap((k) => k.maddeler), ...ROLLER.flatMap((r) => r.gorevler), kurallarMetni()].join("\n");
+  const hepsi = [...KURAL_BOLUMLERI.flatMap((k) => k.maddeler), kurallarMetni()].join("\n");
   if (/ellenmez/i.test(hepsi) || /ellenmez/i.test(readFileSync("src/modules/yardim.ts", "utf8"))) dz.push("'ellenmez' geçiyor (doğrusu: eklenmez)");
   if (!/eklenmez/.test(KLOR_ASIT_KURAL) || !KURAL_BOLUMLERI.find((k) => k.id === "kazan")!.maddeler.includes(KLOR_ASIT_KURAL)) dz.push("klor–asit kuralı tek metinden gelmiyor");
   if (/kartla asılır|ağzına o gün/i.test(hepsi)) dz.push("kazana ürün kartı asma maddesi geri gelmiş (atölyede yapılmıyor)");
@@ -242,7 +239,7 @@ import { GOZLUK_KURAL } from "../src/atolyeDuzen";
   const gd: string[] = [];
   const dolum = KURAL_BOLUMLERI.find((k) => k.id === "dolum")!.maddeler;
   if (dolum.length !== 1 || !/dolum çizgisine kadar/.test(dolum[0]) || !/israf/.test(dolum[0])) gd.push("Dolum bölümü tek madde olmalı: dolum çizgisine kadar, yere dökmeden, israf etmeden");
-  const hepsi = [...KURAL_BOLUMLERI.flatMap((k) => k.maddeler), ...ROLLER.flatMap((r) => r.gorevler)].join("\n");
+  const hepsi = KURAL_BOLUMLERI.flatMap((k) => k.maddeler).join("\n");
   if (/tepsi|ters çevir/i.test(hepsi)) gd.push("dolumda tepsi/ters çevirme maddesi geri gelmiş");
   if (/gözlük[^.]*üretim bitene kadar/i.test(hepsi)) gd.push("gözlük üretim boyunca takılı yazıyor");
   if (!/ihtiyaç hâlinde/.test(GOZLUK_KURAL) || !hepsi.includes(GOZLUK_KURAL)) gd.push("gözlük kuralı tek metinden gelmiyor");
@@ -256,7 +253,7 @@ import { GOZLUK_KURAL } from "../src/atolyeDuzen";
   const ed: string[] = [];
   if (!/Herkese 3 eldiven/.test(el) || !/öğretmenden istenir/.test(el)) ed.push("'herkese 3 eldiven, fazlası öğretmenden' maddesi yok");
   if (!/çöp kovasına atılır/.test(el)) ed.push("'çıkan eldiven çöp kovasına atılır' maddesi yok");
-  if (/3 çift|eldiven kovası|KOVAYA atılır/.test(el + ROLLER.flatMap((r) => r.gorevler).join("\n"))) ed.push("eski eldiven ifadesi (3 çift / eldiven kovası) kalmış");
+  if (/3 çift|eldiven kovası|KOVAYA atılır/.test(el)) ed.push("eski eldiven ifadesi (3 çift / eldiven kovası) kalmış");
   if (ed.length) { console.error("❌ Eldiven kuralı:\n  " + ed.join("\n  ")); process.exit(1); }
   console.log("✅ Eldiven: herkese 3, fazlası öğretmenden, çıkan eldiven çöp kovasına");
 }
@@ -279,7 +276,7 @@ import { GOZLUK_KURAL } from "../src/atolyeDuzen";
 {
   const tf: string[] = [];
   const dav = KURAL_BOLUMLERI.find((k) => k.id === "davranis")!.maddeler.join("\n");
-  const hepsi = [...KURAL_BOLUMLERI.flatMap((k) => k.maddeler), ...ROLLER.flatMap((r) => r.gorevler)].join("\n");
+  const hepsi = KURAL_BOLUMLERI.flatMap((k) => k.maddeler).join("\n");
   if (!/telefon[^\n]*şeflik odasına teslim[^\n]*öğretmenden geri alınır/i.test(dav)) tf.push("telefon teslim maddesi yok");
   if (!dav.includes("Üretimde görevli olmayan hiçbir öğrenci üretim atölyesine giremez. Diğer bölümlerin öğrencileri özellikle giremez.")) tf.push("atölyeye giriş maddesi Musa Hocam'ın cümlesiyle değil");
   if (/cepte durur|telefona,/i.test(hepsi)) tf.push("telefonun atölyede olduğunu varsayan eski ifade kalmış");
@@ -309,4 +306,17 @@ import { IMZA_ZUMRE } from "../src/atolyeDuzen";
   if (!kurallarMetni().trim().endsWith(IMZA_ZUMRE)) im.push("WhatsApp metni zümre imzasıyla bitmiyor");
   if (im.length) { console.error("❌ İmza:\n  " + im.join("\n  ")); process.exit(1); }
   console.log("✅ İmza: Kimya Zümre Öğretmenleri (PDF + WhatsApp)");
+}
+// ── Musa Hocam (17 Kas): görev dağılımı ve "Görevler ve Sorumluluklar" YOK (PDF, WhatsApp, ekran, kurallar) ──
+{
+  const gr: string[] = [];
+  const dzS = readFileSync("src/modules/duzen.ts", "utf8"), adS = readFileSync("src/atolyeDuzen.ts", "utf8");
+  if (/export const ROLLER|interface Rol\b/.test(adS)) gr.push("ROLLER/Rol tanımı geri gelmiş");
+  if (/Bugünün Görev Dağılımı|Bugünün görev dağılımı|<h2>📌 Görevler ve Sorumluluklar|dz-r-/.test(dzS)) gr.push("Atölye Düzeni ekranında/PDF'te görev dağılımı ya da görevler bölümü var");
+  if (/GÖREVLER/.test(kurallarMetni()) || /GÖREVLER/.test(dzS)) gr.push("WhatsApp metninde/mesajda GÖREVLER bölümü var");
+  const km = [...KURAL_BOLUMLERI.flatMap((k) => k.maddeler), ...ALTIN_KURAL.sira, ...ALTIN_KURAL.maddeler].join(" ");
+  if (/kazan sorumlusu|kontrolcü|temizlik başı/i.test(km)) gr.push("kurallar artık olmayan rollere atıf yapıyor (kazan sorumlusu/kontrolcü/temizlik başı)");
+  if (/görev dağılımı/i.test(readFileSync("index.html", "utf8") + readFileSync("src/rehber.ts", "utf8"))) gr.push("index.html ya da rehber'de 'görev dağılımı' geçiyor");
+  if (gr.length) { console.error("❌ Görev dağılımı kaldırma:\n  " + gr.join("\n  ")); process.exit(1); }
+  console.log("✅ Görev dağılımı ve Görevler/Sorumluluklar her yerden kaldırıldı; kurallar rol atfı içermiyor");
 }

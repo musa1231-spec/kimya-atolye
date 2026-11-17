@@ -271,7 +271,7 @@ export interface Store {
   atolyePlanlari: AtolyePlan[];
 }
 
-/** Atölye Düzeni: bir üretim gününün kazan planı + görev dağılımı (tarih başına bir kayıt). */
+/** Atölye Düzeni: bir üretim gününün kazan planı + öğretmene özel taşıyıcı/gelen listesi (tarih başına bir kayıt). */
 export interface AtolyePlan {
   tarih: string;
   ogretmen: string;

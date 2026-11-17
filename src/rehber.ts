@@ -209,7 +209,7 @@ export const TIP_REHBER: Partial<Record<ProsesAdim["tip"], Rehber>> = {
       "Uzun saç toplanır; yüzük ve bilezik çıkarılır.",
       "Tartıyı düz zemine koyup dara (sıfır) alın.",
       "Bütün hammaddeleri tartıp etiketleyerek ekleme sırasıyla tezgâha dizin; böylece sıra karışmaz.",
-      "Reçeteyi ve adımları baştan sona bir kez okuyun; görev dağılımını yapın (tartan, ekleyen, kaydeden).",
+      "Reçeteyi ve adımları baştan sona bir kez okuyun.",
     ],
     sorun: [
       { belirti: "Bir hammadde yok ya da yetersiz", neden: "Stok eksik", cozum: "Üretime BAŞLAMAYIN; yarım kalan parti bozulur. Sipariş Önerisi sayfasından eksikleri görün." },
