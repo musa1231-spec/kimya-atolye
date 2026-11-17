@@ -460,3 +460,9 @@ import { otomatikKap } from "../src/katiSabun";
   if (ok.length) { console.error("❌ Otomatik kap önerisi:\n  " + ok.join("\n  ")); process.exit(1); }
   console.log("✅ Kap, yağ/ürün miktarına göre otomatik seçiliyor; elle seçilen kap korunuyor");
 }
+// ── K113 (17 Kas): sürüm denetimi AÇILIŞTA da çalışmalı (SW eski paketi verince ekran eski kalıyordu) ──
+{
+  const sd = readFileSync("src/surumDenetle.ts", "utf8");
+  if (!/addEventListener\('load',[^\n]*acilisDenetle/.test(sd) || !/sessionStorage/.test(sd) || !/controllerchange/.test(sd)) { console.error("❌ Sürüm denetimi açılışta çalışmıyor (eski sürüm ekranda kalır)"); process.exit(1); }
+  console.log("✅ Sürüm denetimi: açılışta + öne gelince + 30 dk; açılışta yeni sürüm varsa bir kez kendiliğinden yenilenir");
+}

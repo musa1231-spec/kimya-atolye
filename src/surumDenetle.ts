@@ -60,5 +60,28 @@ export function surumDenetleBaslat(): void {
     denetle(gizlendi > 0 && Date.now() - gizlendi >= UZUN_ARA_MS);
   });
   window.addEventListener('pageshow', (e) => { if ((e as PageTransitionEvent).persisted) denetle(true); });
+  // Açılışta da bak (17 Kas 2026, K113): sayfa açılınca service worker önbellekteki ESKİ paketi verir;
+  // yeni SW arka planda kurulsa bile ekran eski kalıyordu. Açılışta kullanıcı henüz bir şey yazmadığı için
+  // yeni SW devreye girince (en çok 8 sn beklenir) bir kez kendiliğinden yenilenir; döngüye girmesin diye
+  // aynı yayın paketi için yalnız 1 kez (sessionStorage) — ikinci seferde «Yenile» düğmesi gösterilir.
+  window.addEventListener('load', () => setTimeout(acilisDenetle, 1500));
+  async function acilisDenetle() {
+    const yayinda = await yayindakiPaket();
+    if (!yayinda || yayinda === benim) return;
+    let once = false;
+    try { once = sessionStorage.getItem('surum-yenilendi') === yayinda; sessionStorage.setItem('surum-yenilendi', yayinda); } catch { /* yok say */ }
+    if (once) { dugmeGoster(); return; }
+    const sw = navigator.serviceWorker;
+    if (sw) {
+      await new Promise<void>((tamam) => {
+        const t = setTimeout(tamam, 8000);
+        sw.addEventListener('controllerchange', () => { clearTimeout(t); tamam(); }, { once: true });
+        sw.getRegistration()
+          .then(async (r) => { if (!r) return tamam(); await r.update(); if (!r.installing && !r.waiting) tamam(); })   // yeni SW zaten etkinse beklemeden
+          .catch(() => tamam());
+      });
+    }
+    location.reload();
+  }
   setInterval(() => { if (document.visibilityState === 'visible') denetle(false); }, 30 * 60_000);
 }
