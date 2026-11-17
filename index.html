@@ -245,8 +245,16 @@
   <div id="as-setup" class="card" style="max-width:520px;margin:0 auto">
     <div class="ch"><span class="ct">Üretime Başla</span></div>
     <div class="fg"><label>Ürün</label><select id="as-urun" onchange="asistanUrunDegisti()"></select></div>
-    <div class="fg"><label>Hedef Miktar (kg)</label><input type="number" id="as-kg" min="1" value="900"></div>
-    <div class="fg"><label>Kazan</label><select id="as-kazan" onchange="asKazanDegisti()"></select><div id="as-kazan-not"></div></div>
+    <div class="fg" id="as-kati-mod-fg" style="display:none"><label>Miktarı neye göre gireceksin?</label><select id="as-kati-mod" onchange="asKatiDegisti()"><option value="urun">Ürün miktarına göre (kg)</option><option value="yag">Yağ miktarına göre (kg)</option></select></div>
+    <div class="fg" id="as-yag-fg" style="display:none"><label>Kullanılacak yağ (kg, bütün yağların toplamı)</label><input type="number" id="as-yag" min="0.5" step="0.5" oninput="asKatiDegisti()"></div>
+    <div class="fg"><label>Hedef Miktar (kg)</label><input type="number" id="as-kg" min="1" value="900" oninput="asKatiDegisti()"></div>
+    <div class="fg" id="as-kazan-fg"><label>Kazan</label><select id="as-kazan" onchange="asKazanDegisti()"></select><div id="as-kazan-not"></div></div>
+    <div id="as-kati" style="display:none">
+      <div class="fg"><label>Kullanılacak kap (kg) — tüp üzerinde</label><input type="number" id="as-kap" min="1" step="1" oninput="asKatiDegisti()"></div>
+      <div class="fg"><label>Tahta kalıp iç ölçüsü (cm): en × boy</label>
+        <div style="display:flex;gap:8px;align-items:center"><input type="number" id="as-kalip-en" min="5" step="1" oninput="asKatiDegisti()"> × <input type="number" id="as-kalip-boy" min="5" step="1" oninput="asKatiDegisti()"></div></div>
+      <div id="as-kati-ozet"></div>
+    </div>
     <div id="as-alkol" style="display:none;margin-bottom:12px"></div>
     <div id="as-atla"></div>
     <div class="tm" style="margin-bottom:14px">Kategori: <b id="as-kat">—</b> · Reçete bu miktara otomatik ölçeklenecek.</div>
@@ -880,7 +888,7 @@
             <li>Koruyucu ekipman giyin (eldiven, gözlük, önlük)</li>
             <li>NaOH'u <b>soğuk suya</b> yavaşça ekle, karıştır. Isı ~80°C'ye çıkar, 35–40°C'ye soğusun</li>
             <li>Zeytinyağını 35–40°C'ye hafifçe ısıt</li>
-            <li>Her ikisi aynı sıcaklıkta → NaOH çözeltisini ince akış halinde yağa ekle, blenderla karıştır</li>
+            <li>Her ikisi aynı sıcaklıkta → NaOH çözeltisini ince akış halinde yağa ekle, tahta karıştırıcıyla iz alana dek karıştır</li>
             <li><b>Trace</b> aşamasına kadar karıştır: karışım yoğurt kıvamına geldiğinde hazır (5–30 dk)</li>
             <li>Kalıba dök, üstünü plastikle ört, battaniyeyle sar, 24–48 saat beklet</li>
             <li>Kalıptan çıkar, sabunlara kes, havalandırmalı alanda diz</li>
@@ -1088,7 +1096,7 @@
         </ul>
         <b>Kurtarma:</b>
         <ul style="padding-left:14px;margin:4px 0">
-          <li>Tencereye al, düşük ateşte ısıt, blenderla karıştır → sıcak proses olarak tamamla</li>
+          <li>Sabun kabına al, tüpte en kısık ateşte ısıt, tahta karıştırıcıyla karıştır → sıcak proses olarak tamamla</li>
           <li>Eğer yağ miktarı aşırıysa ve hâlâ ham kostik varsa → kullanma, güvenli değil</li>
         </ul>
       </div>

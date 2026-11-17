@@ -61,7 +61,7 @@ import { rRapor, yazdirRapor } from "./modules/rapor";
 import { rSiparisOneri, yazdirSiparisOneri } from "./modules/siparisoneri";
 import {
   rAsistan, asistanUrunDegisti, asAlkolDegisti, asistanBasla, asSonraki, asGeri, asGoto,
-  asTimerBaslat, asTimerSifirla, asBitir, asKazanDegisti, asOnay,
+  asTimerBaslat, asTimerSifirla, asBitir, asKazanDegisti, asOnay, asKatiDegisti, asKapUygula,
 } from "./modules/asistan";
 import { rDuzen, dzKaydet, dzPdfIndir, dzPdfPaylas, dzMesajPaylas, dzKurallarPaylas, dzTarihDegisti, dzAdilDagit, dzSayacGoster } from "./modules/duzen";
 import { rTakvim, tvPrev, tvNext, tvBugun, tvGun, takvimYeniUretim } from "./modules/takvim";
@@ -254,7 +254,7 @@ Object.assign(window, {
   rParti, saveParti, delParti, etiketParti, partiFromUretim, partiUrunDegisti, partiRafDegisti,
   rRapor, yazdirRapor, rSiparisOneri, yazdirSiparisOneri,
   asistanUrunDegisti, asAlkolDegisti, asistanBasla, asSonraki, asGeri, asGoto, asTimerBaslat, asTimerSifirla, asBitir,
-  asKazanDegisti, asOnay, dzKaydet, dzPdfIndir, dzPdfPaylas, dzMesajPaylas, dzKurallarPaylas, dzTarihDegisti, dzAdilDagit, dzSayacGoster,
+  asKazanDegisti, asOnay, asKatiDegisti, asKapUygula, dzKaydet, dzPdfIndir, dzPdfPaylas, dzMesajPaylas, dzKurallarPaylas, dzTarihDegisti, dzAdilDagit, dzSayacGoster,
   yhAsistan,
   tvPrev, tvNext, tvBugun, tvGun, takvimYeniUretim, rKarne, yazdirKarne,
 });

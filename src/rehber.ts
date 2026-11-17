@@ -198,7 +198,7 @@ export const HM_REHBER: Record<string, Rehber> = {
     dikkat: ["Yağı ≈40 °C'ye ısıtın, termometreyle kontrol edin; aşırı ısıtmayın."],
   },
   "Defne Yağı": {
-    dikkat: ["Zeytinyağıyla birlikte ≈40 °C'ye ısıtın; kokusu uçmasın diye aşırı ısıtmayın."],
+    dikkat: ["Zeytinyağı ılınınca (≈40 °C) kaba eklenir; kokusu ısıyla uçar, aşırı ısıtılmaz."],
   },
 };
 
@@ -268,8 +268,8 @@ export const TIP_REHBER: Partial<Record<ProsesAdim["tip"], Rehber>> = {
 export interface UrunRehber { hazirlik: Rehber; kontrol: Rehber }
 
 const SOGUK_SABUN_SORUN: Sorun[] = [
-  { belirti: "İz (trace) bir türlü oluşmuyor", neden: "Yağ/kostik sıcaklığı düşük ya da elle karıştırma yetersiz", cozum: "Her ikisini ≈40 °C'de birleştirin; çubuk mikserle kısa aralıklarla (30 sn çalıştır, 30 sn dur) karıştırın." },
-  { belirti: "Karışım çok hızlı katılaştı, kalıba dökülemiyor", neden: "Sıcaklık yüksek ya da aşırı karıştırma", cozum: "Spatula ile hızla kalıba bastırın; sonraki partide daha düşük sıcaklıkta çalışın." },
+  { belirti: "İz (trace) bir türlü oluşmuyor", neden: "Yağ/kostik sıcaklığı düşük ya da elle karıştırma yetersiz", cozum: "Her ikisini ≈40 °C'de birleştirin; tahta karıştırıcıyla dibi sıyırarak 5 dk karıştırıp 5 dk dinlendirin; öğrenciler sırayla karıştırsın, elle iz 1 saati bulabilir." },
+  { belirti: "Karışım çok hızlı katılaştı, kalıba dökülemiyor", neden: "Sıcaklık yüksek ya da aşırı karıştırma", cozum: "Malayla hızla kalıba aktarıp bastırın, tahta düzleştiriciyle düzleyin; sonraki partide daha düşük sıcaklıkta çalışın." },
   { belirti: "Kalıpta yağ ayrıştı, üstte sıvı yağ birikti", neden: "Karıştırma iz alınmadan kesildi ya da tartım hatası", cozum: "Sabunu kullanmayın; öğretmen gözetiminde kesip tekrar eritip karıştırarak kurtarılabilir." },
   { belirti: "Yüzeyde beyaz toz tabakası", neden: "Soda külü (kostiğin havadaki CO₂ ile tepkimesi); zararsızdır", cozum: "Kür sonunda bıçakla kazıyın ya da buharla silin; sonraki partide kalıbın üstünü streç filmle örtün." },
   { belirti: "Sabun cildi yakıyor / dil testi yapılmaz, pH 10'un üstünde", neden: "Fazla kostik ya da kür süresi tamamlanmadı", cozum: "Kür süresini uzatın ve yeniden ölçün; düzelmezse partiyi 'uygun değil' kaydedin, kişisel kullanıma vermeyin." },
@@ -278,7 +278,7 @@ const SOGUK_SABUN_SORUN: Sorun[] = [
 
 const HALEP_HAZIRLIK: Rehber = {
   dikkat: [
-    "Defne yağı pahalıdır ve kokusu ısıyla uçar; zeytinyağıyla birlikte en fazla ≈40 °C'ye ısıtın.",
+    "Defne yağı pahalıdır ve kokusu ısıyla uçar; zeytinyağı ılınınca eklenir, karışım en fazla ≈40–45 °C olur.",
     "Defne oranı arttıkça (%20 → %40) iz daha geç oluşur; sabırla karıştırın.",
     "Halep sabunu uzun kür ister: en az 6 hafta, geleneksel olarak aylarca. Kesilen kalıplar havadar rafta, aralıklı dizilir.",
   ],

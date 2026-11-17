@@ -28,8 +28,9 @@ export const urunKazanTipi = (urunId: string): KazanTip | null =>
   KAZAN_DISI_URUN.has(urunId) ? null : VISKOZ_URUN.has(urunId) ? "yuksek" : "alcak";
 /** Kazan planında seçilebilecek ürünler. */
 export const kazanUrunleri = () => URUNLER.filter((u) => !KAZAN_DISI_URUN.has(u.id));
-/** Öğrenci kuralı + Rehber + Asistan aynı cümleyi kullanır. */
-export const KATI_SABUN_KAZAN_KURAL = "Katı sabunlar (kastilya ve defne yağlı Halep sabunları) 900 kg'lık kazanlarda YAPILMAZ; küçük partiyle tencerede yapılır.";
+/** Öğrenci kuralı + Rehber + Asistan aynı cümleyi kullanır (metin katiSabun.ts'te). */
+import { KATI_SABUN_KAZAN_KURAL } from "./katiSabun";
+export { KATI_SABUN_KAZAN_KURAL };
 
 /** Ürün–kazan tipi uyumu: engel (viskoz ürün alçak kazanda / kazan dışı ürün) ya da uyarı. */
 export function kazanUyum(kazanNo: string, urunId: string): { engel: string; uyari: string } {

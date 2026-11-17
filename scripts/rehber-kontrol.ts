@@ -338,3 +338,39 @@ console.log("✅ Soyunma odası: 'sahibi bellidir' ifadesi yok");
   if (dg.length !== 2 || !dg.includes("Düzeni bozan, kurallara uymayan öğrenci bir daha üretim faaliyetine alınmaz.") || /Beceri Karnesi|kazan ve dolum görevine/.test(dg.join(" "))) { console.error("❌ Değerlendirme bölümü Musa Hocam'ın istediği gibi değil"); process.exit(1); }
   console.log("✅ Değerlendirme: 2 madde, 'bir daha üretim faaliyetine alınmaz'");
 }
+// ── Musa Hocam (17 Kas): katı sabun tüpte 8 kg'lık kapta; tahta karıştırıcı/kalıp/düzleştirici + mala; kesim ayrıntılı; kap önerisi ──
+import { KAP_VARSAYILAN_KG, kapPlani, kalipPlani, kapOnerisi, superyag, yagdanUrunKg, yagOrani, KATI_EKIPMAN } from "../src/katiSabun";
+{
+  const ks: string[] = [];
+  if (KAP_VARSAYILAN_KG !== 8 || !KATI_SABUN_KAZAN_KURAL.includes("8 kg'lık kap") || !/tüp/.test(KATI_SABUN_KAZAN_KURAL)) ks.push("kural metni 8 kg'lık kap/tüp demiyor");
+  if (!/ALÜMİNYUM/.test(KATI_EKIPMAN.join(" "))) ks.push("alüminyum kap yasağı ekipmanda yok");
+  // Kap planı: soğuk 20 kg, 8 kg kap (en fazla 6 kg) → 4 parti × 5 kg; sıcak en fazla 4 kg
+  const kp = kapPlani(20, 8, false);
+  if (kp.kapSayisi !== 4 || Math.abs(kp.kapBasiKg - 5) > 1e-9) ks.push(`kap planı 20 kg/8 kg → ${kp.kapSayisi}×${kp.kapBasiKg}`);
+  if (kapPlani(6, 8, false).kapSayisi !== 1 || kapPlani(6, 8, true).kapSayisi !== 2) ks.push("doluluk sınırı (soğuk %75 / sıcak %50) çalışmıyor");
+  // Kap önerisi: 6+2 = 8 kg soğuk → en az 10,67 kg → 15 kg'lık kap; 6 kg → 8 kg'lık kap
+  if (kapOnerisi(8, false).onerilenKg !== 15 || kapOnerisi(6, false).onerilenKg !== 8 || kapOnerisi(500, false).onerilenKg !== null) ks.push("kap önerisi yanlış");
+  // Yağ miktarından ürün: kastilya-soğuk 6 kg yağ → 6/0,665 kg ürün
+  const kas = URUNLER.find((u) => u.id === "kastilya-soguk")!;
+  if (Math.abs(yagdanUrunKg(kas, 6) * yagOrani(kas) - 6) > 1e-9) ks.push("yağdan ürün hesabı tutarsız");
+  // Kalıp: 6 kg, 30×40 → 1 kalıp, ≈4,7 cm, 5 cm kesim, 35 adet, ≈125 g
+  const kl = kalipPlani(6, 1.07, 30, 40);
+  if (kl.kalipSayisi !== 1 || Math.abs(kl.kalinlikCm - 4.67) > 0.01 || kl.kesimCm !== 5 || kl.kalipBasiAdet !== 35 || Math.abs(kl.kalipSabunG - 125) > 3) ks.push(`kalıp planı: ${JSON.stringify(kl)}`);
+  if (kalipPlani(30, 1.07, 30, 40).kalinlikCm > 7) ks.push("kalın döküm ikinci kalıba bölünmüyor");
+  for (const u of URUNLER.filter((x) => x.kat === "Katı Sabun")) {
+    const sy = superyag(u);
+    if (sy < 3 || sy > 10) ks.push(`${u.ad}: süperyağ %${sy.toFixed(1)} (3–10 dışında)`);
+    const p = prosesUret(u), metin = JSON.stringify(p);
+    for (const k of ["tahta karıştırıcı", "tahta kalıp", "düzleştirici", "mala", "tüp", "kesin", "Kürlemeye"]) if (!metin.toLocaleLowerCase("tr-TR").includes(k.toLocaleLowerCase("tr-TR"))) ks.push(`${u.ad}: proseste '${k}' yok`);
+    if (/blender|mikser|spatula|kazan[ıa] (ekle|dök)/i.test(metin)) ks.push(`${u.ad}: proseste atölyede olmayan araç/kazan ifadesi`);
+    if (p.some((a) => a.tip === "dolum")) ks.push(`${u.ad}: kalıplama 'dolum' tipinde (bidon dolum rehberi karışır)`);
+    for (const k of ["kap", "kalip", "kesim"] as const) if (!p.some((a) => a.kati === k)) ks.push(`${u.ad}: '${k}' planı adımı yok`);
+    const kesim = p.find((a) => a.kati === "kesim")!;
+    if ((kesim.liste?.length || 0) < 6) ks.push(`${u.ad}: kesim yeterince ayrıntılı değil`);
+  }
+  const rehberMetin = JSON.stringify(URUN_REHBER["kastilya-soguk"]) + (readFileSync("index.html", "utf8").split('id="yh-katisabun"')[1] || "").split(/<div id="yh-(?!katisabun)/)[0];
+  if (rehberMetin.length < 2000) ks.push("Rehber katı sabun bölümü okunamadı");
+  if (/blender|çubuk mikser|Spatula/i.test(rehberMetin)) ks.push("Rehber'de atölyede olmayan araç (blender/mikser/spatula) geçiyor");
+  if (ks.length) { console.error("❌ Katı sabun (kap/tüp/tahta ekipman):\n  " + ks.join("\n  ")); process.exit(1); }
+  console.log("✅ Katı sabun: 8 kg'lık kap/tüp, kap önerisi (ürün ya da yağ miktarından), tahta kalıp + kesim planı, süperyağ %3–10");
+}

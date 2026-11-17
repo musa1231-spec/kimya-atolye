@@ -11,6 +11,7 @@ import {
   KAZANLAR, URUN_AILE, AILE_AD, ALTIN_KURAL, SAF_SU_DINAMO_UYARI, urunKazanTipi, KLOR_ASIT_KURAL, KATI_SABUN_KAZAN_KURAL,
 } from "../atolyeDuzen";
 import { setHTML, setVal } from "../helpers";
+import { KATI_EKIPMAN } from "../katiSabun";
 import { asistanUrunDegisti } from "./asistan";
 import type { Urun } from "../types";
 
@@ -66,7 +67,9 @@ export function yardimKart(u: Urun): string {
 export function rYardim(): void {
   for (const [kat, id] of Object.entries(YARDIM_SEKME))
     setHTML(id, URUNLER.filter((u) => u.kat === kat).map(yardimKart).join(""));
-  setHTML("yh-katisabun-kazan", `<div class="card" style="border-color:#C62828;background:rgba(198,40,40,.06);margin-bottom:10px;font-size:.82rem;line-height:1.6"><b style="color:#C62828">⛔ ${KATI_SABUN_KAZAN_KURAL}</b></div>`);
+  setHTML("yh-katisabun-kazan", `<div class="card" style="border-color:#C62828;background:rgba(198,40,40,.06);margin-bottom:10px;font-size:.82rem;line-height:1.6"><b style="color:#C62828">⛔ ${KATI_SABUN_KAZAN_KURAL}</b>
+    <div style="margin-top:6px"><b>Atölyedeki ekipman:</b><ul style="margin:4px 0 0 18px">${KATI_EKIPMAN.map((x) => `<li>${x}</li>`).join("")}</ul></div>
+    <div style="margin-top:6px">Kap önerisini, kap başına miktarları, kalıba döküm kalınlığını ve kesim ölçülerini <b>Üretim Asistanı</b> o partiye göre hesaplar.</div></div>`);
 }
 
 export function yhAsistan(urunId: string): void {
