@@ -1,5 +1,5 @@
 import type { Urun } from "./types";
-import { KATI_EKIPMAN, KAP_VARSAYILAN_KG, KAP_DOLULUK, KENAR_PAYI_CM, sicakMi, superyag, kalipBekleme, kurHafta } from "./katiSabun";
+import { KOSTIK_COZME, KATI_EKIPMAN,KAP_VARSAYILAN_KG, KAP_DOLULUK, KENAR_PAYI_CM, sicakMi, superyag, kalipBekleme, kurHafta } from "./katiSabun";
 
 // ════════════════════════════════════════════════════════════════
 // ÜRETİM PROSESLERİ — Asistanın adım adım yol göstermesi için.
@@ -171,8 +171,9 @@ function katiSabunProses(urun: Urun): ProsesAdim[] {
       not: "Suyu, kostik için ayrılmış plastik (PP) ya da paslanmaz kaba tartın. Soğuk su kullanın; saf su tercih edilir (musluk suyundaki kireç sabunu bulandırır).",
       dikkat: ["Kostik kabı TÜPE KONMAZ: kostik suda çözünürken kendisi ısınır (≈80–90 °C), ayrıca ısıtmak taşmaya yol açar."] },
     { tip: "ekle", baslik: `Kostiği suya ekle`, ekle: ["Kostik"],
-      not: "⚠️ Kostik SUYA azar azar eklenir — asla suyu kostiğin üstüne dökmeyin! Her eklemede ayrı çubukla (tahta karıştırıcıyla değil) karıştırıp çözündürün. Bu iş açık pencerenin önünde yapılır; gözlük burada takılır (ihtiyaç hâli).",
-      dikkat: ["Çözeltiden yükselen buharı koklamayın, yüzünüzü kabın üstüne eğmeyin.", "Çözeltiyi kenara koyup ≈40–45 °C'ye soğumaya bırakın (≈45–60 dk). Bu sürede yağı hazırlayın.", "Kostik çözeltisi tüpün ya da yağ kabının yanında DEVRİLMEYECEĞİ bir yerde durur."] },
+      not: `⚠️ ${KOSTIK_COZME} Ayrı çubukla (tahta karıştırıcıyla değil) kostik tamamen çözünene kadar durmadan karıştırın. Bu iş açık pencerenin önünde yapılır; gözlük burada takılır (ihtiyaç hâli).`,
+      dikkat: ["Kostik tek seferde girdiği için çözelti hızla ısınır (≈80–90 °C): kabı sağlam bir zemine koyun, döktükten sonra hemen karıştırmaya başlayın; karıştırılmazsa kostik dipte topaklanıp kabuk bağlar.",
+        "Kabın dibinde çözünmemiş kostik tanesi kalmadığını kontrol edin; çözelti berraklaşınca çözünme tamamdır.","Çözeltiden yükselen buharı koklamayın, yüzünüzü kabın üstüne eğmeyin.", "Çözeltiyi kenara koyup ≈40–45 °C'ye soğumaya bırakın (≈45–60 dk). Bu sürede yağı hazırlayın.", "Kostik çözeltisi tüpün ya da yağ kabının yanında DEVRİLMEYECEĞİ bir yerde durur."] },
     { tip: "ekle", baslik: `Yağları ${KAP_VARSAYILAN_KG} kg'lık kaba tart ve tüpte ılıt`, ekle: yaglar,
       not: `Yağları sabun kabına tartın, tüpü EN KISIK ateşte yakıp yağı tahta karıştırıcıyla karıştırarak ≈40–45 °C'ye ılıtın, sonra ATEŞİ KAPATIN.${defneli ? " Defne yağı en son eklenir; kokusu ısıyla uçtuğu için aşırı ısıtılmaz." : ""}`,
       dikkat: ["Termometreyi kabın ortasına, dibe değdirmeden tutun.", "Yağ 50 °C'yi geçerse ocaktan alıp soğumasını bekleyin; sıcak yağla iz çok hızlı ve düzensiz oluşur."] },

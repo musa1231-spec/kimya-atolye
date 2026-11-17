@@ -374,3 +374,19 @@ import { KAP_VARSAYILAN_KG, kapPlani, kalipPlani, kapOnerisi, superyag, yagdanUr
   if (ks.length) { console.error("❌ Katı sabun (kap/tüp/tahta ekipman):\n  " + ks.join("\n  ")); process.exit(1); }
   console.log("✅ Katı sabun: 8 kg'lık kap/tüp, kap önerisi (ürün ya da yağ miktarından), tahta kalıp + kesim planı, süperyağ %3–10");
 }
+// ── Musa Hocam (17 Kas): kostik tartılıp suya TEK SEFERDE eklenir, parça parça değil; dil testi yok ──
+import { KOSTIK_COZME } from "../src/katiSabun";
+{
+  const kk: string[] = [];
+  if (!/TEK SEFERDE/.test(KOSTIK_COZME) || !/parça parça eklenmez/.test(KOSTIK_COZME)) kk.push("KOSTIK_COZME metni tek seferde/parça parça demiyor");
+  for (const u of URUNLER.filter((x) => x.kat === "Katı Sabun")) {
+    const ad = prosesUret(u).find((a) => a.ekle?.includes("Kostik"));
+    if (!ad?.not?.includes(KOSTIK_COZME)) kk.push(`${u.ad}: kostik adımı tek metinden gelmiyor`);
+    if (/azar azar|yavaş yavaş|her eklemede/i.test(JSON.stringify(ad))) kk.push(`${u.ad}: kostik adımında parça parça ekleme ifadesi`);
+  }
+  const ks = (readFileSync("index.html", "utf8").split('id="yh-katisabun"')[1] || "").split(/<div id="yh-(?!katisabun)/)[0];
+  if (/NaOH'u <b>soğuk suya<\/b> yavaşça|azar azar/.test(ks)) kk.push("Rehber katı sabunda kostik parça parça/yavaşça ekleniyor");
+  if (/<b>Zap Testi:<\/b>|dile dokun/.test(readFileSync("index.html", "utf8"))) kk.push("Programda dil (zap) testi öneriliyor");
+  if (kk.length) { console.error("❌ Kostik çözme:\n  " + kk.join("\n  ")); process.exit(1); }
+  console.log("✅ Kostik suya tek seferde (Asistan + Rehber), dil testi yok");
+}

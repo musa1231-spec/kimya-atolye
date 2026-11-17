@@ -39,7 +39,10 @@ export const KATI_EKIPMAN: string[] = [
 /** Öğrenci kuralı (Atölye Düzeni) + Rehber + Asistan aynı cümleyi kullanır. */
 export const KATI_SABUN_KAZAN_KURAL = `Katı sabunlar (kastilya ve defne yağlı Halep sabunları) 900 kg'lık kazanlarda YAPILMAZ; tüp ocağı üzerinde ${KAP_VARSAYILAN_KG} kg'lık kaplarda, küçük partilerle yapılır.`;
 
-const yuvarla = (x: number, adim = 0.01) => Math.round(x / adim) * adim;
+/** Atölye uygulaması (Musa Hocam 17 Kas): su ve kostik ayrı tartılır, tartılan kostiğin TAMAMI suya TEK SEFERDE eklenir; parça parça eklenmez. */
+export const KOSTIK_COZME = "Tartılmış kostiğin TAMAMI, tartılmış SUYUN İÇİNE TEK SEFERDE eklenir (parça parça eklenmez) ve hemen karıştırılarak çözülür. Kostik daima suya eklenir; asla suyu kostiğin üstüne dökmeyin!";
+
+const yuvarla =(x: number, adim = 0.01) => Math.round(x / adim) * adim;
 
 export interface KapPlani { kapKg: number; enFazlaKg: number; kapSayisi: number; kapBasiKg: number }
 /** Hedef miktar kaç kapta yapılır? Her kap en fazla kapKg × doluluk alır; partiler eşit bölünür. */
