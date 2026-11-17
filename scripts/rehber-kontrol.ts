@@ -305,7 +305,7 @@ import { IMZA_ZUMRE } from "../src/atolyeDuzen";
   const dzK = readFileSync("src/modules/duzen.ts", "utf8");
   const im: string[] = [];
   if (IMZA_ZUMRE !== "Kimya Zümre Öğretmenleri") im.push("imza metni değişmiş");
-  if (!/class="imza"><div>\$\{IMZA_ZUMRE\}<\/div>/.test(dzK) || /Sorumlu Öğretmen<br>/.test(dzK)) im.push("PDF imzasında öğretmen adı var / zümre yok");
+  if (!/class="imza"><div>\$\{IMZA_ZUMRE\}<\/div><\/div>/.test(dzK) || /Sorumlu Öğretmen<br>|Atölye Şefi/.test(dzK)) im.push("PDF imzası yalnız 'Kimya Zümre Öğretmenleri' olmalı (öğretmen adı / Atölye Şefi yok)");
   if (!kurallarMetni().trim().endsWith(IMZA_ZUMRE)) im.push("WhatsApp metni zümre imzasıyla bitmiyor");
   if (im.length) { console.error("❌ İmza:\n  " + im.join("\n  ")); process.exit(1); }
   console.log("✅ İmza: Kimya Zümre Öğretmenleri (PDF + WhatsApp)");

@@ -317,8 +317,8 @@ function pdfStil(): string {
   .pdfd .kutu{display:grid;grid-template-columns:1fr 1fr;gap:3px 14px;margin-top:5px}
   .pdfd .kutu div{display:flex;gap:6px;align-items:flex-start}
   .pdfd .kutu span{font-size:15px;line-height:1.1;color:#2e7d32}
-  .pdfd .imza{display:flex;justify-content:space-between;gap:20px;margin-top:8px;font-size:12px}
-  .pdfd .imza div{flex:1;border-top:1px solid #556;padding-top:4px;text-align:center}
+  .pdfd .imza{display:flex;justify-content:center;margin-top:8px;font-size:12px}
+  .pdfd .imza div{width:50%;border-top:1px solid #556;padding-top:4px;text-align:center;font-weight:700}
   </style>`;
 }
 
@@ -377,7 +377,7 @@ function bloklar(): string[] {
     // Son kural kutusu imza satırıyla aynı blokta: imza tek başına yeni sayfaya düşmesin
     const imza = i === KURAL_BOLUMLERI.length - 1
       ? `<div style="font-weight:700;margin:10px 0 18px">Bu kuralları okudum, anladım ve uyacağım.</div>
-         <div class="imza"><div>${IMZA_ZUMRE}</div><div>Atölye Şefi</div></div>` : "";
+         <div class="imza"><div>${IMZA_ZUMRE}</div></div>` : "";
     b.push(`<div class="b">${i === 0 ? `<h2>📏 Kurallar</h2>` : ""}${kutu}${imza}</div>`);
   });
 
