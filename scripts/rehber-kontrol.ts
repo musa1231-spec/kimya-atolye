@@ -496,3 +496,12 @@ import { karmaSap, SAP_NAOH } from "../src/katiSabun";
   if (sk2.length) { console.error("❌ Su/kostik kararı:\n  " + sk2.join("\n  ")); process.exit(1); }
   console.log("✅ Katı sabun suyu 1 kg yağa 300 g, kostik ≈129 g (Halep + Kastilya)");
 }
+// ── Musa Hocam (17 Kas): şeflik odası — izinsiz girilmez, üst değiştirilmez, eşya bırakılmaz, izinsiz malzeme alınmaz ──
+{
+  const dav = KURAL_BOLUMLERI.find((k) => k.id === "davranis")!.maddeler.join("\n"), cik = KURAL_BOLUMLERI.find((k) => k.id === "cikis")!.maddeler.join("\n");
+  const mt = kurallarMetni();
+  const ok = /^!Şeflik odasına öğretmenin izni olmadan girilmez/m.test(dav) && /üst değiştirilmez/.test(dav) && /kıyafet ya da kişisel eşya bırakılmaz/.test(dav) && /izinsiz hiçbir malzeme alınmaz/.test(dav)
+    && /Şeflik odasında öğrenci kıyafeti/.test(cik) && /Şeflik odasına öğretmenin izni olmadan girilmez/.test(mt);
+  if (!ok) { console.error("❌ Şeflik odası kuralı (Davranış + Çıkış listesi + WhatsApp) eksik"); process.exit(1); }
+  console.log("✅ Şeflik odası kuralı: Davranış (önemli) + Çıkış listesi + WhatsApp metni");
+}
