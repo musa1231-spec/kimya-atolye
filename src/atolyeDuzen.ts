@@ -213,8 +213,7 @@ export const KURAL_BOLUMLERI: KuralBolum[] = [
   ] },
   { id: "puan", ikon: "🏅", baslik: "Değerlendirme", maddeler: [
     "Her üretimden sonra öğretmen herkesi üç başlıkta değerlendirir: görevini yaptı mı, dikkatli miydi (hata, dökülme), düzen ve temizlik. Bu değerlendirme uygulama notunda dikkate alınır.",
-    "Katıldığın üretim günleri programdaki Beceri Karnesi'ne işlenir.",
-    "Kuralı tekrar tekrar bozan öğrenci bir sonraki üretimde kazan ve dolum görevine alınmaz.",
+    "Düzeni bozan, kurallara uymayan öğrenci bir daha üretim faaliyetine alınmaz.",
   ] },
 ];
 

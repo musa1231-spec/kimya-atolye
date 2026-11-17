@@ -329,3 +329,9 @@ import { IMZA_ZUMRE } from "../src/atolyeDuzen";
 // ── Musa Hocam (17 Kas): "dağınık eşyanın sahibi bellidir" ifadesi yok ──
 if (/sahibi bellidir/.test(KURAL_BOLUMLERI.flatMap((k) => k.maddeler).join(" "))) { console.error("❌ 'sahibi bellidir' ifadesi geri gelmiş"); process.exit(1); }
 console.log("✅ Soyunma odası: 'sahibi bellidir' ifadesi yok");
+// ── Musa Hocam (17 Kas): Değerlendirme = üç başlık + "bir daha üretim faaliyetine alınmaz" ──
+{
+  const dg = KURAL_BOLUMLERI.find((k) => k.id === "puan")!.maddeler;
+  if (dg.length !== 2 || !dg.includes("Düzeni bozan, kurallara uymayan öğrenci bir daha üretim faaliyetine alınmaz.") || /Beceri Karnesi|kazan ve dolum görevine/.test(dg.join(" "))) { console.error("❌ Değerlendirme bölümü Musa Hocam'ın istediği gibi değil"); process.exit(1); }
+  console.log("✅ Değerlendirme: 2 madde, 'bir daha üretim faaliyetine alınmaz'");
+}
