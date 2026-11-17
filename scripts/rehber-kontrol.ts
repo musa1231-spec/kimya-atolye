@@ -286,3 +286,16 @@ import { GOZLUK_KURAL } from "../src/atolyeDuzen";
   if (tf.length) { console.error("❌ Telefon/giriş kuralı:\n  " + tf.join("\n  ")); process.exit(1); }
   console.log("✅ Telefon şeflik odasında, görevi olmayan atölyeye giremez");
 }
+// ── Musa Hocam (17 Kas): soyunma odasında iş kıyafeti bırakılmaz · çizmeler iç odaya dizilir ──
+{
+  const so: string[] = [];
+  const soy = KURAL_BOLUMLERI.find((k) => k.id === "soyunma")!.maddeler;
+  const cik = KURAL_BOLUMLERI.find((k) => k.id === "cikis")!.maddeler;
+  const kiyafet = soy.find((m) => /iş kıyafeti bırakılmaz/.test(m));
+  if (!kiyafet || !maddeAyir(kiyafet).onemli) so.push("Soyunma: ÖNEMLİ (!) 'iş kıyafeti bırakılmaz' maddesi yok");
+  if (!soy.some((m) => /Çizmeler iç odaya/.test(m))) so.push("Soyunma: çizmeler iç odaya maddesi yok");
+  if (!cik.some((m) => /iş kıyafeti bırakılmamış/.test(m)) || !cik.some((m) => /Çizmeler iç odaya/.test(m))) so.push("Çıkış listesinde kıyafet/çizme maddesi yok");
+  if (soy.some((m) => /Kıyafet asılır/.test(m))) so.push("çelişen 'Kıyafet asılır' maddesi geri gelmiş");
+  if (so.length) { console.error("❌ Soyunma odası kuralı:\n  " + so.join("\n  ")); process.exit(1); }
+  console.log("✅ Soyunma odası: iş kıyafeti bırakılmaz, çizmeler iç odaya (Kurallar + Çıkış listesi)");
+}

@@ -225,8 +225,9 @@ export const KURAL_BOLUMLERI: KuralBolum[] = [
     "Temizliği bitiren, temizlik başına haber verir. Son onayı öğretmen verir.",
   ] },
   { id: "soyunma", ikon: "🚪", baslik: "Soyunma Odası", maddeler: [
-    "Herkes kendi askısını ve yerini kullanır.",
-    "Kıyafet asılır, ayakkabı yerine konur, çöp çöpe atılır.",
+    "Herkes kendi askısını ve yerini kullanır. Çöp çöpe atılır.",
+    "!Üretim sonunda soyunma odasında kesinlikle iş kıyafeti bırakılmaz.",
+    "Çizmeler iç odaya düzenli şekilde dizilir.",
     "Odayı en son temizlik başı kontrol eder. Dağınık bırakılan eşyanın sahibi bellidir.",
   ] },
   { id: "cikis", ikon: "🔒", baslik: "Çıkış Kontrol Listesi (üretim bitince)", maddeler: [
@@ -237,6 +238,8 @@ export const KURAL_BOLUMLERI: KuralBolum[] = [
     "Çekpaslar lavabonun yanında.",
     "Dolum hortumları mavi saf su deposunun yanında.",
     "!Saf su hortumu hiçbir kazanın içinde bırakılmamış.",
+    "!Soyunma odasında iş kıyafeti bırakılmamış.",
+    "Çizmeler iç odaya düzenli dizilmiş.",
     "Hammadde kovaları yıkanmış, temiz ve mavi deponun yanında.",
     "Lavabonun yanında beher, kaşık ve benzeri malzeme bırakılmamış; hepsi yıkanıp yerine konmuş.",
     "Eldivenler ve koli bantları şeflik odasına bırakılmış.",
