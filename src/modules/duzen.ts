@@ -7,7 +7,7 @@ import { URUNLER, ATOLYE_BILGI } from "../constants";
 import {
   KAZANLAR, ROLLER, ALTIN_KURAL, KURAL_BOLUMLERI, URUN_AILE, AILE_AD, kazanPlaniDenetle,
   KAZAN_TIP_AD, kazanUrunleri, urunKazanTipi, kurallarMetni,
-  TASIMA_ANAHTAR, GELENLER_ANAHTAR, TASIYICI_SAYISI, adListesi, adNorm, agirIsYapanlar, agirIsSayaci, adilTasiyiciDagit,
+  maddeAyir, TASIMA_ANAHTAR, GELENLER_ANAHTAR, TASIYICI_SAYISI, adListesi, adNorm, agirIsYapanlar, agirIsSayaci, adilTasiyiciDagit,
 } from "../atolyeDuzen";
 import type { KazanPlanSatir } from "../atolyeDuzen";
 import { store, session } from "../state";
@@ -285,7 +285,7 @@ function pdfStil(): string {
   return `<style>
   .pdfd{font-family:'Plus Jakarta Sans',Arial,sans-serif;color:#0d1b3e;background:#fff;font-size:13px;line-height:1.45}
   .pdfd *{box-sizing:border-box}
-  .pdfd .b{margin-bottom:12px}
+  .pdfd .b{margin-bottom:10px}
   .pdfd .bas{display:flex;gap:12px;align-items:center;border-bottom:3px solid #0b2a66;padding-bottom:10px}
   .pdfd .bas img{width:62px;height:62px;object-fit:contain}
   .pdfd .bas .o{font-size:11px;color:#5a6f99;font-weight:700}
@@ -312,7 +312,7 @@ function pdfStil(): string {
   .pdfd .ikili{display:grid;grid-template-columns:1fr 1fr;gap:10px}
   .pdfd .kb{border:1.5px solid #c8dbff;border-radius:9px;padding:9px 12px}
   .pdfd .kb.safsu{border-color:#1565C0;background:#eef6ff}
-  .pdfd .kb.safsu li:nth-child(4){color:#b71c1c;font-weight:800}
+  .pdfd .onemli{color:#b71c1c;font-weight:800}
   .pdfd .kb.cikis{border-color:#2e7d32;background:#f1f8f1}
   .pdfd .kutu{display:grid;grid-template-columns:1fr 1fr;gap:3px 14px;margin-top:5px}
   .pdfd .kutu div{display:flex;gap:6px;align-items:flex-start}
@@ -371,14 +371,16 @@ function bloklar(): string[] {
 
   KURAL_BOLUMLERI.forEach((k, i) => {
     const liste = k.id === "cikis"
-      ? `<div class="kutu">${k.maddeler.map((m) => `<div><span>☐</span>${m}</div>`).join("")}</div>`
-      : `<ul>${k.maddeler.map((m) => `<li>${m}</li>`).join("")}</ul>`;
+      ? `<div class="kutu">${k.maddeler.map((m) => { const x = maddeAyir(m); return `<div class="${x.onemli ? "onemli" : ""}"><span>☐</span>${x.onemli ? "‼️ " : ""}${x.metin}</div>`; }).join("")}</div>`
+      : `<ul>${k.maddeler.map((m) => { const x = maddeAyir(m); return `<li class="${x.onemli ? "onemli" : ""}">${x.onemli ? "‼️ " : ""}${x.metin}</li>`; }).join("")}</ul>`;
     const kutu = `<div class="kb ${k.id}"><div class="rb" style="font-weight:800;font-size:14px;color:#0b2a66">${k.ikon} ${k.baslik}</div>${liste}</div>`;
-    b.push(`<div class="b">${i === 0 ? `<h2>📏 Kurallar</h2>` : ""}${kutu}</div>`);
+    // Son kural kutusu imza satırıyla aynı blokta: imza tek başına yeni sayfaya düşmesin
+    const imza = i === KURAL_BOLUMLERI.length - 1
+      ? `<div style="font-weight:700;margin:10px 0 18px">Bu kuralları okudum, anladım ve uyacağım.</div>
+         <div class="imza"><div>Sorumlu Öğretmen<br>${esc(plan.ogretmen) || "&nbsp;"}</div><div>Atölye Şefi</div></div>` : "";
+    b.push(`<div class="b">${i === 0 ? `<h2>📏 Kurallar</h2>` : ""}${kutu}${imza}</div>`);
   });
 
-  b.push(`<div class="b"><div style="font-weight:700;margin:4px 0 22px">Bu kuralları okudum, anladım ve uyacağım.</div>
-    <div class="imza"><div>Sorumlu Öğretmen<br>${esc(plan.ogretmen) || "&nbsp;"}</div><div>Atölye Şefi</div></div></div>`);
   return b;
 }
 
@@ -396,7 +398,7 @@ async function pdfUret(): Promise<Blob> {
     kap.innerHTML = `<div class="pdfd" style="width:${ic}px">${pdfStil()}${bloklar().join("")}</div>`;
     await resimlerYuklensin(kap);
     const els = [...kap.querySelectorAll<HTMLElement>(".pdfd > .b")];
-    const yukseklik = els.map((e) => e.offsetHeight + 12);
+    const yukseklik = els.map((e) => e.offsetHeight + 10);
     // 2) Sayfalara dağıt (son satıra sayfa numarası için yer bırak)
     const sayfaIc = A4_H - 2 * KENAR - 22;
     const sayfalar: number[][] = [[]];

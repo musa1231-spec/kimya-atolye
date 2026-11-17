@@ -106,7 +106,7 @@ export function asistanKazanEngel(kazanNo: string, urunId: string, kg: number, p
 }
 
 /** Asistanda saf su adımında gösterilen dinamo uyarısı (KURAL_BOLUMLERI › safsu ile aynı kural). */
-export const SAF_SU_DINAMO_UYARI = "Dinamoyu çalıştırmadan önce mavi deponun ALT MUSLUĞUNU ve bu kazanın saf su VANASINI açın. Dinamo çalışırken vanaların hepsi kapalı kalırsa DİNAMO YANAR. Bitince sıra: dinamo → kazan vanası → depo musluğu.";
+export const SAF_SU_DINAMO_UYARI = "Dinamoyu çalıştırmadan önce mavi deponun ALT MUSLUĞUNU ve bu kazanın saf su VANASINI açın. Dinamo çalışırken vanaların hepsi kapalı kalırsa DİNAMO YANAR. Bitince sıra: dinamo → kazan vanası → depo musluğu. Su bitince saf su HORTUMUNU HEMEN KAZANDAN ÇIKARIN: içeride kalırsa sifonla kazandaki karışım mavi saf su deposuna çekilir.";
 
 // ── Öğrenci rolleri ──────────────────────────────────────────────
 export interface Rol { id: string; ikon: string; ad: string; kisi: string; gorevler: string[] }
@@ -115,6 +115,7 @@ export const ROLLER: Rol[] = [
     "Hammaddeyi tartar ve numaralı kaba koyar. Tartıyı her seferinde sıfırlar.",
     "Kazana HİÇBİR ŞEYİ öğretmen «tamam» demeden dökmez.",
     "Saf su basarken: önce mavi deponun alt musluğu ve kazanın saf su vanası açılır, sonra dinamo çalıştırılır.",
+    "Saf su bitince hortumu HEMEN kazandan çıkarır. İçeride kalırsa kazandaki karışım mavi depoya geri çekilir.",
     "Karıştırma sürerken kazanın başından ayrılmaz, süreyi takip eder.",
     "Kazan boşalınca kazanı ve tartıyı yıkar.",
   ] },
@@ -171,6 +172,11 @@ export const ALTIN_KURAL = {
 const noListe = (t: KazanTip) => KAZANLAR.filter((k) => k.tip === t).map((k) => k.no).join(", ");
 const adListe = (viskoz: boolean) => kazanUrunleri().filter((u) => VISKOZ_URUN.has(u.id) === viskoz).map((u) => u.ad.toLocaleLowerCase("tr-TR")).join(", ");
 
+/** Başında "!" olan kural maddesi ÖNEMLİdir: PDF'te kırmızı-kalın, WhatsApp'ta ‼️ ile gösterilir. */
+export function maddeAyir(m: string): { onemli: boolean; metin: string } {
+  return m.startsWith("!") ? { onemli: true, metin: m.slice(1) } : { onemli: false, metin: m };
+}
+
 export interface KuralBolum { id: string; ikon: string; baslik: string; maddeler: string[] }
 export const KURAL_BOLUMLERI: KuralBolum[] = [
   { id: "kazan", ikon: "🛢️", baslik: "Kazanlar", maddeler: [
@@ -187,7 +193,8 @@ export const KURAL_BOLUMLERI: KuralBolum[] = [
     "Saf su cihazı çalışırken cihazın BÜTÜN VANALARI AÇIK olmalıdır.",
     "Saf su, 3 ton kapasiteli MAVİ DEPODA toplanır. Kazanlara saf suyu bu deponun dinamosu basar.",
     "Dinamoyu çalıştırmadan ÖNCE mavi deponun ALT MUSLUĞU açılır.",
-    "Dinamo çalışırken kazanlara giden saf su vanalarından EN AZ BİRİ AÇIK olmalıdır. Hepsi kapalıysa DİNAMO YANAR.",
+    "!Dinamo çalışırken kazanlara giden saf su vanalarından EN AZ BİRİ AÇIK olmalıdır. Hepsi kapalıysa DİNAMO YANAR.",
+    "!Kazana saf su eklendikten sonra saf su HORTUMU KAZANIN İÇİNDE BIRAKILMAZ, hemen çıkarılır. Hortum içeride kalırsa SİFONLAMA olur: kazandaki karışım geri akıp MAVİ SAF SU DEPOSUNA çekilir ve bütün saf su bozulur.",
     "Kapatma sırası: önce dinamo kapatılır, sonra kazan vanası, en son mavi deponun alt musluğu kapatılır.",
     "Saf su sistemine yalnızca öğretmenin izniyle ve görevli öğrenci dokunur.",
   ] },
@@ -231,6 +238,7 @@ export const KURAL_BOLUMLERI: KuralBolum[] = [
     "Lambalar kapalı.",
     "Çekpaslar lavabonun yanında.",
     "Dolum hortumları mavi saf su deposunun yanında.",
+    "!Saf su hortumu hiçbir kazanın içinde bırakılmamış.",
     "Hammadde kovaları yıkanmış, temiz ve mavi deponun yanında.",
     "Lavabonun yanında beher, kaşık ve benzeri malzeme bırakılmamış; hepsi yıkanıp yerine konmuş.",
     "Eldivenler ve koli bantları şeflik odasına bırakılmış.",
@@ -257,7 +265,10 @@ export function kurallarMetni(): string {
   s.push(`👥 *GÖREVLER*\n` + ROLLER.map((r) => `\n${r.ikon} *${r.ad}* (${r.kisi})\n${r.gorevler.map((g) => `• ${g}`).join("\n")}`).join("\n"));
   for (const k of KURAL_BOLUMLERI) {
     const isaret = k.id === "cikis" ? "☐" : "•";
-    s.push(`${k.ikon} *${k.baslik.toLocaleUpperCase("tr-TR")}*\n${k.maddeler.map((m) => `${isaret} ${m}`).join("\n")}`);
+    s.push(`${k.ikon} *${k.baslik.toLocaleUpperCase("tr-TR")}*\n${k.maddeler.map((m) => {
+      const { onemli, metin } = maddeAyir(m);
+      return onemli ? `${isaret} ‼️ *${metin}*` : `${isaret} ${metin}`;
+    }).join("\n")}`);
   }
   s.push(`✍️ Herkes okusun, anlamadığı yeri öğretmenine sorsun.`);
   return s.join("\n\n");

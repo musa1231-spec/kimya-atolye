@@ -207,3 +207,20 @@ import { HM_ROL } from "../src/proses";
   if (olu.length) { console.error("❌ Hiçbir reçetede kullanılmayan ham madde kaydı:\n  " + olu.join("\n  ")); process.exit(1); }
   console.log("✅ Ölü ham madde kaydı yok (rehber/rol/grup listelerindeki her madde bir reçetede kullanılıyor)");
 }
+// ── Saf su hortumu / sifonlama kuralı (Musa Hocam, 17 Kas — ÖNEMLİ) her yerde olmalı ──
+import { maddeAyir, SAF_SU_DINAMO_UYARI as DINAMO_UYARI } from "../src/atolyeDuzen";
+{
+  const sf: string[] = [];
+  const safsu = KURAL_BOLUMLERI.find((k) => k.id === "safsu")!;
+  const hortum = safsu.maddeler.find((m) => /HORTUM/i.test(m) && /SİFON/i.test(m));
+  if (!hortum || !maddeAyir(hortum).onemli) sf.push("Saf Su bölümünde ÖNEMLİ (!) hortum/sifonlama maddesi yok");
+  if (!safsu.maddeler.some((m) => /DİNAMO YANAR/.test(m) && maddeAyir(m).onemli)) sf.push("dinamo maddesi ÖNEMLİ (!) işaretli değil");
+  if (!/HORTUM/i.test(DINAMO_UYARI) || !/sifon/i.test(DINAMO_UYARI)) sf.push("Asistan/Rehber saf su uyarısında hortum-sifon yok");
+  if (!ROLLER.find((r) => r.id === "kazan")!.gorevler.some((g) => /hortum/i.test(g))) sf.push("Kazan Sorumlusu görevinde hortum yok");
+  if (!KURAL_BOLUMLERI.find((k) => k.id === "cikis")!.maddeler.some((m) => /saf su hortumu/i.test(m))) sf.push("Çıkış listesinde saf su hortumu yok");
+  const t = kurallarMetni();
+  if (/[•☐] !/.test(t)) sf.push("WhatsApp metnine ham '!' işareti sızıyor");
+  if (!/‼️ \*Kazana saf su eklendikten sonra/.test(t)) sf.push("WhatsApp metninde hortum kuralı ‼️ ile vurgulanmamış");
+  if (sf.length) { console.error("❌ Saf su hortumu kuralı:\n  " + sf.join("\n  ")); process.exit(1); }
+  console.log("✅ Saf su hortumu/sifonlama kuralı: Kurallar, Kazan Sorumlusu, Çıkış listesi, Asistan/Rehber uyarısı, WhatsApp");
+}
