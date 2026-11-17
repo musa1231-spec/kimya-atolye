@@ -187,7 +187,7 @@ export const KURAL_BOLUMLERI: KuralBolum[] = [
     "Herkes kendi askısını ve yerini kullanır. Çöp çöpe atılır.",
     "!Üretim sonunda soyunma odasında kesinlikle iş kıyafeti bırakılmaz.",
     "Çizmeler iç odaya düzenli şekilde dizilir.",
-    "Odayı en son öğretmen kontrol eder. Dağınık bırakılan eşyanın sahibi bellidir.",
+    "Odayı en son öğretmen kontrol eder.",
   ] },
   { id: "cikis", ikon: "🔒", baslik: "Çıkış Kontrol Listesi (üretim bitince)", maddeler: [
     "Bütün pencereler ve kapılar kapalı.",

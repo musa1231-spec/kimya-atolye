@@ -137,8 +137,6 @@ export function rDuzen(): void {
   setHTML("dz-form", `
     <div class="dz-ust">
       <div class="fg"><label>Üretim tarihi</label><input type="date" id="dz-tarih" value="${plan.tarih}" onchange="dzTarihDegisti()"></div>
-      <div class="fg"><label>Sorumlu öğretmen</label><input type="text" id="dz-ogretmen" value="${esc(plan.ogretmen)}" list="dz-ogr-list" oninput="dzKaydet()" autocomplete="off">
-        <datalist id="dz-ogr-list">${store.ogretmenler.map((o) => `<option value="${esc(o.ad)}">`).join("")}</datalist></div>
     </div>
     <div id="dz-durum" class="dz-durum">${planTablo.var ? (kayitli(plan.tarih) ? durumOrtak() : `<span class="tm">Bu gün için henüz plan yok — girdiğiniz anda ortak kaydedilir.</span>`) : durumYerel()}</div>
     <div class="ch" style="margin-top:6px"><span class="ct">🛢️ Bugün hangi kazanda ne yapılıyor?</span></div>
@@ -187,7 +185,6 @@ export async function dzTarihDegisti(): Promise<void> {
 }
 
 function formOku(): void {
-  plan.ogretmen = (document.getElementById("dz-ogretmen") as HTMLInputElement | null)?.value || "";
   plan.kazan = plan.kazan.map((k, i) => ({
     no: k.no,
     urunId: (document.getElementById(`dz-k-u-${i}`) as HTMLSelectElement | null)?.value || "",
@@ -280,7 +277,6 @@ function pdfStil(): string {
   .pdfd .bas img{width:62px;height:62px;object-fit:contain}
   .pdfd .bas .o{font-size:11px;color:#5a6f99;font-weight:700}
   .pdfd .bas h1{margin:2px 0;font-size:21px;color:#0b2a66}
-  .pdfd .bas .t{font-size:12px;color:#334}
   .pdfd .altin{border:3px solid #c62828;background:#fff1f1;border-radius:10px;padding:12px 14px}
   .pdfd .altin .ab{color:#b71c1c;font-weight:900;font-size:16.5px;text-align:center;letter-spacing:.2px}
   .pdfd .altin ul{margin:8px 0 6px 18px;padding:0}
@@ -313,9 +309,7 @@ function bloklar(): string[] {
   const b: string[] = [];
   b.push(`<div class="b bas"><img src="${logo}" alt=""><div>
     <div class="o">${esc(ATOLYE_BILGI.ad)}</div>
-    <h1>Atölye ve Üretim Düzeni</h1>
-    <div class="t">Üretim günü: <b>${fmt(plan.tarih)}</b>${plan.ogretmen ? ` · Sorumlu öğretmen: <b>${esc(plan.ogretmen)}</b>` : ""}</div>
-  </div></div>`);
+    <h1>Atölye ve Üretim Düzeni</h1>  </div></div>`);
 
   b.push(`<div class="b altin"><div class="ab">⛔ ${ALTIN_KURAL.baslik} ⛔</div>
     <ul>${ALTIN_KURAL.maddeler.map((m) => `<li>${m}</li>`).join("")}</ul>
@@ -462,7 +456,7 @@ export async function dzMesajPaylas(): Promise<void> {
   await bekleyeniYaz();
   // Taşıyıcı adları gruba gitmez (Musa Hocam): yalnız öğretmenin adalet aracında durur
   const kaz = plan.kazan.map((k) => `${k.no}: ${k.urunId ? `${urunAdi(k.urunId)}${k.kg ? ` (${k.kg} kg)` : ""}` : "boş"}`).join("\n");
-  const metin = `🧪 ATÖLYE ÜRETİM GÜNÜ — ${fmt(plan.tarih)}\n${plan.ogretmen ? `Sorumlu öğretmen: ${plan.ogretmen}\n` : ""}\n🛢️ KAZANLAR\n${kaz}\n\n⛔ ${ALTIN_KURAL.baslik}\n\nKurallar PDF'te. Herkes okusun.`;
+  const metin = `🧪 ATÖLYE ÜRETİM GÜNÜ — ${fmt(plan.tarih)}\n\n🛢️ KAZANLAR\n${kaz}\n\n⛔ ${ALTIN_KURAL.baslik}\n\nKurallar PDF'te. Herkes okusun.`;
   whatsappPaylas(metin);
 }
 

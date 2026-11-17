@@ -320,3 +320,12 @@ import { IMZA_ZUMRE } from "../src/atolyeDuzen";
   if (gr.length) { console.error("❌ Görev dağılımı kaldırma:\n  " + gr.join("\n  ")); process.exit(1); }
   console.log("✅ Görev dağılımı ve Görevler/Sorumluluklar her yerden kaldırıldı; kurallar rol atfı içermiyor");
 }
+// ── Musa Hocam (17 Kas): PDF başlığında "Üretim günü · Sorumlu öğretmen" satırı yok; mesajda öğretmen adı yok ──
+{
+  const dzS2 = readFileSync("src/modules/duzen.ts", "utf8");
+  if (/Sorumlu öğretmen|Üretim günü: <b>|dz-ogretmen/.test(dzS2)) { console.error("❌ PDF/mesaj/ekranda 'Sorumlu öğretmen' ya da başlıkta 'Üretim günü' satırı var"); process.exit(1); }
+  console.log("✅ PDF başlığında üretim günü/sorumlu öğretmen satırı yok; mesaj ve ekranda öğretmen adı yok");
+}
+// ── Musa Hocam (17 Kas): "dağınık eşyanın sahibi bellidir" ifadesi yok ──
+if (/sahibi bellidir/.test(KURAL_BOLUMLERI.flatMap((k) => k.maddeler).join(" "))) { console.error("❌ 'sahibi bellidir' ifadesi geri gelmiş"); process.exit(1); }
+console.log("✅ Soyunma odası: 'sahibi bellidir' ifadesi yok");
