@@ -8,7 +8,7 @@ import { URUNLER, HM_TEHLIKE } from "../constants";
 import { prosesUret, SAF_SU } from "../proses";
 import { URUN_REHBER, atlamaRozet, YARDIM_SEKME } from "../rehber";
 import {
-  KAZANLAR, URUN_AILE, AILE_AD, ALTIN_KURAL, SAF_SU_DINAMO_UYARI, urunKazanTipi,
+  KAZANLAR, URUN_AILE, AILE_AD, ALTIN_KURAL, SAF_SU_DINAMO_UYARI, urunKazanTipi, KLOR_ASIT_KURAL,
 } from "../atolyeDuzen";
 import { setHTML, setVal } from "../helpers";
 import { asistanUrunDegisti } from "./asistan";
@@ -55,8 +55,7 @@ export function yardimKart(u: Urun): string {
     </div>
     <div class="yh-kural">⛔ <b>${ALTIN_KURAL.baslik.toLocaleLowerCase("tr-TR").replace(/^./, (c) => c.toLocaleUpperCase("tr-TR"))}.</b>
       ${safSu ? `<br>💧 Saf su: ${SAF_SU_DINAMO_UYARI}` : ""}
-      ${aile === "klor" ? "<br>☣️ Asitli ürünlerin (tuz ruhu, kireç sökücü, WC) kova/hortum/hunisiyle ellenmez — zehirli gaz çıkar." : ""}
-      ${aile === "asit" ? "<br>☣️ Çamaşır suyunun (klorlu) kova/hortum/hunisiyle ellenmez — zehirli gaz çıkar." : ""}
+      ${aile === "klor" || aile === "asit" ? `<br>☣️ ${KLOR_ASIT_KURAL}` : ""}
     </div>
     ${tehlike.length ? `<div class="yh-tehlike">⚠️ ${tehlike.join("<br>⚠️ ")}</div>` : ""}
     <div style="text-align:right;margin-top:8px"><button class="btn bp" onclick="yhAsistan('${u.id}')">▶ Asistanla üret</button></div>

@@ -162,7 +162,7 @@ export function rDuzen(): void {
     </tbody></table></div>
     <div id="dz-denetim"></div>
     <div class="dz-adalet">
-      <div class="ch" style="margin:0 0 6px"><span class="ct">⚖️ Ağır iş adaleti — kazan taşıyıcıları</span></div>
+      <div class="ch" style="margin:0 0 6px"><span class="ct">⚖️ Ağır iş adaleti — kazan taşıyıcıları</span><span class="tm">🔒 Yalnız öğretmen için: bu adlar PDF'e ve gruba giden mesaja girmez</span></div>
       <div class="fg" style="margin-bottom:6px"><label>Bugün gelen öğrenciler (virgülle)</label>
         <input type="text" id="dz-gelenler" value="${esc(plan.roller[GELENLER_ANAHTAR] || "")}" list="dz-ogc-list" oninput="dzKaydet();dzSayacGoster()" placeholder="Örn. Ali Yılmaz, Veli Kaya, …" autocomplete="off"></div>
       <div class="bgrp" style="margin-bottom:6px"><button class="btn bp" onclick="dzAdilDagit()">⚖️ Taşıyıcıları adil dağıt</button>
@@ -346,13 +346,13 @@ function bloklar(): string[] {
       <div class="uy">Üretim günü hangi kazanda hangi ürünün yapılacağını öğretmen ayrıca bildirir.</div></div>`);
   } else
   b.push(`<div class="b"><h2>🛢️ Bugün Hangi Kazanda Ne Yapılıyor?</h2>
-    <table><thead><tr><th>Kazan</th><th>Ürün</th><th>Miktar</th><th>🏋️ Taşıyıcılar</th><th>Dikkat</th></tr></thead><tbody>
+    <table><thead><tr><th>Kazan</th><th>Ürün</th><th>Miktar</th><th>Dikkat</th></tr></thead><tbody>
     ${plan.kazan.map((k) => {
       const kz = KAZANLAR.find((x) => x.no === k.no)!;
       const tip = `<div style="font-size:9.5px;font-weight:700;color:#5a6f99">${kz.tip === "yuksek" ? "YÜKSEK" : "ALÇAK"}</div>`;
       return k.urunId
-        ? `<tr><td class="kno">${k.no}${tip}</td><td><b>${esc(urunAdi(k.urunId))}</b></td><td>${k.kg ? `${k.kg} kg` : "—"}</td><td>${esc(adListesi(plan.roller[TASIMA_ANAHTAR(k.no)]).join(", ")) || "&nbsp;"}</td><td>${AILE_AD[URUN_AILE[k.urunId]] || ""}</td></tr>`
-        : `<tr><td class="kno">${k.no}${tip}</td><td class="bos">Bugün kullanılmıyor (kapasite ${kz.kapasiteKg} kg)</td><td></td><td></td><td></td></tr>`;
+        ? `<tr><td class="kno">${k.no}${tip}</td><td><b>${esc(urunAdi(k.urunId))}</b></td><td>${k.kg ? `${k.kg} kg` : "—"}</td><td>${AILE_AD[URUN_AILE[k.urunId]] || ""}</td></tr>`
+        : `<tr><td class="kno">${k.no}${tip}</td><td class="bos">Bugün kullanılmıyor (kapasite ${kz.kapasiteKg} kg)</td><td></td><td></td></tr>`;
     }).join("")}
     </tbody></table>
     ${d.uyarilar.map((u) => `<div class="uy">⚠️ ${esc(u)}</div>`).join("")}</div>`);
@@ -484,10 +484,8 @@ export function dzPdfPaylas(): void {
 export async function dzMesajPaylas(): Promise<void> {
   if (engelVarMi()) return;
   await bekleyeniYaz();
-  const kaz = plan.kazan.map((k) => {
-    const t = adListesi(plan.roller[TASIMA_ANAHTAR(k.no)]).join(", ");
-    return `${k.no}: ${k.urunId ? `${urunAdi(k.urunId)}${k.kg ? ` (${k.kg} kg)` : ""}${t ? ` · 🏋️ ${t}` : ""}` : "boş"}`;
-  }).join("\n");
+  // Taşıyıcı adları gruba gitmez (Musa Hocam): yalnız öğretmenin adalet aracında durur
+  const kaz = plan.kazan.map((k) => `${k.no}: ${k.urunId ? `${urunAdi(k.urunId)}${k.kg ? ` (${k.kg} kg)` : ""}` : "boş"}`).join("\n");
   const rol = ROLLER.filter((r) => (plan.roller[r.id] || "").trim()).map((r) => `${r.ikon} ${r.ad}: ${plan.roller[r.id]}`).join("\n");
   const metin = `🧪 ATÖLYE ÜRETİM GÜNÜ — ${fmt(plan.tarih)}\n${plan.ogretmen ? `Sorumlu öğretmen: ${plan.ogretmen}\n` : ""}\n🛢️ KAZANLAR\n${kaz}\n${rol ? `\n👥 GÖREVLER\n${rol}\n` : ""}\n⛔ ${ALTIN_KURAL.baslik}\n\nKurallar PDF'te. Herkes okusun.`;
   whatsappPaylas(metin);

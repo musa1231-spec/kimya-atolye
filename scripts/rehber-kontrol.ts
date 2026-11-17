@@ -224,3 +224,64 @@ import { maddeAyir, SAF_SU_DINAMO_UYARI as DINAMO_UYARI } from "../src/atolyeDuz
   if (sf.length) { console.error("❌ Saf su hortumu kuralı:\n  " + sf.join("\n  ")); process.exit(1); }
   console.log("✅ Saf su hortumu/sifonlama kuralı: Kurallar, Kazan Sorumlusu, Çıkış listesi, Asistan/Rehber uyarısı, WhatsApp");
 }
+// ── Musa Hocam düzeltmeleri (17 Kas): kazan no kolonda · ürün kartı asılmıyor · klor–asit "eklenmez" ──
+import { KLOR_ASIT_KURAL } from "../src/atolyeDuzen";
+{
+  const dz: string[] = [];
+  const hepsi = [...KURAL_BOLUMLERI.flatMap((k) => k.maddeler), ...ROLLER.flatMap((r) => r.gorevler), kurallarMetni()].join("\n");
+  if (/ellenmez/i.test(hepsi) || /ellenmez/i.test(readFileSync("src/modules/yardim.ts", "utf8"))) dz.push("'ellenmez' geçiyor (doğrusu: eklenmez)");
+  if (!/eklenmez/.test(KLOR_ASIT_KURAL) || !KURAL_BOLUMLERI.find((k) => k.id === "kazan")!.maddeler.includes(KLOR_ASIT_KURAL)) dz.push("klor–asit kuralı tek metinden gelmiyor");
+  if (/kartla asılır|ağzına o gün/i.test(hepsi)) dz.push("kazana ürün kartı asma maddesi geri gelmiş (atölyede yapılmıyor)");
+  if (!/arkasındaki kolona/.test(hepsi)) dz.push("kazan numarasının kolonda olduğu yazmıyor");
+  if (dz.length) { console.error("❌ Kazan kuralı düzeltmeleri:\n  " + dz.join("\n  ")); process.exit(1); }
+  console.log("✅ Kazan kuralları: numara kolonda, kart asma yok, klor–asit 'eklenmez' (tek metin)");
+}
+// ── Musa Hocam (17 Kas): dolum kuralı sade · gözlük ihtiyaç hâlinde ──
+import { GOZLUK_KURAL } from "../src/atolyeDuzen";
+{
+  const gd: string[] = [];
+  const dolum = KURAL_BOLUMLERI.find((k) => k.id === "dolum")!.maddeler;
+  if (dolum.length !== 1 || !/dolum çizgisine kadar/.test(dolum[0]) || !/israf/.test(dolum[0])) gd.push("Dolum bölümü tek madde olmalı: dolum çizgisine kadar, yere dökmeden, israf etmeden");
+  const hepsi = [...KURAL_BOLUMLERI.flatMap((k) => k.maddeler), ...ROLLER.flatMap((r) => r.gorevler)].join("\n");
+  if (/tepsi|ters çevir/i.test(hepsi)) gd.push("dolumda tepsi/ters çevirme maddesi geri gelmiş");
+  if (/gözlük[^.]*üretim bitene kadar/i.test(hepsi)) gd.push("gözlük üretim boyunca takılı yazıyor");
+  if (!/ihtiyaç hâlinde/.test(GOZLUK_KURAL) || !hepsi.includes(GOZLUK_KURAL)) gd.push("gözlük kuralı tek metinden gelmiyor");
+  if (!readFileSync("src/modules/asistan.ts", "utf8").includes("GOZLUK_KURAL")) gd.push("Asistan güvenlik adımı gözlük kuralını kullanmıyor");
+  if (gd.length) { console.error("❌ Dolum/gözlük kuralı:\n  " + gd.join("\n  ")); process.exit(1); }
+  console.log("✅ Dolum kuralı sade (tek madde), gözlük ihtiyaç hâlinde (Kurallar + Asistan)");
+}
+// ── Musa Hocam (17 Kas): herkese 3 eldiven, fazlası öğretmenden · çıkan eldiven çöp kovasına ──
+{
+  const el = KURAL_BOLUMLERI.find((k) => k.id === "eldiven")!.maddeler.join("\n");
+  const ed: string[] = [];
+  if (!/Herkese 3 eldiven/.test(el) || !/öğretmenden istenir/.test(el)) ed.push("'herkese 3 eldiven, fazlası öğretmenden' maddesi yok");
+  if (!/çöp kovasına atılır/.test(el)) ed.push("'çıkan eldiven çöp kovasına atılır' maddesi yok");
+  if (/3 çift|eldiven kovası|KOVAYA atılır/.test(el + ROLLER.flatMap((r) => r.gorevler).join("\n"))) ed.push("eski eldiven ifadesi (3 çift / eldiven kovası) kalmış");
+  if (ed.length) { console.error("❌ Eldiven kuralı:\n  " + ed.join("\n  ")); process.exit(1); }
+  console.log("✅ Eldiven: herkese 3, fazlası öğretmenden, çıkan eldiven çöp kovasına");
+}
+// ── Musa Hocam (17 Kas): taşıma için isim yazılmaz, "adalet gözetilir" denir; taşıyıcı adları PDF'e/mesaja girmez ──
+{
+  const tz: string[] = [];
+  const tasima = KURAL_BOLUMLERI.find((k) => k.id === "tasima")!.maddeler.join("\n");
+  if (!/adalet gözetilir/.test(tasima)) tz.push("Taşıma bölümünde 'adalet gözetilir' yok");
+  if (/taşıyıcıları vardır|günün planında kazanın yanında|program, önceki/i.test(tasima)) tz.push("Taşıma kuralında belirlenmiş taşıyıcı/isim ifadesi kalmış");
+  const dz = readFileSync("src/modules/duzen.ts", "utf8");
+  const pdf = dz.slice(dz.indexOf("function bloklar"), dz.indexOf("// ── PDF üret"));
+  const msj = dz.slice(dz.indexOf("export async function dzMesajPaylas"));
+  if (/TASIMA_ANAHTAR/.test(pdf)) tz.push("PDF taşıyıcı adlarını basıyor");
+  if (/TASIMA_ANAHTAR/.test(msj)) tz.push("Günün planı mesajı taşıyıcı adlarını gönderiyor");
+  if (tz.length) { console.error("❌ Taşıma kuralı:\n  " + tz.join("\n  ")); process.exit(1); }
+  console.log("✅ Taşıma: 'adalet gözetilir', taşıyıcı adları PDF'e ve mesaja girmiyor");
+}
+// ── Musa Hocam (17 Kas): telefon şeflik odasına teslim · görevi olmayan atölyeye giremez ──
+{
+  const tf: string[] = [];
+  const dav = KURAL_BOLUMLERI.find((k) => k.id === "davranis")!.maddeler.join("\n");
+  const hepsi = [...KURAL_BOLUMLERI.flatMap((k) => k.maddeler), ...ROLLER.flatMap((r) => r.gorevler)].join("\n");
+  if (!/telefon[^\n]*şeflik odasına teslim[^\n]*öğretmenden geri alınır/i.test(dav)) tf.push("telefon teslim maddesi yok");
+  if (!/görevi olmayan[^\n]*başka bölüm[^\n]*giremez/i.test(dav)) tf.push("görevi olmayan/başka bölüm giremez maddesi yok");
+  if (/cepte durur|telefona,/i.test(hepsi)) tf.push("telefonun atölyede olduğunu varsayan eski ifade kalmış");
+  if (tf.length) { console.error("❌ Telefon/giriş kuralı:\n  " + tf.join("\n  ")); process.exit(1); }
+  console.log("✅ Telefon şeflik odasında, görevi olmayan atölyeye giremez");
+}

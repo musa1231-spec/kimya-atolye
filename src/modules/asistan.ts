@@ -6,7 +6,7 @@ import { alkolUyarla, alkolSecimHTML, alkolSecimOku, alkolNotHTML, urundeAlkolVa
 import type { AlkolSonuc } from "../alkol";
 import { acUretimGunWithLines } from "./uretim";
 import { $, urunSelect, val, numVal, esansAd, setHTML, setText, setVal, showToast } from "../helpers";
-import { KAZANLAR, asistanKazanEngel, kazanUyum, urunKazanTipi, SAF_SU_DINAMO_UYARI } from "../atolyeDuzen";
+import { KAZANLAR, asistanKazanEngel, kazanUyum, urunKazanTipi, SAF_SU_DINAMO_UYARI, GOZLUK_KURAL } from "../atolyeDuzen";
 import { bugunKazanPlani, bugunKazanPlaniTaze } from "./duzen";
 import { session } from "../state";
 import type { Urun } from "../types";
@@ -54,7 +54,7 @@ function sureLabel(dk: number): string {
 
 function adimlarUret(u: Urun): Adim[] {
   const uyari = [...new Set(u.ings.map(([ad]) => HM_TEHLIKE[ad]).filter(Boolean))];
-  const guvenlik: Adim = { tip: "guvenlik", baslik: "Güvenlik & Hazırlık", kkd: ["🥽 Koruyucu gözlük", "🧤 Kimyasal eldiveni", "🦺 Önlük / tulum"], uyarilar: uyari, not: "Koruyucu ekipmanı tak, kazanı ve tartıyı hazırla." };
+  const guvenlik: Adim = { tip: "guvenlik", baslik: "Güvenlik & Hazırlık", kkd: ["🧤 Kimyasal eldiveni", "🦺 Önlük / tulum", "🥽 Gözlük: ihtiyaç hâlinde"], uyarilar: uyari, not: `Eldiven ve önlüğü tak, kazanı ve tartıyı hazırla. Gözlük ${GOZLUK_KURAL}.` };
   const bitir: Adim = { tip: "bitir", baslik: "Üretimi Kaydet", not: "Üretimi sisteme kaydet — görevli öğretmen ve öğrencileri seç." };
   return [guvenlik, ...prosesUret(u), bitir];
 }

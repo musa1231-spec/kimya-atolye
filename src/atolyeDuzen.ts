@@ -60,6 +60,10 @@ export const URUN_AILE: Record<string, Aile> = {
   "sivi-sabun": "deterjan", "kopuk-sabun": "deterjan", "genel-temiz": "deterjan",
   "cam-silici": "deterjan", bulasik: "deterjan",
 };
+/** Gözlük: üretim boyunca değil, ihtiyaç hâlinde (Musa Hocam, 17 Kas). Kurallar + Asistan güvenlik adımı. */
+export const GOZLUK_KURAL = "ihtiyaç hâlinde kullanılır (asit, kostik, LABSA, çamaşır suyu gibi göze sıçrayabilecek maddelerle çalışırken)";
+/** Klor–asit kuralı (tek metin: Kurallar, Üretim Rehberi kartları, kazan planı uyarısı). */
+export const KLOR_ASIT_KURAL = "Çamaşır suyu (klorlu) ile tuz ruhu, kireç sökücü ve WC temizleyici (asitli) birbirine eklenmez. Karışırsa zehirli gaz çıkar.";
 export const AILE_AD: Record<Aile, string> = {
   klor: "☣️ Klorlu", asit: "🧪 Asitli", alkol: "🔥 Alkollü (yanıcı)", kostik: "⚠️ Kostikli (yakıcı)", deterjan: "🫧 Deterjan / sabun",
 };
@@ -84,7 +88,7 @@ export function kazanPlaniDenetle(plan: KazanPlanSatir[]): PlanDenetim {
   }
   const aileler = new Set(dolu.map((p) => URUN_AILE[p.urunId]));
   if (aileler.has("klor") && aileler.has("asit"))
-    uyarilar.push("Bugün hem KLORLU hem ASİTLİ ürün var: kova, hortum, huni ve dolum makinesi AYRI olacak. İkisi karışırsa ZEHİRLİ KLOR GAZI çıkar.");
+    uyarilar.push(`Bugün hem KLORLU hem ASİTLİ ürün var. ${KLOR_ASIT_KURAL}`);
   if (aileler.has("alkol"))
     uyarilar.push("Alkollü ürün var: atölyede ateş, kıvılcım, ısıtıcı yok; kapaklar açık bırakılmaz.");
   return { engeller, uyarilar };
@@ -126,10 +130,8 @@ export const ROLLER: Rol[] = [
     "Yükleme bitince listeyi kazan sorumlusuyla birlikte imzalar.",
   ] },
   { id: "dolum", ikon: "🛢️", ad: "Dolum ve Kapak", kisi: "2 öğrenci", gorevler: [
-    "Dolumu tepsinin üstünde, dolum çizgisine kadar yapar.",
-    "Kapağı sıkar, bidonu ters çevirip sızıntı var mı bakar.",
-    "Döktüğünü o anda kendisi temizler.",
-    "Bidonun dışını siler, doldurduğu bidonları sayar.",
+    "Bidonları dolum çizgisine kadar doldurur; ürünü yere döküp israf etmez.",
+    "Kapağı sıkar, doldurduğu bidonları sayar.",
   ] },
   { id: "koli", ikon: "📦", ad: "Koli ve Taşıma", kisi: "2 öğrenci", gorevler: [
     "Bidonları koliye yerleştirir, koliyi bantlar.",
@@ -146,7 +148,7 @@ export const ROLLER: Rol[] = [
     "Temizlik bölgelerini dağıtır ve bittiğini tek tek kontrol eder.",
     "Soyunma odasının düzenini en son kontrol eder.",
     "Çıkış kontrol listesini öğretmenle birlikte madde madde işaretler.",
-    "Eldivenleri dağıtır, eldiven kovasını takip eder.",
+    "Herkese 3 eldiven dağıtır; fazlasını isteyeni öğretmene yönlendirir. Çıkan eldivenlerin çöp kovasına atıldığını kontrol eder.",
     "Her şey bitince öğretmene «temizlik tamam» der. Öğretmen onaylamadan kimse çıkmaz.",
   ] },
 ];
@@ -183,10 +185,9 @@ export const KURAL_BOLUMLERI: KuralBolum[] = [
     `Atölyede ${KAZANLAR.length} kazan var: ${KAZANLAR.map((k) => k.no).join(", ")}. Her biri ${KAZANLAR[0].kapasiteKg} kg alır.`,
     `YÜKSEK kazanlarda (${noListe("yuksek")}) viskoz (kıvamlı) ürünler yapılır: ${adListe(true)}.`,
     `ALÇAK kazanlarda (${noListe("alcak")}) akışkan ürünler yapılır: ${adListe(false)}.`,
-    "Her kazanın üstünde numarası yazılıdır. Bugün hangi kazanda ne yapıldığını öğretmenin paylaştığı günün planından (Atölye Düzeni belgesindeki kazan tablosundan) öğren.",
-    "Kazanın ağzına o gün yapılan ürünün adı kartla asılır.",
+    "Her kazanın numarası, kazanın arkasındaki kolona yazılıdır. Bugün hangi kazanda ne yapıldığını öğretmenin paylaştığı günün planından (Atölye Düzeni belgesindeki kazan tablosundan) öğren.",
     "Yanlış kazana ya da yanlış madde koyarsan SAKLAMA, hemen öğretmene söyle. Saklanan hata 900 kg ürünü çöpe attırır.",
-    "Çamaşır suyu (klorlu) ile tuz ruhu, kireç sökücü ve WC temizleyici (asitli) aynı kova, hortum ya da huniyle ellenmez. Karışırsa zehirli gaz çıkar.",
+    KLOR_ASIT_KURAL,
     "Kazan boşalınca yıkanır. Başka ürüne geçmeden önce durulanır.",
   ] },
   { id: "safsu", ikon: "💧", baslik: "Saf Su Sistemi (Cihaz, Mavi Depo, Dinamo)", maddeler: [
@@ -199,22 +200,19 @@ export const KURAL_BOLUMLERI: KuralBolum[] = [
     "Saf su sistemine yalnızca öğretmenin izniyle ve görevli öğrenci dokunur.",
   ] },
   { id: "dolum", ikon: "🧴", baslik: "Dolum", maddeler: [
-    "Dolum her zaman tepsinin ya da leğenin üstünde yapılır.",
-    "Bidon, üstündeki dolum çizgisine kadar doldurulur; taşırılmaz.",
-    "Döken, döktüğünü o anda kendisi temizler.",
-    "Kapak sıkıldıktan sonra bidon ters çevrilip kontrol edilir.",
+    "Bidonlar dolum çizgisine kadar doldurulur. Ürün yere dökülmez, israf edilmez.",
   ] },
   { id: "eldiven", ikon: "🧤", baslik: "Eldiven ve Koruyucu Donanım", maddeler: [
-    "Üretimin başında gözlük, önlük ve eldiven takılır; üretim bitene kadar çıkarılmaz.",
+    "Önlük ve eldiven üretimin başında takılır.",
+    `Gözlük ${GOZLUK_KURAL}.`,
     "Eldiven YALNIZCA şu durumlarda değiştirilir: SLES, LABSA, kostik ya da asit yükledikten sonra; eldiven yırtılınca; eldiven kirlenince.",
     "Bunun dışında eldiven çıkarılmaz. Sürekli tak-çıkar israftır.",
-    "Eldivenleri temizlik başı dağıtır. Kişi başı günde en fazla 3 çift verilir.",
-    "Çıkan eldiven KOVAYA atılır. Yere, masaya ya da kazanın kenarına atılmaz.",
-    "Eldivenle telefona, yüze ve göze dokunulmaz.",
+    "Herkese 3 eldiven verilir. Bunun dışında eldiven gerekirse öğretmenden istenir.",
+    "Çıkan eldiven çöp kovasına atılır. Yere, masaya ya da kazanın kenarına atılmaz.",
+    "Eldivenle yüze ve göze dokunulmaz.",
   ] },
   { id: "tasima", ikon: "💪", baslik: "Taşıma ve Ağır İş", maddeler: [
-    "Her kazanın kendi taşıyıcıları vardır ve günün planında kazanın yanında yazılıdır. Taşıma o kazanın taşıyıcılarının işidir.",
-    "Taşıyıcılar adaletle seçilir: program, önceki üretim günlerinde kimin kaç kez ağır iş yaptığını sayar; en az taşıyan öne alınır. Bugün taşımayan bir sonraki sefer taşır.",
+    "Taşıma işinde adalet gözetilir: ağır işi hep aynı öğrenciler yapmaz, her üretimde sıra değişir. Bugün taşımayan bir sonraki sefer taşır.",
     "Öğretmen uygun görürse ya da bir öğrenci gönüllü olursa aynı kişiler birden fazla kazanda taşıyabilir.",
     "Yük dizler bükülerek, bel düz tutularak kaldırılır.",
     "Ağır ya da büyük yük iki kişiyle taşınır.",
@@ -247,7 +245,8 @@ export const KURAL_BOLUMLERI: KuralBolum[] = [
   ] },
   { id: "davranis", ikon: "🤝", baslik: "Genel Davranış", maddeler: [
     "Atölyede koşulmaz, şaka yapılmaz, yemek yenmez.",
-    "Telefon üretim boyunca cepte durur.",
+    "Cep telefonları üretim başlamadan şeflik odasına teslim edilir, üretim boyunca orada bekletilir ve üretim bitince öğretmenden geri alınır.",
+    "Üretimde görevi olmayan hiç kimse, başka bölümlerin öğrencileri de dahil, üretim atölyesine giremez.",
     "Hata yaptıysan hemen söyle. Hatasını kendisi söyleyen ceza almaz; saklayan alır.",
   ] },
   { id: "puan", ikon: "🏅", baslik: "Değerlendirme", maddeler: [
